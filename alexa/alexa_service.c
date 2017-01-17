@@ -11,13 +11,36 @@
 
 *******************************************************************************/
 
+
+
+
+
 static void* alexa_service_process(void*)
 {
+    //init the local record
+    //init the local playback
+    
+    //create a connect to avs, wait the directive
+    //set directive process to the connect
+
+    while()
+    {
+        //user wake up
+        if(  )
+        {
+            alexa_speechrecognizer_process(as);
+        }
+    }
     
     return NULL;
 }
 
-void alexa_service_init()
+void alexa_service_wakeup(void)
+{
+    //user wake up the alexa service
+}
+
+struct alexa_service* alexa_service_init()
 {
     //
     struct alexa_service* as = alexa_malloc( sizeof( struct alexa_service ) );
@@ -38,12 +61,13 @@ void alexa_service_init()
         alexa_log_e( TAG, "as don't have enough memory.\n" );
     }
     
-    
-    return ;
+    return as;
 }
 
 void alexa_service_done()
 {
+    //
+    
     return ;
 }
 

@@ -2,28 +2,36 @@
 	Copyright Ringsd. 2017.
 	All Rights Reserved.
 	
-	File: alexa_platform.c
+	File: alexa_context.h
 
 	Description:
 
 	TIME LIST:
-	CREATE By Ringsd   2017/01/17 09:46:03
+	CREATE By Ringsd   2017/1/17 14:56:40
 
 *******************************************************************************/
 
+#ifndef _alexa_context_h_
+#define _alexa_context_h_
 
-alexa_malloc()
-{
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/*
+ *@brief construct the alexa context
+ *@param struct alexa_service* as, the alexa_service object
+ *@return alexa_context json object
+ */
+cJSON* alexa_context_get_state( struct alexa_service* as );
+
+
+#ifdef __cplusplus
 }
+#endif
 
-alexa_free()
-{
-}
-
-alexa_begin_thread()
-{
-}
-
+#endif
 
 /*******************************************************************************
 	END OF FILE

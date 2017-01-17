@@ -66,7 +66,16 @@ enum AUDIOPLAYER_STATE{
     AUDIOPLAYER_STATE_FINISHED,
 };
 
-cJSON* audioplayer_playback_state( alexa_service* as )
+
+/*
+ *@brief construct the audio player playback state
+ *
+ *https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/context
+ *
+ *@param struct alexa_service* as, the alexa_service object
+ *@return AudioPlayer.PlaybackState cJSON object
+ */
+cJSON* audioplayer_playback_state(struct alexa_service* as )
 {
     cJSON* cj_playback_state = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
@@ -153,7 +162,7 @@ static void audioplayer_event_payload_construct(cJSON* cj_payload, AUDIOPLAYER_E
     return;
 }
 
-const char* alexa_audioplayer_event_construct( alexa_service* as )
+const char* alexa_audioplayer_event_construct(struct alexa_service* as )
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -178,7 +187,7 @@ const char* alexa_audioplayer_event_construct( alexa_service* as )
     return event_json;
 }
 
-static int directive_play( alexa_service* as, cJSON* root )
+static int directive_play(struct alexa_service* as, cJSON* root )
 {
     cJSON* payload = as->payload;
     
@@ -265,7 +274,7 @@ err:
 }
 
 
-static int directive_stop( alexa_service* as, cJSON* root )
+static int directive_stop(struct alexa_service* as, cJSON* root )
 {
     //send PlaybackStopped Event
     
@@ -275,7 +284,7 @@ err:
 }
 
 
-static int directive_clearqueue( alexa_service* as, cJSON* root )
+static int directive_clearqueue(struct alexa_service* as, cJSON* root )
 {
     cJSON* payload = as->payload;
     cJSON* clearBehavior;
@@ -306,10 +315,12 @@ err:
 }
 
 
-static int directive_process( alexa_service* as, cJSON* root )
+static int directive_process(struct alexa_service* as, cJSON* root )
 {
     cJSON* header = as->header;
     cJSON* name;
+    
+    alexa_log_d( TAG, "directive %s\n", NAMESPACE );
     
     name = cJSON_GetObjectItem(header, "name");
     if( !name )
@@ -336,17 +347,27 @@ err:
     return -1;
 }
 
-int alexa_audioplayer_init(alexa_service* as)
+
+/*
+ *@brief init the alexa audio player
+ *@param struct alexa_service* as, the alexa_service object
+ *@return 0 success, otherwise fail
+ */
+int alexa_audioplayer_init(struct alexa_service* as)
 {
     alexa_directive_register(NAMESPACE, directive_process );
     
     return 0;
 }
 
-int alexa_audioplayer_done(alexa_service* as)
+/*
+ *@brief done the alexa audio player
+ *@param struct alexa_service* as, the alexa_service object
+ *@return 0 success, otherwise fail
+ */
+int alexa_audioplayer_done(struct alexa_service* as)
 {
-    alexa_directive_unregister(NAMESPACE);    
-
+    alexa_directive_unregister(NAMESPACE);
     return 0;
 }
 

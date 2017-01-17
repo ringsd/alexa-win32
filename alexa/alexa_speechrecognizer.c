@@ -15,6 +15,8 @@
 
 *******************************************************************************/
 
+#include "alexa_service.h"
+
 #define NAMESPACE               "SpeechRecognizer"
 
 #define RECOGNIZER_FORMAT       "AUDIO_L16_RATE_16000_CHANNELS_1"
@@ -32,33 +34,91 @@ enum SPPED_RECOGINZER_STATE{
 };
 
 
+static pthread_cond_t   alexa_speechrecognizer_cond = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t  alexa_speechrecognizer_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+alexa_speechrecognizer_wake_up()
 {
-    SPPED_RECOGINZER_STATE state; //spped_recoginzer_state
+    ALEXA_MUTEX_LOCK(&alexa_speechrecognizer_mutex);
+    pthread_cond_signal(&alexa_speechrecognizer_cond);
+    ALEXA_MUTEX_UNLOCK(&alexa_speechrecognizer_mutex);
 }
 
-alexa_speechrecognizer(SPPED_RECOGINZER_STATE state)
+alexa_speechrecognizer_directive()
 {
-    case IDLE:
-        //wait user wake up to RECOGNIZING
-        //Direcctive ExpectSpeecd to EXPECTING_SPEECH
-        break;
-    case RECOGNIZING:
-        //record data
-        //send data to avs to BUSY
-        //Direcctive ExpectSpeecd to EXPECTING_SPEECH
-        break;
-    case BUSY:
-        //wait avs message
-        //recognize event completed to IDLE
-        //Direcctive ExpectSpeecd to EXPECTING_SPEECH
-        break;
-    case EXPECTING_SPEECH:
-        //user start interaction to RECOGNIZING
-        //ExpectSpeecd timeout to IDLE
-        break;
-    default:
-        //unknown state
-        break;
+}
+
+enum SPPED_RECOGINZER_STATE alexa_speechrecognizer_process(struct alexa_service* as)
+{
+    while(1)
+    {
+        switch( as->sr.state )
+        {
+            case IDLE:
+                //wait user wake up or wait the directive
+                ALEXA_MUTEX_LOCK(&alexa_speechrecognizer_mutex);
+                while(wait_directive() || wait_user_wake_up())
+                {
+                    pthread_cond_wait(&alexa_speechrecognizer_cond, &alexa_speechrecognizer_mutex);
+                }
+                ALEXA_MUTEX_UNLOCK(&alexa_speechrecognizer_mutex);
+                
+                if( user wake up )
+                {
+                    as->sr.state = RECOGNIZING;
+                }
+                else
+                {
+                    directive_process( as );
+                }
+                break;
+            case RECOGNIZING:
+                //record data
+                //send Recognize Event to avs
+                //change state to BUSY
+
+                sr_recognize_event( as );
+
+                as->sr.state = BUSY;
+                break;
+            case BUSY:
+                //wait directive
+                while( wait_directive() || timeout )
+                {
+                    
+                }
+
+                if( wait directive success )
+                {
+                    directive_process( as );
+                    if( as->sr.state == BUSY )
+                    {
+                        as->sr.state = IDLE;
+                    }
+                }
+                else
+                {
+                    //timeout, maybe you need clear some state
+                    as->sr.state = IDLE;
+                }
+                break;
+            case EXPECTING_SPEECH:
+                if( can change state to RECOGNIZING )
+                {
+                    as->sr.state = IDLE;
+                    //ExpectSpeechTimedOut 
+                }
+                else
+                {
+                    as->sr.state = RECOGNIZING;
+                }
+                break;
+            default:
+                //unknown state
+                break;
+        }
+    }
+    return new_state;
 }
 
 //has binary audio attachment
@@ -74,11 +134,7 @@ static const char* sr_recognize_event( alexa_service* as )
     cJSON_AddItemToObject( cj_root, "context", cj_context );
     cJSON_AddItemToObject( cj_root, "event", cj_event );
     
-    //AudioPlayer.PlaybackState
-    cJSON_AddItemToArray( cj_context, audioplayer_playback_state(as) );
-    //Alerts.AlertsState
-    //Speaker.VolumeState
-    //SpeechSynthesizer.SpeechState
+    cJSON_AddItemToArray( cj_context, alexa_context_state(as) );
     
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
@@ -137,8 +193,10 @@ static int directive_expect_speech( alexa_service* as, cJSON* root )
 {
     //open the micorphone 
     
-    //if microphone open time out send ExpectSpeechTimedOut Event
     
+    
+    //if microphone open time out send ExpectSpeechTimedOut Event
+
     return 0;
 err:
     return -1;
