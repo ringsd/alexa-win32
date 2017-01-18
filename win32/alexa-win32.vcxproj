@@ -68,7 +68,6 @@
     <ClCompile Include="..\alexa\alexa_audioplayer.c" />
     <ClCompile Include="..\alexa\alexa_directive.c" />
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
-    <ClCompile Include="..\alexa\alexa_record.c" />
     <ClCompile Include="..\alexa\alexa_service.c" />
     <ClCompile Include="..\alexa\alexa_speaker.c" />
     <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
@@ -81,7 +80,6 @@
     <ClInclude Include="..\alexa\alexa_audioplayer.h" />
     <ClInclude Include="..\alexa\alexa_directive.h" />
     <ClInclude Include="..\alexa\alexa_playbackcontroller.h" />
-    <ClInclude Include="..\alexa\alexa_record.h" />
     <ClInclude Include="..\alexa\alexa_service.h" />
     <ClInclude Include="..\alexa\alexa_speaker.h" />
     <ClInclude Include="..\alexa\alexa_speechrecognizer.h" />

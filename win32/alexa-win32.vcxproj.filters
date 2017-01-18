@@ -27,9 +27,6 @@
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\alexa\alexa_record.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\alexa\alexa_service.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,9 +57,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_playbackcontroller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_record.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_service.h">
