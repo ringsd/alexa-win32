@@ -13,6 +13,12 @@
 
 #define NAMESPACE       "Speaker"
 
+struct alexa_speaker{
+    char* messageId;
+    int   volume;
+    int   muted;
+};
+
 enum{
     VOLUMECHANGED_EVENT,
     MUTECHANGED_EVENT,
@@ -29,6 +35,7 @@ static const char* speaker_event[] = {
 
 cJSON* speaker_volume_state( alexa_service* as )
 {
+    struct alexa_speaker* speaker = as->speaker;
     cJSON* cj_volume_state = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -38,38 +45,34 @@ cJSON* speaker_volume_state( alexa_service* as )
     cJSON_AddStringToObject( cj_header, "name", speaker_event[VOLUMESTATE_EVENT]);
     
     cJSON_AddItemToObject( cj_volume_state, "payload", cj_payload );
-    cJSON_AddNumberToObject( cj_payload, "volume", volume);
-    cJSON_AddBoolToObject( cj_payload, "mute", mute);
+    cJSON_AddNumberToObject( cj_payload, "volume", speaker->volume);
+    cJSON_AddBoolToObject( cj_payload, "mute", speaker->mute);
     
     return cj_volume_state;
 }
 
 
-static void speaker_event_header_construct( cJSON* cj_header, AUDIOPLAYER_EVENT_ENUM event, const char* msg_id )
+static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON* cj_header, AUDIOPLAYER_EVENT_ENUM event )
 {
     int event_index = (int)event;
-    int len = 0;
-    
-    assert( msg_id != NULL );
 
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", speaker_event[event_index]);
-    cJSON_AddStringToObject( cj_header, "messageId", msg_id);
+    cJSON_AddStringToObject( cj_header, "messageId", speaker->messageId);
     
     return;
 }
 
-static void speaker_event_payload_construct(cJSON* cj_payload, AUDIOPLAYER_EVENT_ENUM event)
+static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSON* cj_payload, AUDIOPLAYER_EVENT_ENUM event)
 {
     int event_index = (int)event;
-    int len = 0;
     
     switch( event )
     {
         case VOLUMECHANGED_EVENT:
         case MUTECHANGED_EVENT:
-            cJSON_AddNumberToObject( cj_payload, "volume", volume);
-            cJSON_AddBoolToObject( cj_payload, "muted", muted);
+            cJSON_AddNumberToObject( cj_payload, "volume", speaker->volume);
+            cJSON_AddBoolToObject( cj_payload, "muted", speaker->muted);
             break;
         default:
             break;
@@ -90,15 +93,13 @@ const char* alexa_speaker_event_construct( alexa_service* as )
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
-    //
-    speaker_event_header_construct( cj_header, event, msg_id );
-    speaker_event_payload_construct( cj_payload, event, msg_id );
+    speaker_event_header_construct( as->speaker, cj_header, event );
+    speaker_event_payload_construct( as->speaker, cj_payload, event );
     
     event_json = cJSON_Print( root );
-    alexa_log_d( "%s\n", event_json );
-    
     cJSON_Delete( root );
     
+    sys_log_d( "%s\n", event_json );
     return event_json;
 }
 
@@ -114,7 +115,7 @@ static int directive_set_volume( alexa_service* as, cJSON* root )
     }
     
     //[0, 100]
-    volume->valueint;
+    speaker->volume = volume->valueint;
     
     return 0;
 err:
@@ -133,7 +134,9 @@ static int directive_adjust_volume( alexa_service* as, cJSON* root )
     }
     
     //[-100, 100]
-    volume->valueint;
+    speaker->volume = speaker->volume + volume->valueint;
+    if( speaker->volume >= MAX_VOLUME_VAL ) speaker->volume = MAX_VOLUME_VAL;
+    if( speaker->volume <= MIN_VOLUME_VAL ) speaker->volume = MIN_VOLUME_VAL;
     
     return 0;
 err:
@@ -195,8 +198,24 @@ err:
     return -1;
 }
 
+static struct alexa_speaker* speaker_construct(void)
+{
+    struct alexa_speaker* speaker = alexa_new( struct alexa_speaker );
+    if( speaker )
+    {
+        
+    }
+    return speaker;
+}
+
+static void speaker_destruct(struct alexa_speaker* speaker)
+{
+    alexa_delete( speaker );
+}
+
 int alexa_speaker_init(alexa_service* as)
 {
+    as->speaker = speaker_construct();
     alexa_directive_register(NAMESPACE, directive_process );
     
     return 0;
@@ -206,6 +225,7 @@ int alexa_speaker_done(alexa_service* as)
 {
     alexa_directive_unregister(NAMESPACE);    
 
+    speaker_destruct( as->speaker );
     return 0;
 }
 
