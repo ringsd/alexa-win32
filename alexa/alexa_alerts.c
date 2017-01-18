@@ -13,10 +13,19 @@
 
 #define NAMESPACE       "Alerts"
 
+struct alexa_alerts{
+    char*   messageId;
+    struct list_head alerts_head;
+};
+
+struct alexa_alert_item{
+    struct list_head list;
+    char* type;
+    char* token; //the unique id 
+    char* scheduledTime; //The scheduled time for an alert in ISO 8601 format
+};
+
 enum{
-    SETALERTSUCCEEDED_EVENT,
-    MUTECHANGED_EVENT,
-    
     SETALERTSUCCEEDED_EVENT,
     SETALERTFAILED_EVENT,
     
@@ -42,21 +51,20 @@ static const char* alerts_event[] = {
     "AlertEnteredBackground",
 };
 
-static void alerts_event_header_construct( cJSON* cj_header, ALERTS_EVENT_ENUM event, const char* msg_id )
+
+static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_header, ALERTS_EVENT_ENUM event )
 {
     int event_index = (int)event;
     int len = 0;
     
-    assert( msg_id != NULL );
-
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", alerts_event[event_index]);
-    cJSON_AddStringToObject( cj_header, "messageId", msg_id);
+    cJSON_AddStringToObject( cj_header, "messageId", alerts->messageId);
     
     return;
 }
 
-static void alerts_event_payload_construct(cJSON* cj_payload, ALERTS_EVENT_ENUM event)
+static void alerts_event_payload_construct( struct alexa_service* as, cJSON* cj_payload, ALERTS_EVENT_ENUM event, const char* token)
 {
     int event_index = (int)event;
     int len = 0;
@@ -81,7 +89,7 @@ static void alerts_event_payload_construct(cJSON* cj_payload, ALERTS_EVENT_ENUM 
     return;
 }
 
-const char* alexa_alerts_event_construct( alexa_service* as )
+const char* alexa_alerts_event_construct( alexa_service* as, ALERTS_EVENT_ENUM event, const char* token )
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -95,8 +103,8 @@ const char* alexa_alerts_event_construct( alexa_service* as )
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    alerts_event_header_construct( cj_header, event, msg_id );
-    alerts_event_payload_construct( cj_payload, event, msg_id );
+    alerts_event_header_construct( as, cj_header, event );
+    alerts_event_payload_construct( as, cj_payload, event, token );
     
     event_json = cJSON_Print( root );
     alexa_log_d( "%s\n", event_json );
@@ -106,88 +114,131 @@ const char* alexa_alerts_event_construct( alexa_service* as )
     return event_json;
 }
 
-static int directive_set_alert( alexa_service* as, cJSON* root )
+static int directive_set_alert( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* payload = as->payload;
+    cJSON* cj_payload = item->payload;
     cJSON* cj_token;
     cJSON* cj_type;
     cJSON* cj_scheduledTime;
+    struct alexa_alert_item* alert_item;
+    struct list_head* head;
+
+    cj_token = cJSON_GetObjectItem(cj_payload, "token");
+    if( cj_token == NULL ) goto err;
+
+    cj_type = cJSON_GetObjectItem(cj_payload, "type");
+    if( cj_type == NULL ) goto err;
+
+    cj_scheduledTime = cJSON_GetObjectItem(cj_payload, "scheduledTime");
+    if( cj_scheduledTime == NULL ) goto err;
     
-    cj_token = cJSON_GetObjectItem(payload, "token");
-    if( !cj_token )
+    list_for_each(alert_item, &alexas->alerts_head)
     {
-        goto err;
+        if( !strcmp(alert_item->token, cj_token->valuestring) )
+        {
+            alexa_free( alert_item->token );
+            alert_item->token = NULL;
+            alexa_free( alert_item->scheduledTime );
+            alert_item->scheduledTime = NULL;
+            alexa_free( alert_item->type );
+            alert_item->type = NULL;
+            break;;
+        }
     }
 
-    cj_type = cJSON_GetObjectItem(payload, "type");
-    if( !cj_type )
+    if( alert_item == NULL ) 
     {
-        goto err;
-    }
-
-    cj_scheduledTime = cJSON_GetObjectItem(payload, "scheduledTime");
-    if( !cj_scheduledTime )
-    {
-        goto err;
+        alert_item = alexa_new( struct alexa_alert_item );
     }
     
-    if( !strcmp(cj_type->valuestring, "TIMER") )
+    if( alert_item == NULL ) goto err;
+    
+    alert_item->type = alexa_strdup( cj_type->valuestring );
+    alert_item->token = alexa_strdup( cj_token->valuestring );
+    alert_item->scheduledTime = alexa_strdup( cj_scheduledTime->valuestring );
+
+    list_add(&(alert_item->list), &alexas->alerts_head);
+
+    if( strcmp( alert_item->valuestring, "TIMER" ) == 0 )
     {
-        // timer 
-        // find the timer cj_token->valuestring
-        // if has this timer reset timer
-        // else add the new timer
+        const char* event_string = NULL;
+        //set timer
     }
-    else if( !strcmp(cj_type->valuestring, "ALARM") )
+    else if( strcmp( alert_item->valuestring, "ALERT" ) == 0 )
     {
-        // alarm
-        // find the alarm cj_token->valuestring
-        // if has this alarm reset alarm
-        // else add the new alarm
+        //set alert
     }
+    
+    //if set timer success
+    //send set timer success event
+    event_string = alexa_alerts_event_construct( as, SETALERTSUCCEEDED_EVENT, alert_item->token );
+    
+    //else
+    //send set timer success event
+    event_string = alexa_alerts_event_construct( as, SETALERTFAILED_EVENT, alert_item->token );
+    
     
     return 0;
 err:
     return -1;
 }
 
-static int directive_delete_alert( alexa_service* as, cJSON* root )
+static int directive_delete_alert( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* cj_payload = as->cj_payload;
+    cJSON* cj_payload = item->payload;
     cJSON* cj_token;
+    struct alexa_alert_item* alert_item;
     
     cj_token = cJSON_GetObjectItem(cj_payload, "token");
-    if( !cj_token )
+    if( !cj_token ) goto err;
+    
+    //send the alert stop event
+    event_string = alexa_alerts_event_construct( as, ALERTSTOPPED_EVENT, alert_item->token );
+    
+    list_for_each(alert_item, &alexas->alerts_head)
     {
-        goto err;
+        if( !strcmp(alert_item->token, cj_token->valuestring) )
+        {
+            alexa_free( alert_item->token );
+            alert_item->token = NULL;
+            alexa_free( alert_item->scheduledTime );
+            alert_item->scheduledTime = NULL;
+            alexa_free( alert_item->type );
+            alert_item->type = NULL;
+            list_del( alert_item );
+            //delete the alert
+            
+            // alert 
+            // if find the alert delete, and report success
+            event_string = alexa_alerts_event_construct( as, DELETEALERTSUCCEEDED_EVENT, alert_item->token );
+            //
+            // else report fail
+            event_string = alexa_alerts_event_construct( as, DELETEALERTFAILED_EVENT, alert_item->token );
+            //
+            break;;
+        }
     }
-    
-    // alert 
-    // find the alert by cj_token->valuestring
-    // if find the alert delete, and report success
-    // else report fail
-    
+
     return 0;
 err:
     return -1;
 }
 
-static int directive_process( alexa_service* as, cJSON* root )
+static int directive_process( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* header = as->header;
-    cJSON* name;
+    cJSON* cj_header = item->header;
+    cJSON* cj_name;
     
-    name = cJSON_GetObjectItem(header, "name");
-    if( !name )
-    {
-        goto err;
-    }
+    if( cj_header == NULL ) goto err;
     
-    if( !strcmp( name->valuestring, "SetAlert" ) )
+    cj_name = cJSON_GetObjectItem(cj_header, "name");
+    if( !cj_name ) goto err;
+    
+    if( !strcmp( cj_name->valuestring, "SetAlert" ) )
     {
-        directive_set_alert( as, root );
+        directive_set_alert( as, item );
     }
-    else if( !strcmp( name->valuestring, "DeleteAlert" ) )
+    else if( !strcmp( cj_name->valuestring, "DeleteAlert" ) )
     {
         directive_delete_alert( as, root );
     }
@@ -197,17 +248,33 @@ err:
     return -1;
 }
 
+static struct alexa_alerts* alerts_construct( void )
+{
+    struct alexa_alerts* alerts = alexa_new( struct alexa_alerts );
+    if( alerts != NULL )
+    {
+        INIT_LIST_HEAD(&alerts->timer_head);
+        INIT_LIST_HEAD(&alerts->alert_head);
+    }
+    
+    return alerts;
+}
+
 int alexa_alerts_init(alexa_service* as)
 {
-    alexa_directive_register(NAMESPACE, directive_process );
+    as->alerts = alerts_construct();
     
+    //load alert from storage
+    alexa_directive_register(NAMESPACE, directive_process );
     return 0;
 }
 
 int alexa_alerts_done(alexa_service* as)
 {
     alexa_directive_unregister(NAMESPACE);    
-
+    //save alert from storage
+    
+    alerts_destruct( as->alerts )
     return 0;
 }
 

@@ -14,12 +14,9 @@
 
 #define NAMESPACE       "PlaybackController"
 
-enum{
-    PLAYCOMMANDISSUED_EVENT = 0,
-    PAUSECOMMANDISSUED_EVENT,
-    NEXTCOMMANDISSUED_EVENT,
-    PREVIOUSCOMMANDISSUED_EVENT,
-}PLAYBACKCONTROLLER_EVENT_ENUM;
+struct alexa_playbackcontroller{
+    char* messageId;
+};
 
 static const char* playbackcontroller_event[] = {
     "PlayCommandIssued",
@@ -28,48 +25,43 @@ static const char* playbackcontroller_event[] = {
     "PreviousCommandIssued",
 };
 
-
-static void playback_ctrl_event_context_construct( alexa_service* as, cJSON* cj_context)
+static cJSON* pc_event_context_construct( alexa_service* as )
 {
-    //AudioPlayer.PlaybackState
-    cJSON_AddItemToArray( cj_context, audioplayer_playback_state(as) );
-    //Alerts.AlertsState
-    //Speaker.VolumeState
-    //SpeechSynthesizer.SpeechState    
+    return alexa_context_get_state( as );
 }
 
-static void playback_ctrl_event_header_construct( alexa_service* as, cJSON* cj_header, SYSTEM_EVENT_ENUM event, const char* msg_id )
+static void pc_event_header_construct( alexa_service* as, cJSON* cj_header, PLAYBACKCONTROLLER_EVENT_ENUM event )
 {
+    struct alexa_playbackcontroller* pc = as->pc;
     int event_index = (int)event;
-    int len = 0;
     
-    assert( msg_id != NULL );
-
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", playbackcontroller_event[event_index]);
-    cJSON_AddStringToObject( cj_header, "messageId", msg_id);
+    cJSON_AddStringToObject( cj_header, "messageId", pc->messageId);
 
     return;
 }
 
-static void playback_ctrl_event_payload_construct( alexa_service* as, cJSON* cj_payload, SYSTEM_EVENT_ENUM event )
+static void pc_event_payload_construct( alexa_service* as, cJSON* cj_payload, PLAYBACKCONTROLLER_EVENT_ENUM event )
 {
-    int event_index = (int)event;
-
+    as = as;
+    cj_payload = cj_payload;
+    event = event;
+    
     return;
 }
 
-const char* alexa_playback_ctrl_event_construct( alexa_service* as )
+const char* alexa_pc_event_construct( alexa_service* as, PLAYBACKCONTROLLER_EVENT_ENUM event )
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
-    cJSON* cj_context = cJSON_CreateArray();
+    cJSON* cj_context;
     cJSON* cj_event = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
     
+    cj_context = pc_event_context_construct( as );
     cJSON_AddItemToObject( cj_root, "context", cj_context );
-    playback_ctrl_event_context_construct( cj_context );
     
     cJSON_AddItemToObject( cj_root, "event", cj_event );
     
@@ -77,12 +69,49 @@ const char* alexa_playback_ctrl_event_construct( alexa_service* as )
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    playback_ctrl_event_header_construct( cj_header, event, msg_id );
-    playback_ctrl_event_payload_construct( cj_payload, event, msg_id );    
+    pc_event_header_construct( as, cj_header, event );
+    playback_ctrl_event_payload_construct( as, cj_payload, event );
+
+    event_json = cJSON_Print( root );
+    cJSON_Delete( cj_root );
+
+    sys_log_d( "%s\n", event_json );
     
-    return ;
+    return event_json;    
 }
 
+
+static struct alexa_playbackcontroller* pc_construct( void )
+{
+    struct alexa_playbackcontroller* pc = alexa_new( struct alexa_playbackcontroller );
+    if( pc )
+    {
+        
+    }
+    return pc;
+}
+
+static void pc_destruct( struct alexa_playbackcontroller* pc )
+{
+    alexa_delete( pc );
+}
+
+int alexa_pc_init( alexa_service* as )
+{
+    as->pc = pc_construct();
+    if( as->pc == NULL )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+int alexa_pc_done( alexa_service* as )
+{
+    pc_destruct( as->pc );
+    return 0;
+}
 
 /*******************************************************************************
 	END OF FILE

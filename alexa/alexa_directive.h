@@ -30,6 +30,11 @@ int alexa_directive_register(const char* name_space, int(*process)( alexa_servic
 int alexa_directive_unregister(const char* name_space);
 int alexa_directive_process(alexa_service* as, const char* value);
 
+
+int alexa_directive_init( struct alexa_service* as );
+
+void alexa_directive_done( struct alexa_service* as );
+
 #ifdef __cplusplus
 }
 #endif

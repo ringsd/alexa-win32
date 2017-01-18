@@ -18,7 +18,14 @@
 extern "C" {
 #endif
 
+enum PLAYBACKCONTROLLER_EVENT_ENUM{
+    PLAYCOMMANDISSUED_EVENT = 0,
+    PAUSECOMMANDISSUED_EVENT,
+    NEXTCOMMANDISSUED_EVENT,
+    PREVIOUSCOMMANDISSUED_EVENT,
+};
 
+typedef struct alexa_playbackcontroller alexa_playbackcontroller;
 
 #ifdef __cplusplus
 }

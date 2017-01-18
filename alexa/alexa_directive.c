@@ -11,24 +11,41 @@
 
 *******************************************************************************/
 
-LIST_HEAD(alexa_directive_head);
+struct alexa_directive{
+    struct list_head    head;
+    alexa_mutex         mutex;
+};
+
+struct alexa_directive_item{
+    struct list_head list;
+    cJSON*           root;
+};
 
 struct alexa_directive_process_item{
     struct list_head list;
     const char* name_space; //actual is namespace, the c++ using this for key word
-    int (*process)( alexa_service* as, cJSON* root);
+    int (*process)( alexa_service* as, struct alexa_directive_item* item);
 };
 
 LIST_HEAD(alexa_directive_process_head);
 
-int alexa_directive_register(const char* name_space, int(*process)( alexa_service* as, cJSON* root) )
+/*
+ *@brief register the directive process
+ *      register the directive process to the system, be careful this function not thread safe 
+ *@param const char* namespace , the directive namespace
+ *@param int(*process)( alexa_service* as, struct alexa_directive_item* item) the directive process function
+ *@return 
+ *   0 success
+ *  -1 fail
+ */
+int alexa_directive_register(const char* name_space, int(*process)( alexa_service* as, struct alexa_directive_item* item) )
 {
-    struct alexa_directive_process_item* item =  alexa_new( alexa_directive_process_item );
-    if( item )
+    struct alexa_directive_process_item* process_item =  alexa_new( alexa_directive_process_item );
+    if( process_item )
     {
-        strcpy( item->name_space, name_space );
-        item->process = process;
-        list_add(&(item->list), &alexa_directive_process_head);
+        strcpy( process_item->name_space, name_space );
+        process_item->process = process;
+        list_add(&(process_item->list), &alexa_directive_process_head);
         return -1;
     }
     else
@@ -37,15 +54,23 @@ int alexa_directive_register(const char* name_space, int(*process)( alexa_servic
     }
 }
 
+/*
+ *@brief unregister the directive process
+ *      unregister the directive process to the system, be careful this function not thread safe 
+ *@param const char* namespace
+ *@return 
+ *   0 success
+ *  -1 fail
+ */
 int alexa_directive_unregister(const char* name_space)
 {
-    struct alexa_directive_process_item* item;
+    struct alexa_directive_process_item* process_item;
     
-    list_for_each(item, &alexa_directive_process_head)
+    list_for_each(process_item, &alexa_directive_process_head)
     {
-        if( !strcmp(item->name_space, name_space) )
+        if( !strcmp(process_item->name_space, name_space) )
         {
-            list_del(item);
+            list_del(process_item);
             return 0;
         }
     }
@@ -63,9 +88,10 @@ int alexa_directive_unregister(const char* name_space)
  */
 int alexa_directive_add( struct alexa_service* as, const char* value )
 {
+    struct alexa_directive* directive = as->directive;
     cJSON* root = NULL;
-    struct alexa_directive_item* directive = (struct alexa_directive_item*)alexa_new( struct alexa_directive_item );
-    if( !directive )
+    struct alexa_directive_item* item = (struct alexa_directive_item*)alexa_new( struct alexa_directive_item );
+    if( !item )
     {
         sys_log_d( TAG, "memory not enough" );
         goto err;
@@ -76,12 +102,12 @@ int alexa_directive_add( struct alexa_service* as, const char* value )
     if( !root )
     {
     }
-    directive->cj_directive = root;
+    item->root = root;
     
     //add the json directive to list
-    //need lock
-    list_add(&(directive->list), &alexa_directive_head);
-    //need unlock
+    alexa_mutex_lock(&directive->mutex);
+    list_add(&(item->list), &directive->directive_head);
+    alexa_mutex_unlock(&directive->mutex);
 
 err2:
 err1:
@@ -89,109 +115,125 @@ err:
     return ret;
 }
 
-int alexa_directive_free( struct alexa_service* as, struct alexa_directive_item* directive )
+int alexa_directive_free( struct alexa_service* as, struct alexa_directive_item* item )
 {
     //free the directive resource
-    if(directive->data)
+    if(item->data)
     {
-        alexa_free(directive->data);
+        alexa_free(item->data);
     }
-    cJSON_Delete(directive->cj_directive);
-    alexa_free(directive);
+    cJSON_Delete(item->root);
+    alexa_free(item);
 }
 
 struct alexa_directive_item* alexa_directive_get( struct alexa_service* as )
 {
-    struct alexa_directive_item* directive = NULL;
+    struct alexa_directive* directive = as->directive;
+    struct alexa_directive_item* item = NULL;
     
-    //lock
-    if( !list_empty(&alexa_directive_head) )
+    alexa_mutex_lock(&directive->mutex);
+    if( !list_empty(&directive->head) )
     {
-        directive = list_first_entry(&alexa_directive_head, struct alexa_directive_item, list);
-        list_del(&(directive->list));
+        item = list_first_entry(&directive->directive_head, struct alexa_directive_item, list);
+        list_del(&(item->list));
     }
-    //unlock
-    
-    return directive;
+    alexa_mutex_unlock(&directive->mutex);
+
+    return item;
 }
 
-int alexa_directive_process(alexa_service* as, const char* value)
+int alexa_directive_process(struct alexa_service* as, struct alexa_directive_item* item)
 {
-    const char* name_space;
-    cJSON* root = cJSON_Parse(value);
-
-    if( !root )
-    {
-        //json parse error
-        ret = -1;
-        alexa_log_e( TAG, "parse json error.\n" );
-        goto err;
-    }
-
-    directive = cJSON_GetObjectItem(root, "directive");
-    if( !directive )
+    cJSON* cj_root = item->root;
+    cJSON* cj_directive;
+    cJSON* cj_header;
+    cJSON* cj_namespace;
+    struct alexa_directive_process_item* process_item;
+    
+    cj_directive = cJSON_GetObjectItem(cj_root, "directive");
+    if( !cj_directive )
     {
         ret = -1;
-        alexa_log_e( TAG, "get json directive error.\n" );
+        sys_log_e( TAG, "get json directive error.\n" );
         goto err1;
     }
 
-    header = cJSON_GetObjectItem(directive, "header");
-    if( !header )
+    cj_header = cJSON_GetObjectItem(cj_directive, "header");
+    if( !cj_header )
     {
         ret = -1;
-        alexa_log_e( TAG, "get json header error.\n" );
+        sys_log_e( TAG, "get json header error.\n" );
         goto err1;
     }
-    
-    payload = cJSON_GetObjectItem(directive, "payload");
-    if( !payload )
+
+    cj_namespace = cJSON_GetObjectItem(cj_header, "namespace");
+    if( !cj_namespace )
     {
         ret = -1;
-        alexa_log_e( TAG, "get json payload error.\n" );
-        goto err1;
-    }
-    
-    as->directive = directive;
-    as->header = header;
-    as->payload = payload;
-    
-    name_space = cJSON_GetObjectItem(header, "namespace");
-    if( !name_space )
-    {
-        ret = -1;
-        alexa_log_e( TAG, "get json namespace error.\n" );
+        sys_log_e( TAG, "get json namespace error.\n" );
         goto err2;
     }
     
-    list_for_each(item, &alexa_directive_head)
+    list_for_each(process_item, &alexa_directive_process_head)
     {
-        if( !strcmp(item->name_space, name_space->valuestring) )
+        if( !strcmp(process_item->name_space, cj_namespace->valuestring) )
         {
-            if( item->process( as, root ) )
-            {
-                //
-            }
-            else
-            {
-                //
-            }
-            break;
+            return process_item->process( as, item );
         }
     }
     
-err2:
-    as->directive = NULL;
-    as->header = NULL;
-    as->payload = NULL;
-err1:
-    cJSON_Delete(root);
 err:
     return ret;
 }
 
+static struct alexa_directive* directive_construct( void )
+{
+    struct alexa_directive* directive = alexa_new( struct alexa_directive );
+    if( directive )
+    {
+        INIT_LIST_HEAD(&directive->head);
+        alexa_mutex_init( &directive->mutex );
+    }
+    return directive;
+}
 
+static void directive_destruct( struct alexa_directive* directive )
+{
+    //clear directive list
+    alexa_mutex_lock(&directive->mutex);
+    while(1)
+    {
+        item = alexa_directive_get( as );
+        if( item )
+        {
+            alexa_directive_free( as, item );
+        }
+        else
+        {
+            break;
+        }
+    }
+    alexa_mutex_unlock(&directive->mutex);
+    alexa_mutex_destory(&directive->mutex);
+    alexa_free(directive);
+}
 
+int alexa_directive_init( struct alexa_service* as )
+{
+    as->directive = directive_construct();
+    if( as->directive )
+    {
+        sys_log_e( TAG, "construct alexa directive fail.\n" );
+        return -1;
+    }
+    return 0;
+}
+
+void alexa_directive_done( struct alexa_service* as )
+{
+    directive_destruct( as->directive );
+    return 0;
+}
 
 /*******************************************************************************
 	END OF FILE

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-
+typedef struct alexa_speechsynthesizer alexa_speechsynthesizer;
 
 #ifdef __cplusplus
 }

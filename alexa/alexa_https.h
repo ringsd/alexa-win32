@@ -2,31 +2,29 @@
 	Copyright Ringsd. 2017.
 	All Rights Reserved.
 	
-	File: alexa_platform.c
+	File: alexa_https.h
 
 	Description:
 
 	TIME LIST:
-	CREATE By Ringsd   2017/01/17 09:46:03
+	CREATE By Ringsd   2017/1/18 16:39:09
 
 *******************************************************************************/
 
+#ifndef _alexa_https_h_
+#define _alexa_https_h_
 
-void* alexa_malloc( int size )
-{
-    return malloc(size);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+#ifdef __cplusplus
 }
+#endif
 
-void alexa_free(void* p)
-{
-    free( p );
-}
-
-void alexa_generate_uuid( const char* uuid, int len )
-{
-    //linux read this file "/proc/sys/kernel/random/uuid"
-}
-
+#endif
 
 /*******************************************************************************
 	END OF FILE

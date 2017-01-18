@@ -20,7 +20,6 @@ extern "C" {
 
 
 struct alexa_audioplayer{
-    
 };
 
 
