@@ -15,6 +15,10 @@
 
 #define     NAMESPACE      "System"
 
+struct alexa_system{
+    char* messageId;
+};
+
 enum{
     SYNCHRONIZESTATE_EVENT = 0,
     USERINACTIVITYREPORT_EVENT,
@@ -48,30 +52,23 @@ static system_exception system_exception_list[] = {
     {SYSTEM_EXCEPTION_NA,               "The Alexa Voice Service is unavailable."},
 };
 
-static void system_event_context_construct( alexa_service* as, cJSON* cj_context)
+static cJSON* system_event_context_construct( alexa_service* as )
 {
-    //AudioPlayer.PlaybackState
-    cJSON_AddItemToArray( cj_context, audioplayer_playback_state(as) );
-    //Alerts.AlertsState
-    //Speaker.VolumeState
-    //SpeechSynthesizer.SpeechState    
+    return alexa_context_get_state( struct alexa_service* as )
 }
 
-static void system_event_header_construct( alexa_service* as, cJSON* cj_header, SYSTEM_EVENT_ENUM event, const char* msg_id )
+static void system_event_header_construct( alexa_system* system, cJSON* cj_header, SYSTEM_EVENT_ENUM event )
 {
     int event_index = (int)event;
-    int len = 0;
     
-    assert( msg_id != NULL );
-
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", system_event[event_index]);
-    cJSON_AddStringToObject( cj_header, "messageId", msg_id);
+    cJSON_AddStringToObject( cj_header, "messageId", system->messageId);
 
     return;
 }
 
-static void system_event_payload_construct( alexa_service* as, cJSON* cj_payload, SYSTEM_EVENT_ENUM event )
+static void system_event_payload_construct( alexa_system* system, cJSON* cj_payload, SYSTEM_EVENT_ENUM event )
 {
     int event_index = (int)event;
     
@@ -105,8 +102,9 @@ static void system_event_payload_construct( alexa_service* as, cJSON* cj_payload
     return;
 }
 
-const char* alexa_system_event_construct( alexa_service* as )
+const char* alexa_system_event_construct( alexa_service* as, SYSTEM_EVENT_ENUM event )
 {
+    struct alexa_system* system;
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -117,13 +115,13 @@ const char* alexa_system_event_construct( alexa_service* as )
     {
         case SYNCHRONIZESTATE_EVENT:
         case EXCEPTIONENCOUNTERED_EVENT:
-            {
-                cJSON* cj_context = cJSON_CreateArray();
-                cJSON_AddItemToObject( cj_root, "context", cj_context );
-                system_event_context_construct( cj_context );
-            }
+        {
+            cJSON* cj_context = system_event_context_construct( as );
+            cJSON_AddItemToObject( cj_root, "context", cj_context );
             break;
-        
+        }
+        default:
+            break;
     }
 
     cJSON_AddItemToObject( cj_root, "event", cj_event );
@@ -132,27 +130,32 @@ const char* alexa_system_event_construct( alexa_service* as )
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    system_event_header_construct( cj_header, event, msg_id );
-    system_event_payload_construct( cj_payload, event, msg_id );    
+    system_event_header_construct( system, cj_header, event );
+    system_event_payload_construct( system, cj_payload, event );    
+
+    event_json = cJSON_Print( cj_root );
+    alexa_log_d( "%s\n", event_json );
     
-    return ;
+    cJSON_Delete( cj_root );    
+    
+    return event_json;
 }
 
 //
-static int exception_process( alexa_service* as, cJSON* root )
+static int exception_process( struct alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* header = as->header;
-    cJSON* name;
+    cJSON* cj_header = item->header;
+    cJSON* cj_name;
     
-    name = cJSON_GetObjectItem(header, "name");
-    if( !name )
+    cj_name = cJSON_GetObjectItem(cj_header, "name");
+    if( !cj_name )
     {
         goto err;
     }
-    
-    if( !strcmp( name->valuestring, "Exception" ) )
+
+    if( !strcmp( cj_name->valuestring, "Exception" ) )
     {
-        //alexa_system_exception( as, root );
+        //
     }
 
     return 0;
@@ -162,7 +165,7 @@ err:
 }
 
 
-static int directive_reset_user_inactivity( alexa_service* as, cJSON* root )
+static int directive_reset_user_inactivity( struct alexa_service* as, struct alexa_directive_item* item )
 {
     //reset the inactivity timer 
     return 0;
@@ -181,15 +184,29 @@ static int directive_process( alexa_service* as, cJSON* root )
     
     if( !strcmp( name->valuestring, "ResetUserInactivity" ) )
     {
-        directive_reset_user_inactivity( as, root );
+        directive_reset_user_inactivity( as, item );
     }
-
+    
     return 0;
 
 err:
     return -1;
 }
 
+static struct alexa_system* system_construct( void )
+{
+    struct alexa_system* system = alexa_new( struct alexa_system );
+    if( system )
+    {
+        
+    }
+    return system;
+}
+
+static void system_construct( struct alexa_system* system )
+{
+    alexa_delete( system );
+}
 
 int alexa_system_init(alexa_service* as)
 {

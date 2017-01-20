@@ -19,12 +19,12 @@ struct alexa_speaker{
     int   muted;
 };
 
-enum{
+enum SPEAKER_EVENT_ENUM{
     VOLUMECHANGED_EVENT,
     MUTECHANGED_EVENT,
     
     VOLUMESTATE_EVENT,
-}SPEAKER_EVENT_ENUM;
+};
 
 static const char* speaker_event[] = {
     "VolumeChanged",
@@ -52,7 +52,7 @@ cJSON* speaker_volume_state( alexa_service* as )
 }
 
 
-static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON* cj_header, AUDIOPLAYER_EVENT_ENUM event )
+static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON* cj_header, SPEAKER_EVENT_ENUM event )
 {
     int event_index = (int)event;
 
@@ -63,7 +63,7 @@ static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON
     return;
 }
 
-static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSON* cj_payload, AUDIOPLAYER_EVENT_ENUM event)
+static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSON* cj_payload, SPEAKER_EVENT_ENUM event)
 {
     int event_index = (int)event;
     
@@ -80,8 +80,9 @@ static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSO
     return;
 }
 
-const char* alexa_speaker_event_construct( alexa_service* as )
+const char* alexa_speaker_event_construct( alexa_service* as, SPEAKER_EVENT_ENUM event )
 {
+    struct alexa_speaker* speaker = as->speaker;
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -103,58 +104,62 @@ const char* alexa_speaker_event_construct( alexa_service* as )
     return event_json;
 }
 
-static int directive_set_volume( alexa_service* as, cJSON* root )
+static int directive_set_volume( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* payload = as->payload;
-    cJSON* volume;
+    cJSON* cj_payload = item->payload;
+    cJSON* cj_volume;
     
-    volume = cJSON_GetObjectItem(payload, "volume");
-    if( !volume )
+    cj_volume = cJSON_GetObjectItem(cj_payload, "volume");
+    if( !cj_volume )
     {
         goto err;
     }
     
     //[0, 100]
-    speaker->volume = volume->valueint;
+    speaker->volume = cj_volume->valueint;
+    
+    alexa_speaker_event_construct( as, VOLUMECHANGED_EVENT );
     
     return 0;
 err:
     return -1;
 }
 
-static int directive_adjust_volume( alexa_service* as, cJSON* root )
+static int directive_adjust_volume( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* payload = as->payload;
-    cJSON* volume;
+    cJSON* cj_payload = item->payload;
+    cJSON* cj_volume;
     
-    volume = cJSON_GetObjectItem(payload, "volume");
-    if( !volume )
+    cj_volume = cJSON_GetObjectItem(cj_payload, "volume");
+    if( !cj_volume )
     {
         goto err;
     }
     
     //[-100, 100]
-    speaker->volume = speaker->volume + volume->valueint;
+    speaker->volume = speaker->volume + cj_volume->valueint;
     if( speaker->volume >= MAX_VOLUME_VAL ) speaker->volume = MAX_VOLUME_VAL;
     if( speaker->volume <= MIN_VOLUME_VAL ) speaker->volume = MIN_VOLUME_VAL;
+
+    alexa_speaker_event_construct( as, VOLUMECHANGED_EVENT );
     
     return 0;
 err:
     return -1;
 }
 
-static int directive_set_mute( alexa_service* as, cJSON* root )
+static int directive_set_mute( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* payload = as->payload;
-    cJSON* mute;
+    cJSON* cj_payload = item->payload;
+    cJSON* cj_mute;
     
-    mute = cJSON_GetObjectItem(payload, "mute");
-    if( !mute )
+    cj_mute = cJSON_GetObjectItem(cj_payload, "mute");
+    if( !cj_mute )
     {
         goto err;
     }
     
-    if( mute->type == cJSON_False )
+    if( cj_mute->type == cJSON_False )
     {
         //
     }
@@ -163,14 +168,16 @@ static int directive_set_mute( alexa_service* as, cJSON* root )
         //
     }
     
+    alexa_speaker_event_construct( as, MUTECHANGED_EVENT );
+    
     return 0;
 err:
     return -1;
 }
 
-static int directive_process( alexa_service* as, cJSON* root )
+static int directive_process( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* header = as->header;
+    cJSON* header = item->header;
     cJSON* name;
     
     name = cJSON_GetObjectItem(header, "name");
@@ -181,15 +188,15 @@ static int directive_process( alexa_service* as, cJSON* root )
     
     if( !strcmp( name->valuestring, "SetVolume" ) )
     {
-        directive_set_volume( as, root );
+        directive_set_volume( as, item );
     }
     else if( !strcmp( name->valuestring, "AdjustVolume" ) )
     {
-        directive_adjust_volume( as, root );
+        directive_adjust_volume( as, item );
     }
     else if( !strcmp( name->valuestring, "SetMute" ) )
     {
-        directive_set_mute( as, root );
+        directive_set_mute( as, item );
     }
     
     return 0;
@@ -219,7 +226,7 @@ int alexa_speaker_init(alexa_service* as)
     alexa_directive_register(NAMESPACE, directive_process );
     
     return 0;
-}
+} 
 
 int alexa_speaker_done(alexa_service* as)
 {

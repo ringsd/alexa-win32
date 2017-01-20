@@ -2,7 +2,7 @@
 	Copyright Ringsd. 2017.
 	All Rights Reserved.
 	
-	File: alexa_https.h
+	File: alexa_http2.h
 
 	Description:
 
@@ -11,8 +11,8 @@
 
 *******************************************************************************/
 
-#ifndef _alexa_https_h_
-#define _alexa_https_h_
+#ifndef _alexa_http2_h_
+#define _alexa_http2_h_
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,34 +2,29 @@
 	Copyright Ringsd. 2017.
 	All Rights Reserved.
 	
-	File: alexa_https.c
+	File: alexa_auth.h
 
 	Description:
 
 	TIME LIST:
-	CREATE By Ringsd   2017/01/18 16:38:46
+	CREATE By Ringsd   2017/1/19 11:28:04
 
 *******************************************************************************/
 
+#ifndef _alexa_auth_h_
+#define _alexa_auth_h_
 
-alexa_https_event_send( const char*  )
-{
-    
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+#ifdef __cplusplus
 }
+#endif
 
-
-
-int alexa_https_init( struct alexa_service* as )
-{
-    //
-    
-}
-
-
-void alexa_https_done( struct alexa_service* as )
-{
-    
-}
+#endif
 
 /*******************************************************************************
 	END OF FILE
