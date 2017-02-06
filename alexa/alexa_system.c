@@ -13,24 +13,32 @@
 
 *******************************************************************************/
 
-#include    "cjson/cjson.h"
+#include    "alexa_service.h"
 
 #define     NAMESPACE      "System"
 
 struct alexa_system{
-    char* messageId;
+    char*	messageId;
+	int		inactiveTimeInSeconds;
+	char*	unparsedDirective;
+	char*	type;
+	char*	message;
+	char*	code;
+	char*	description;
 };
 
 enum{
     SYNCHRONIZESTATE_EVENT = 0,
     USERINACTIVITYREPORT_EVENT,
     EXCEPTIONENCOUNTERED_EVENT,
+	SYSTEMEXCEPTION_EVENT,
 }SYSTEM_EVENT_ENUM;
 
 static const char* system_event[] = {
     "SynchronizeState",
     "UserInactivityReport",
     "ExceptionEncountered",
+	"SYSTEMEXCEPTION_EVENT",
 };
 
 enum{
@@ -54,12 +62,12 @@ static struct system_exception system_exception_list[] = {
     {SYSTEM_EXCEPTION_NA,               "The Alexa Voice Service is unavailable."},
 };
 
-static cJSON* system_event_context_construct( alexa_service* as )
+static cJSON* system_event_context_construct( struct alexa_service* as )
 {
-    return alexa_context_get_state( struct alexa_service* as )
+	return alexa_context_get_state(as);
 }
 
-static void system_event_header_construct( alexa_system* system, cJSON* cj_header, SYSTEM_EVENT_ENUM event )
+static void system_event_header_construct( struct alexa_system* system, cJSON* cj_header, enum SYSTEM_EVENT_ENUM event )
 {
     int event_index = (int)event;
     
@@ -70,7 +78,7 @@ static void system_event_header_construct( alexa_system* system, cJSON* cj_heade
     return;
 }
 
-static void system_event_payload_construct( alexa_system* system, cJSON* cj_payload, SYSTEM_EVENT_ENUM event )
+static void system_event_payload_construct( struct alexa_system* system, cJSON* cj_payload, enum SYSTEM_EVENT_ENUM event )
 {
     int event_index = (int)event;
     
@@ -80,22 +88,22 @@ static void system_event_payload_construct( alexa_system* system, cJSON* cj_payl
             //don't have payload
             break;
         case USERINACTIVITYREPORT_EVENT:
-            cJSON_AddNumberToObject( cj_payload, "inactiveTimeInSeconds", inactiveTimeInSeconds);
+            cJSON_AddNumberToObject( cj_payload, "inactiveTimeInSeconds", system->inactiveTimeInSeconds);
             break;
         case EXCEPTIONENCOUNTERED_EVENT:
             {
                 cJSON* cj_error = cJSON_CreateObject();        
             
-                cJSON_AddStringToObject( cj_payload, "unparsedDirective", unparsedDirective);
+				cJSON_AddStringToObject(cj_payload, "unparsedDirective", system->unparsedDirective);
                 cJSON_AddItemToObject( cj_payload, "error", cj_error );                
                 
-                cJSON_AddStringToObject( cj_error, "type", type);
-                cJSON_AddStringToObject( cj_error, "message", message);
+				cJSON_AddStringToObject(cj_error, "type", system->type);
+				cJSON_AddStringToObject(cj_error, "message", system->message);
             }
             break;
         case SYSTEMEXCEPTION_EVENT:
-            cJSON_AddStringToObject( cj_payload, "code", code);
-            cJSON_AddStringToObject( cj_payload, "description", description);
+			cJSON_AddStringToObject(cj_payload, "code", system->code);
+			cJSON_AddStringToObject(cj_payload, "description", system->description);
             break;
         default:
             break;
@@ -104,7 +112,7 @@ static void system_event_payload_construct( alexa_system* system, cJSON* cj_payl
     return;
 }
 
-const char* alexa_system_event_construct( alexa_service* as, SYSTEM_EVENT_ENUM event )
+const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_ENUM event )
 {
     struct alexa_system* system;
     char* event_json;
@@ -173,18 +181,18 @@ static int directive_reset_user_inactivity( struct alexa_service* as, struct ale
     return 0;
 }
 
-static int directive_process( alexa_service* as, cJSON* root )
+static int directive_process(alexa_service* as, struct alexa_directive_item* item)
 {
-    cJSON* header = as->header;
-    cJSON* name;
+	cJSON* cj_header = item->header;
+	cJSON* cj_name;
     
-    name = cJSON_GetObjectItem(header, "name");
-    if( !name )
+	cj_name = cJSON_GetObjectItem(cj_header, "name");
+	if (!cj_name)
     {
         goto err;
     }
     
-    if( !strcmp( name->valuestring, "ResetUserInactivity" ) )
+	if (!strcmp(cj_name->valuestring, "ResetUserInactivity"))
     {
         directive_reset_user_inactivity( as, item );
     }

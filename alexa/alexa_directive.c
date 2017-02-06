@@ -16,8 +16,8 @@
 #define TAG "alexa_directive"
 
 struct alexa_directive{
-    struct list_head    head;
-    alexa_mutex*        mutex;
+    struct list_head        head;
+    struct alexa_mutex*     mutex;
 };
 
 struct alexa_directive_process_item{

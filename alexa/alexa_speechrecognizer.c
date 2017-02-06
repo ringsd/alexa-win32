@@ -1,12 +1,12 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_speechrecognizer.c
+    File: alexa_speechrecognizer.c
 
-	Description:
+    Description:
 
-	TIME LIST:
+    TIME LIST:
     CREATE By Ringsd   2017/01/13 11:20:02
     
     From
@@ -16,6 +16,8 @@
 *******************************************************************************/
 
 #include "alexa_service.h"
+
+#define TAG                     "speechrecognizer"
 
 #define NAMESPACE               "SpeechRecognizer"
 
@@ -53,49 +55,49 @@ static const char* speech_recoginzer_state[] =
 };
 
 struct alexa_speechrecognizer{
-    WAKE_UP_SOURCE_ENUM     wakeup_source;
-    SPEECH_RECOGINZER_STATE state;
+    enum WAKE_UP_SOURCE_ENUM     wakeup_source;
+    enum SPEECH_RECOGINZER_STATE state;
+
+    struct alexa_cond*             cond;
+    struct alexa_mutex*          mutex;
     
-    pthread_cond_t          cond;
-    alexa_mutex             mutex;
-    
-    char*                   profile;
-    char*                   format;
+    char*                        profile;
+    char*                        format;
     // bind the device ?? don't have enough info
-    char*                   messageId;
+    char*                        messageId;
     //every event need generate the new request id
-    char                    dialogRequestId[40];
+    char                        dialogRequestId[40];
 };
 
 //wake up the thread by the key or by the directive
 void alexa_speechrecognizer_user_wake_up( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = &as->sr;
-    alexa_mutex_lock(&sr->mutex);
+    alexa_mutex_lock(sr->mutex);
     if( sr->state == IDLE )
     {
         sr->wakeup_source = WAKE_UP_BY_USER;
-        pthread_cond_signal(&sr->cond);
+        alexa_cond_signal(sr->cond);
     }
-    alexa_mutex_unlock(&sr->mutex);
+    alexa_mutex_unlock(sr->mutex);
 }
 
 void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = &as->sr;
-    alexa_mutex_lock(&sr->mutex);
-    as->sr.wakeup_source = WAKE_UP_BY_DIRECTIVE;
-    pthread_cond_signal(&sr->cond);
-    alexa_mutex_unlock(&sr->mutex);
+    alexa_mutex_lock(sr->mutex);
+    sr->wakeup_source = WAKE_UP_BY_DIRECTIVE;
+    alexa_cond_signal(sr->cond);
+    alexa_mutex_unlock(sr->mutex);
 }
 
 void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = &as->sr;
-    alexa_mutex_lock(&sr->mutex);
-    as->sr.wakeup_source = WAKE_UP_BY_EXIT;
-    pthread_cond_signal(&sr->cond);
-    alexa_mutex_unlock(&sr->mutex);
+    alexa_mutex_lock(sr->mutex);
+    sr->wakeup_source = WAKE_UP_BY_EXIT;
+    alexa_cond_signal(sr->cond);
+    alexa_mutex_unlock(sr->mutex);
 }
 
 static void sr_generate_request_id( struct alexa_speechrecognizer* sr )
@@ -104,7 +106,7 @@ static void sr_generate_request_id( struct alexa_speechrecognizer* sr )
     alexa_generate_uuid( sr->dialogRequestId, sizeof( sr->dialogRequestId ) - 1 );
 }
 
-static void sr_set_state( struct alexa_speechrecognizer* sr, SPEECH_RECOGINZER_STATE state )
+static void sr_set_state( struct alexa_speechrecognizer* sr, enum SPEECH_RECOGINZER_STATE state )
 {
     if( state != sr->state )
     {
@@ -116,7 +118,7 @@ static void sr_set_state( struct alexa_speechrecognizer* sr, SPEECH_RECOGINZER_S
 void alexa_speechrecognizer_process(struct alexa_service* as)
 {
     struct alexa_speechrecognizer* sr = &(as->sr);
-    WAKE_UP_SOURCE_ENUM wakeup_source = sr->wakeup_source;
+    enum WAKE_UP_SOURCE_ENUM wakeup_source = sr->wakeup_source;
     
     while(1)
     {
@@ -130,8 +132,9 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
         {
             case IDLE:
             {
+                struct alexa_directive_item* directive;
                 //wait user wake up or wait the directive
-                alexa_mutex_lock(&sr->mutex);
+                alexa_mutex_lock(sr->mutex);
                 while(1)
                 {
                     wakeup_source = sr->wakeup_source;
@@ -150,16 +153,16 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         break;
                     }
 
-                    directive = alexa_directive_get( as );
+                    directive = alexa_directive_get(as->directive);
                     if( directive )
                     {
                         //get the directive
                         break;
                     }
 
-                    pthread_cond_wait(&sr->cond, &sr->mutex);
+                    alexa_cond_wait(sr->cond, sr->mutex);
                 }
-                alexa_mutex_unlock(&sr->mutex);
+                alexa_mutex_unlock(sr->mutex);
                 
                 if( wakeup_source == WAKE_UP_BY_USER )
                 {
@@ -167,7 +170,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 }
                 else if( directive )
                 {
-                    alexa_directive_process( as, directive, messageId, dialogRequestId );
+                    alexa_directive_process( as, directive);
                     alexa_directive_free( as, directive );
                     directive = NULL;
                 }
@@ -176,6 +179,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
             }
             case RECOGNIZING:
             {
+                char* event;
                 //record data
                 //send Recognize Event to avs
                 //change state to BUSY
@@ -218,10 +222,10 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         break;
                     }
 
-                    if( ETIMEDOUT == pthread_cond_timedwait(&sr->cond, &sr->mutex, abstime) )
+                    if( ETIMEDOUT == alexa_cond_timedwait(sr->cond, sr->mutex, abstime) )
                     {
                         timeout = 1;
-                         break;
+                        break;
                     }
                 }
                 alexa_mutex_unlock(&sr->mutex);                
@@ -231,7 +235,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                     alexa_directive_process( as, directive );
                     alexa_directive_free( as, directive );
                     directive = NULL;
-                    if( msg id is equal )
+                    if( 0 )//msg id is equal )
                     {
                         //msg id is equal
                         sr_set_state( sr, IDLE );
@@ -250,7 +254,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
             }
             case EXPECTING_SPEECH:
             {
-                if( can change state to RECOGNIZING )
+                if(0)// can change state to RECOGNIZING )
                 {
                     sr_set_state( sr, IDLE );
                     //ExpectSpeechTimedOut 
@@ -308,7 +312,8 @@ static const char* sr_recognize_event( alexa_service* as )
 static const char* sr_expect_speech_timedout_event(alexa_service* as)
 {
     const char* event_string;
-    cJSON* cj_root = cJSON_CreateObject();
+	struct alexa_speechrecognizer* sr = as->sr;
+	cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -318,7 +323,7 @@ static const char* sr_expect_speech_timedout_event(alexa_service* as)
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", "ExpectSpeechTimedOut");
-    cJSON_AddStringToObject( cj_header, "messageId", messageId);
+	cJSON_AddStringToObject(cj_header, "messageId", sr->messageId);
     
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
     
@@ -389,13 +394,13 @@ err:
 
 static struct alexa_speechrecognizer* sr_construct(void)
 {
-    struct alexa_speechrecognizer* sr = alexa_new( struct alexa_speechrecognizer )
+	struct alexa_speechrecognizer* sr = alexa_new(struct alexa_speechrecognizer);
     if( sr )
     {
         sr->wakeup_source = WAKE_UP_BY_NONE;
         
-        pthread_cond_init( &sr->cond, NULL );
-        alexa_mutex_init( &sr->mutex );
+        sr->mutex = alexa_mutex_create();
+        sr->cond = alexa_cond_create();
         
         sr->profile = PROFILE_CLOSE_TALK;
         sr->format = RECOGNIZER_FORMAT;
@@ -407,8 +412,8 @@ static void sr_destruct(struct alexa_speechrecognizer* sr)
 {
     if( sr )
     {
-        pthread_cond_destroy( &sr->cond );
-        alexa_mutex_destroy( &sr->mutex );
+        alexa_cond_destroy( sr->cond );
+        alexa_mutex_destroy( sr->mutex );
         
         alexa_delete( sr );
     }
@@ -434,5 +439,5 @@ int alexa_speechrecognizer_done(struct alexa_service* as)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

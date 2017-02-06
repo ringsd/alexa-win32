@@ -1,17 +1,22 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_speaker.c
+    File: alexa_speaker.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/13 16:14:32
+    TIME LIST:
+    CREATE By Ringsd   2017/01/13 16:14:32
 
 *******************************************************************************/
 
+#include "alexa_service.h"
+
 #define NAMESPACE       "Speaker"
+
+#define MAX_VOLUME_VAL    100
+#define MIN_VOLUME_VAL    0
 
 struct alexa_speaker{
     char* messageId;
@@ -46,13 +51,13 @@ cJSON* speaker_volume_state( alexa_service* as )
     
     cJSON_AddItemToObject( cj_volume_state, "payload", cj_payload );
     cJSON_AddNumberToObject( cj_payload, "volume", speaker->volume);
-    cJSON_AddBoolToObject( cj_payload, "mute", speaker->mute);
+    cJSON_AddBoolToObject( cj_payload, "mute", speaker->muted);
     
     return cj_volume_state;
 }
 
 
-static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON* cj_header, SPEAKER_EVENT_ENUM event )
+static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON* cj_header, enum SPEAKER_EVENT_ENUM event )
 {
     int event_index = (int)event;
 
@@ -63,7 +68,7 @@ static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON
     return;
 }
 
-static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSON* cj_payload, SPEAKER_EVENT_ENUM event)
+static void speaker_event_payload_construct(struct alexa_speaker* speaker, cJSON* cj_payload, enum SPEAKER_EVENT_ENUM event)
 {
     int event_index = (int)event;
     
@@ -80,7 +85,7 @@ static void speaker_event_payload_construct( struct alexa_speaker* speaker, cJSO
     return;
 }
 
-const char* alexa_speaker_event_construct( alexa_service* as, SPEAKER_EVENT_ENUM event )
+const char* alexa_speaker_event_construct( alexa_service* as, enum SPEAKER_EVENT_ENUM event )
 {
     struct alexa_speaker* speaker = as->speaker;
     char* event_json;
@@ -97,15 +102,16 @@ const char* alexa_speaker_event_construct( alexa_service* as, SPEAKER_EVENT_ENUM
     speaker_event_header_construct( as->speaker, cj_header, event );
     speaker_event_payload_construct( as->speaker, cj_payload, event );
     
-    event_json = cJSON_Print( root );
-    cJSON_Delete( root );
+    event_json = cJSON_Print(cj_root);
+    cJSON_Delete(cj_root);
     
     sys_log_d( "%s\n", event_json );
     return event_json;
 }
 
-static int directive_set_volume( alexa_service* as, struct alexa_directive_item* item )
+static int directive_set_volume( struct alexa_service* as, struct alexa_directive_item* item )
 {
+    struct alexa_speaker* speaker = as->speaker;
     cJSON* cj_payload = item->payload;
     cJSON* cj_volume;
     
@@ -125,8 +131,9 @@ err:
     return -1;
 }
 
-static int directive_adjust_volume( alexa_service* as, struct alexa_directive_item* item )
+static int directive_adjust_volume( struct alexa_service* as, struct alexa_directive_item* item )
 {
+    struct alexa_speaker* speaker = as->speaker;
     cJSON* cj_payload = item->payload;
     cJSON* cj_volume;
     
@@ -238,5 +245,5 @@ int alexa_speaker_done(alexa_service* as)
 
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/
