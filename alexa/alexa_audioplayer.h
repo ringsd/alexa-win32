@@ -18,10 +18,7 @@
 extern "C" {
 #endif
 
-
-struct alexa_audioplayer{
-};
-
+typedef struct alexa_audioplayer alexa_audioplayer;
 
 
 #ifdef __cplusplus

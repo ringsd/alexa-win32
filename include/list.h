@@ -159,6 +159,19 @@ static inline int list_empty(const struct list_head *head)
              &pos->member != (head);    \
              pos = list_entry(pos->member.next, typeof(*pos), member))
     
+
+/**
+ * list_for_each_entry_type  -  iterate over list of given type
+ * @pos:        the type * to use as a loop cursor.
+ * @type:       the type of the struct this is embedded in.
+ * @head:       the head for your list.
+ * @member:     the name of the list_struct within the struct.
+ */
+#define list_for_each_entry_type(pos, head, type, member)                      \
+        for (pos = list_entry((head)->next, type, member);      \
+             &pos->member != (head);    \
+             pos = list_entry(pos->member.next, type, member))
+
 #ifdef __cplusplus
 }
 #endif

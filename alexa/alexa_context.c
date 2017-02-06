@@ -12,6 +12,10 @@
 
 *******************************************************************************/
 
+#include "alexa_service.h"
+
+#define TAG		"alexa_context"
+
 /*
  *@brief construct the alexa context
  *@param struct alexa_service* as, the alexa_service object
@@ -20,6 +24,7 @@
 cJSON* alexa_context_get_state( struct alexa_service* as )
 {
     cJSON* cj_context = cJSON_CreateArray();
+	cJSON* cj_state;
 
     if( !cj_context )
     {

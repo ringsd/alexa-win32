@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_platform.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_platform.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/1/17 09:41:30
+    TIME LIST:
+    CREATE By Ringsd   2017/1/17 09:41:30
 
 *******************************************************************************/
 
@@ -18,7 +18,8 @@
 extern "C" {
 #endif
 
-
+#define alexa_new(x)        (x*)alexa_malloc(sizeof(x))
+#define alexa_delete(x)     alexa_free((void*)x)
 
 #ifdef __cplusplus
 }
@@ -27,5 +28,5 @@ extern "C" {
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

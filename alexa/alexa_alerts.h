@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-
+typedef struct alexa_alerts alexa_alerts;
 
 #ifdef __cplusplus
 }

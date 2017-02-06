@@ -22,6 +22,11 @@ void alexa_free(void* p)
     free( p );
 }
 
+void alexa_free(void* p)
+{
+	free(p);
+}
+
 void alexa_generate_uuid( const char* uuid, int len )
 {
     //linux read this file "/proc/sys/kernel/random/uuid"

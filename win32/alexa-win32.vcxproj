@@ -27,6 +27,7 @@
     <ClCompile Include="..\alexa\alexa_system.c" />
     <ClCompile Include="..\alexa\amazon_alexa.c" />
     <ClCompile Include="..\common\sys_log.c" />
+    <ClCompile Include="alexa_platform.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\alexa\alexa_alerts.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="..\include\alexa_platform.h" />
     <ClInclude Include="..\include\cjson\cjson.h" />
     <ClInclude Include="..\include\list.h" />
+    <ClInclude Include="..\include\sys_types.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5A8EE4C1-4E29-4B9B-A61A-F0401809822C}</ProjectGuid>

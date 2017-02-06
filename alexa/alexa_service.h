@@ -18,11 +18,26 @@
 extern "C" {
 #endif
 
-#include "cjson/cjson.h"
+#include	"cjson/cjson.h"
+#include	"list.h"
+#include	"sys_log.h"
+
+#include	"alexa_platform.h"
+
+typedef struct alexa_service alexa_service;
+
+#include	"alexa_speechrecognizer.h"
+#include	"alexa_speechsynthesizer.h"
+#include	"alexa_alerts.h"
+#include	"alexa_audioplayer.h"
+#include	"alexa_playbackcontroller.h"
+#include	"alexa_speaker.h"
+#include	"alexa_system.h"
+#include	"alexa_directive.h"
 
 struct alexa_service{
     //SpeechRecognizer
-    struct alexa_speechrecoginzer* sr;
+	struct alexa_speechrecognizer* sr;
 
     //SpeechSynthesizer
 	struct alexa_speechsynthesizer* ss;
@@ -34,7 +49,7 @@ struct alexa_service{
     struct alexa_audioplayer* ap;
     
     //PlayerController
-    struct alexa_playercontroller* playctrl;
+	struct alexa_playbackcontroller* playctrl;
     
     //Speaker
     struct alexa_speaker* speaker;

@@ -78,6 +78,9 @@
     <ClCompile Include="..\common\sys_log.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="alexa_platform.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\alexa\alexa_alerts.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="..\include\cjson\cjson.h">
       <Filter>Header Files\cjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys_types.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
