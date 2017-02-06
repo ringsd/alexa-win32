@@ -213,13 +213,14 @@ static struct alexa_system* system_construct( void )
     return system;
 }
 
-static void system_construct( struct alexa_system* system )
+static void system_destruct( struct alexa_system* system )
 {
     alexa_delete( system );
 }
 
 int alexa_system_init(alexa_service* as)
 {
+	as->system = system_construct();
     alexa_directive_register(NAMESPACE, directive_process );
     
     return 0;
@@ -227,6 +228,7 @@ int alexa_system_init(alexa_service* as)
 
 int alexa_system_done(alexa_service* as)
 {
+	system_destruct(as->system);
     alexa_directive_unregister(NAMESPACE);    
 
     return 0;

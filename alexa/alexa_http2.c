@@ -12,7 +12,16 @@
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/docs/managing-an-http-2-connection
     
 *******************************************************************************/
- 
+
+#include <string.h>
+#include "curl/curl.h"
+#include "list.h"
+#include "alexa_platform.h"
+
+#define TODO	1
+
+#define TAG "http2"
+
 #define ALEXA_BASE_URL      "https://avs-alexa-na.amazon.com"
 #define ALEXA_API_VERSION   "v20160207" 
 
@@ -86,8 +95,17 @@ struct alexa_http2{
     char*   boundary;
     char*   api_version;
     char*   base_url;
-    void*   curl_handle[];
+    void*   curl_handle;
     CURL*   curl;
+
+	int		events_count;
+	int		max_events_count;
+
+	struct list_head events_head;
+	int boundary_len;
+	int dummy_len;
+	int audio_header_len;
+	int event_header_len;
 };
 
 struct alexa_event_item{
@@ -111,19 +129,19 @@ alexa_http2_ping()
     
 }
 
-alexa_http2_conn_establishing(struct alexa_http2* https)
+alexa_http2_conn_establishing(struct alexa_http2* http2)
 {
-    https
+	http2 = http2;
 }
 
-int alexa_http2_event_audio_add( const char* event, int event_len, const char* audio_data, int audio_data_len )
+int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, int event_len, const char* audio_data, int audio_data_len)
 {
     int content_len = 0;
     char* content;
     char* content_pos;
     struct alexa_event_item* item;
     
-    item = alexa_new( struct alexa_event_item );
+	item = alexa_new(struct alexa_event_item);
     if( !item )
     {
         sys_log_e( TAG, "don't have enough mem\n" );
@@ -291,11 +309,6 @@ static void setup_ping(CURL *hnd, struct curl_slist *headers)
 //post events
 static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fields, int len)
 {
-    FILE *out = fopen(OUTPUTFILE, "wb");
-
-    /* write to this file */ 
-    curl_easy_setopt(hnd, CURLOPT_WRITEDATA, out);
-
     /* set the events URL */ 
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events" );
 
@@ -303,9 +316,9 @@ static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fiel
     //curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
     //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
 
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, fields);
     /* set CURLOPT_POSTFIELDSIZE, or will send poststring as string */
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, len);    
+	curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE, len);
     
     /* HTTP/2 please */ 
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
@@ -413,15 +426,20 @@ err:
 
 static void* alexa_http2_process( void* data )
 {
-    CURL *easy;
-    CURLM *multi_handle;
+	CURL*	ping_hnd;
+	CURL*	directives_hnd;
+	CURL*	events_hnd;
+    CURLM*	multi_handle;
+	char*	directives_response;
     int still_running; /* keep number of running handles */ 
     struct CURLMsg *m;
+	struct alexa_http2* http2;
+	int ping_hnd_timeout = 0;
 
     /* init a multi stack */ 
     multi_handle = curl_multi_init();
 
-    directives_hnd = curl_directives_construct(struct alexa_http2* http2, &directives_response);
+    directives_hnd = curl_directives_construct(http2, &directives_response);
     if( directives_hnd == NULL )
     {
         sys_log_e( TAG, "construct the directives request error.\n" );
@@ -431,7 +449,7 @@ static void* alexa_http2_process( void* data )
         curl_multi_add_handle(multi_handle, directives_hnd);
     }
 
-    curl_multi_setopt(multi_handle, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
+    //curl_multi_setopt(multi_handle, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
 
     /* We do HTTP/2 so let's stick to one connection per host */ 
     curl_multi_setopt(multi_handle, CURLMOPT_MAX_HOST_CONNECTIONS, 1L);    
@@ -548,11 +566,11 @@ static void* alexa_http2_process( void* data )
         } while(m);
 
         //ping hnd request timeout, restart the connect
-        if()
+        if( TODO )
         {
         }
         //ping hnd timeout, set a ping request, and start the ping request timeout
-        else if( ping_hnd_timeout )
+		else if (TODO && ping_hnd_timeout)
         {
             //every 5 minutes, send the ping get request
             ping_hnd = curl_ping_construct(http2);
@@ -569,7 +587,7 @@ static void* alexa_http2_process( void* data )
         //has directive done, add the directive get request
         if( directives_hnd == NULL )
         {
-            directives_hnd = curl_directives_construct(http2);
+			directives_hnd = curl_directives_construct(http2, &directives_response);
             if( directives_hnd == NULL )
             {
                 sys_log_e( TAG, "construct the directives request error.\n" );
@@ -581,7 +599,7 @@ static void* alexa_http2_process( void* data )
         }
         
         //has slot for events to send
-        while(http2->events_count < http2->max_events_count )
+        while(http2->events_count < http2->max_events_count)
         {
             //every 5 minutes, send the ping get request
             events_hnd = curl_events_construct(http2);

@@ -54,9 +54,6 @@
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
-    <ClCompile Include="..\alexa\alexa_record.c">
-      <Filter>Source Files\alexa</Filter>
-    </ClCompile>
     <ClCompile Include="..\alexa\alexa_service.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>

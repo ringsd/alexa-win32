@@ -19,6 +19,10 @@
 #include "amazon_alexa_if.h"
 #include "cjson/cjson.h"
 
+#define TODO 1
+
+#define TAG	"auth"
+
 #undef DEBUG
 #define MAX_BUF 655300
 #define TMP_BUF 200
@@ -27,9 +31,9 @@
 
 #ifdef WIN32
 
-#define ALEXA_KEY_PATH           "alexa.key"
-#define AMAZON_ALEXA_TEST_FILE          "howistheweatherinbeijing.wav"
-#define AMAZON_ALEXA_RESPONSE_FILE      "response.mp3"
+#define ALEXA_KEY_PATH					"alexa.key"
+#define ALEXA_TEST_FILE					"howistheweatherinbeijing.wav"
+#define ALEXA_RESPONSE_FILE				"response.mp3"
 
 #define bool                            unsigned char
 #define false                           0
@@ -341,22 +345,22 @@ static int aa_service_save_key( aa_service* aa, const char* file )
 	struct aa_authorization* auth = (struct aa_authorization*)&aa->authorization;
 	struct aa_token* token = (struct aa_token*)&aa->token;
 
-	cJSON_AddItemToObject(root_json, "authorization", auth_json);
-	cJSON_AddItemToObject(auth_json, "authorizationCode", cJSON_CreateString(auth->authorizationCode));
-	cJSON_AddItemToObject(auth_json, "redirectUri", cJSON_CreateString(auth->redirectUri));
-	cJSON_AddItemToObject(auth_json, "clientId", cJSON_CreateString(auth->clientId));
-	cJSON_AddItemToObject(auth_json, "codeVerifier", cJSON_CreateString(auth->codeVerifier));
+	cJSON_AddItemToObject(cj_root, "authorization", cj_auth);
+	cJSON_AddItemToObject(cj_auth, "authorizationCode", cJSON_CreateString(auth->authorizationCode));
+	cJSON_AddItemToObject(cj_auth, "redirectUri", cJSON_CreateString(auth->redirectUri));
+	cJSON_AddItemToObject(cj_auth, "clientId", cJSON_CreateString(auth->clientId));
+	cJSON_AddItemToObject(cj_auth, "codeVerifier", cJSON_CreateString(auth->codeVerifier));
 
-	cJSON_AddItemToObject(root_json, "token", token_json);
-	cJSON_AddItemToObject(token_json, "access_token", cJSON_CreateString(token->access_token));
-	cJSON_AddItemToObject(token_json, "refresh_token", cJSON_CreateString(token->refresh_token));
-	cJSON_AddItemToObject(token_json, "token_type", cJSON_CreateString(token->token_type));
-	cJSON_AddNumberToObject( token_json, "expires_in", token->expires_in );
-	cJSON_AddNumberToObject( token_json, "current_time", token->current_time );
+	cJSON_AddItemToObject(cj_root, "token", cj_token);
+	cJSON_AddItemToObject(cj_token, "access_token", cJSON_CreateString(token->access_token));
+	cJSON_AddItemToObject(cj_token, "refresh_token", cJSON_CreateString(token->refresh_token));
+	cJSON_AddItemToObject(cj_token, "token_type", cJSON_CreateString(token->token_type));
+	cJSON_AddNumberToObject(cj_token, "expires_in", token->expires_in);
+	cJSON_AddNumberToObject(cj_token, "current_time", token->current_time);
 
-	aa_service_save2keyfile( root_json, file );
+	aa_service_save2keyfile(cj_root, file);
 
-	cJSON_Delete(root_json);
+	cJSON_Delete(cj_root);
 }
 
 static void aa_free_authorization(struct aa_service* aa)
@@ -694,7 +698,7 @@ struct aa_service* aa_service_startup(mozart_amazon_callback callback)
     aa->token_mutex = alexa_mutex_create();
     printf( "%s %d 0x%08x\n", __FUNCTION__, __LINE__, aa->main_mutex );
     
-	if( aa_get_authorization(aa, AMAZON_ALEXA_KEY_PATH) < 0 )
+	if( aa_get_authorization(aa, ALEXA_KEY_PATH) < 0 )
 	{
 		if (aa_service_refresh_token(aa) < 0)
 			printf("refresh token fail!\n");
@@ -947,7 +951,7 @@ void aa_set_authorization(char *authorizationCode, char *redirectUri,
 		auth->clientId = strdup(clientId);
 		auth->codeVerifier = strdup(codeVerifier);
 
-		aa_service_save_key( aa, AMAZON_ALEXA_KEY_PATH );
+		aa_service_save_key( aa, ALEXA_KEY_PATH );
 	}
 
 err_response:
@@ -1015,14 +1019,14 @@ err:
 	return -1;
 }
 
-static int authmng_save_key_file( alexa_authmng* authmng, const char* file )
+static int authmng_save_key_file( struct alexa_authmng* authmng, const char* file )
 {
     //ignore the cJSON error
 	struct cJSON* cj_root = cJSON_CreateObject();
 	struct cJSON* cj_auth = cJSON_CreateObject();
 	struct cJSON* cj_token = cJSON_CreateObject();
 	struct alexa_authorization* auth = &authmng->auth;
-	struct alexa_token* token = &aa->token;
+	struct alexa_token* token = &authmng->token;
 
 	cJSON_AddItemToObject(cj_root, "authorization", cj_auth);
 	cJSON_AddItemToObject(cj_auth, "authorizationCode", cJSON_CreateString(auth->authorizationCode));
@@ -1030,7 +1034,7 @@ static int authmng_save_key_file( alexa_authmng* authmng, const char* file )
 	cJSON_AddItemToObject(cj_auth, "clientId", cJSON_CreateString(auth->clientId));
 	cJSON_AddItemToObject(cj_auth, "codeVerifier", cJSON_CreateString(auth->codeVerifier));
 
-	cJSON_AddItemToObject(cj_root, "token", token_json);
+	cJSON_AddItemToObject(cj_root, "token", cj_token);
 	cJSON_AddItemToObject(cj_token, "access_token", cJSON_CreateString(token->access_token));
 	cJSON_AddItemToObject(cj_token, "refresh_token", cJSON_CreateString(token->refresh_token));
 	cJSON_AddItemToObject(cj_token, "token_type", cJSON_CreateString(token->token_type));
@@ -1047,7 +1051,7 @@ static int authmng_save_key_file( alexa_authmng* authmng, const char* file )
 
 static void authmng_parse_auth(struct alexa_authmng* authmng, cJSON* cj_auth)
 {
-    struct alexa_authorization* authorization = &authmng->authorization;
+    struct alexa_authorization* authorization = &authmng->auth;
 
     authorization->authorizationCode = authmng_cjson_dup_string(cj_auth, "authorizationCode");
     if( authorization->authorizationCode )
@@ -1117,7 +1121,7 @@ static void authmng_parse_token(struct alexa_authmng* authmng, cJSON* cj_token)
     return;
 }
 
-static int authmng_load_key( alexa_auth* auth, const char* file )
+static int authmng_load_key( struct alexa_authmng* authmng, const char* file )
 {
     FILE* fp;
     int length;
@@ -1159,7 +1163,7 @@ static int authmng_load_key( alexa_auth* auth, const char* file )
         cJSON_Delete(cj_root);
 
 		//need check the expires_in
-		if( aa->token.expires_in )
+		if (TODO && authmng->token.expires_in)
 		{
 		}
     }
@@ -1218,7 +1222,7 @@ static int authmng_parse_token_response(struct alexa_authmng* authmng, char *res
 			if(token_type) token->token_type = token_type;
 			token->expires_in = expires_in;
 		}
-		cJSON_Delete(root_json);
+		cJSON_Delete(cj_root);
 	}
 
 	return 0;
@@ -1238,7 +1242,7 @@ err:
 
 static int authmng_get_token(struct alexa_authmng* authmng, const char* grant_type)
 {
-	struct alexa_authorization *authorization = &authmng->authorization;
+	struct alexa_authorization *authorization = &authmng->auth;
 	struct alexa_token *token = &authmng->token;
 
 	char *response = NULL;
@@ -1319,7 +1323,7 @@ static int authmng_get_token(struct alexa_authmng* authmng, const char* grant_ty
             goto err3;
 		}
 
-		aa_service_save_key( aa, AMAZON_ALEXA_KEY_PATH );
+		authmng_save_key_file(authmng, ALEXA_KEY_PATH);
 
 		alexa_free(cmd_str);
 		alexa_free(response);
@@ -1350,13 +1354,10 @@ alexa_authmng_cancel()
     
 }
 
-alexa_authmng_cancel()
-{
-    
-}
-
 alexa_authmng_init()
 {
+	struct alexa_authmng* authmng;
+
     //
     if( authmng_load_key( authmng, ALEXA_KEY_PATH ) < 0 )
     {

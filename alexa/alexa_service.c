@@ -11,19 +11,23 @@
 
 *******************************************************************************/
 
+#include "alexa_service.h"
 
-static void* alexa_service_process(void*)
+#define TODO 1
+
+static void* alexa_service_process(void* data)
 {
+	struct alexa_service* as = (struct alexa_service*)data;
     //init the local record
     //init the local playback
     
     //create a connect to avs, wait the directive
     //set directive process to the connect
 
-    while()
+    while(TODO)
     {
         //user wake up
-        if(  )
+        if(TODO)
         {
             alexa_speechrecognizer_process(as);
         }
@@ -39,8 +43,7 @@ void alexa_service_wakeup(void)
 
 struct alexa_service* alexa_service_init(void)
 {
-    //
-    struct alexa_service* as = alexa_malloc( sizeof( struct alexa_service ) );
+    struct alexa_service* as = alexa_new(struct alexa_service);
     if( as ) goto err;
 
     //init the directive center
@@ -79,8 +82,8 @@ void alexa_service_done( struct alexa_service* as )
 {
 
     alexa_directive_done( as );
-    alexa_free( as );
-    
+    alexa_delete( as );
+
     return ;
 }
 

@@ -19,7 +19,6 @@
     <ClCompile Include="..\alexa\alexa_directive.c" />
     <ClCompile Include="..\alexa\alexa_http2.c" />
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
-    <ClCompile Include="..\alexa\alexa_record.c" />
     <ClCompile Include="..\alexa\alexa_service.c" />
     <ClCompile Include="..\alexa\alexa_speaker.c" />
     <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
@@ -86,6 +85,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

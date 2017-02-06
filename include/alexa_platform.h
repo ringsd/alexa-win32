@@ -36,6 +36,8 @@ typedef struct alexa_cond alexa_cond;
 
 #endif
 
+typedef void (*alexa_thread_proc)(void* p_data);
+
 int alexa_begin_thread(alexa_thread_proc proc, void* p_data, void* stack, int prio);
 
 int alexa_begin_thread2(alexa_thread_proc proc, void* p_data, void* stack, int prio, int size);

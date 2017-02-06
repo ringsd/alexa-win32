@@ -20,6 +20,8 @@
 
 #define URL_CID         "cid:"
 
+#define	TODO			1
+
 enum{
     PLAYBACKSTARTED_EVENT = 0,
     PLAYBACKNEARLYFINISHED_EVENT,
@@ -237,35 +239,35 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         }
         case AUDIOPLAYER_STATE_PLAYING:
             //playing has some issue
-            if(  )
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKFAILED_EVENT );
             }
                 
             //directive_stop or directive_clearqueue
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
             }
             
             // alert or timer 
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PAUSED );
                 alexa_audioplayer_event_construct( as, PLAYBACKPAUSED_EVENT );
             }
         
             //ran out of buffered bytes
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_BUFFER_UNDERRUN );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERSTARTED_EVENT );
             }
 
             //play finish
-            if()
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_FINISHED );
                 alexa_audioplayer_event_construct( as, PLAYBACKFINISHED_EVENT );
@@ -284,14 +286,14 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         case AUDIOPLAYER_STATE_PAUSED:
         {
             //play resume
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
                 alexa_audioplayer_event_construct( as, PLAYBACKRESUMED_EVENT );
             }
 
             //directive_clearqueue
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
@@ -302,14 +304,14 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         case AUDIOPLAYER_STATE_BUFFER_UNDERRUN:
         {
             //buffering finished playback resumed
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERFINISHED_EVENT );
             }
             
             //directive_clearqueue
-            if()
+			if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );

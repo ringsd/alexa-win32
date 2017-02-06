@@ -276,7 +276,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
 }
 
 //has binary audio attachment
-static const char* sr_recognize_event( alexa_service* as )
+static const char* sr_recognize_event( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = as->sr;
     const char* event_string;

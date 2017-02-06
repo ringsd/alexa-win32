@@ -18,13 +18,6 @@
 extern "C" {
 #endif
 
-enum{
-    SYNCHRONIZESTATE_EVENT = 0,
-    USERINACTIVITYREPORT_EVENT,
-    EXCEPTIONENCOUNTERED_EVENT,
-}SYSTEM_EVENT_ENUM;
-
-
 #ifdef __cplusplus
 }
 #endif
