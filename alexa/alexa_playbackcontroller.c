@@ -12,6 +12,8 @@
 
 *******************************************************************************/
 
+#include "alexa_service.h"
+
 #define NAMESPACE       "PlaybackController"
 
 struct alexa_playbackcontroller{
@@ -25,14 +27,13 @@ static const char* playbackcontroller_event[] = {
     "PreviousCommandIssued",
 };
 
-static cJSON* pc_event_context_construct( alexa_service* as )
+static cJSON* pc_event_context_construct( struct alexa_service* as )
 {
     return alexa_context_get_state( as );
 }
 
-static void pc_event_header_construct( alexa_service* as, cJSON* cj_header, PLAYBACKCONTROLLER_EVENT_ENUM event )
+static void pc_event_header_construct(struct alexa_playbackcontroller* pc, cJSON* cj_header, enum PLAYBACKCONTROLLER_EVENT_ENUM event)
 {
-    struct alexa_playbackcontroller* pc = as->pc;
     int event_index = (int)event;
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
@@ -42,16 +43,15 @@ static void pc_event_header_construct( alexa_service* as, cJSON* cj_header, PLAY
     return;
 }
 
-static void pc_event_payload_construct( alexa_service* as, cJSON* cj_payload, PLAYBACKCONTROLLER_EVENT_ENUM event )
+static void pc_event_payload_construct(struct alexa_playbackcontroller* pc, cJSON* cj_payload, enum PLAYBACKCONTROLLER_EVENT_ENUM event)
 {
-    as = as;
+    pc = pc;
     cj_payload = cj_payload;
     event = event;
-    
     return;
 }
 
-const char* alexa_pc_event_construct( alexa_service* as, PLAYBACKCONTROLLER_EVENT_ENUM event )
+const char* alexa_pc_event_construct(struct alexa_service* as, enum PLAYBACKCONTROLLER_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -72,7 +72,7 @@ const char* alexa_pc_event_construct( alexa_service* as, PLAYBACKCONTROLLER_EVEN
     pc_event_header_construct( as, cj_header, event );
     playback_ctrl_event_payload_construct( as, cj_payload, event );
 
-    event_json = cJSON_Print( root );
+    event_json = cJSON_Print( cj_root );
     cJSON_Delete( cj_root );
 
     sys_log_d( "%s\n", event_json );
@@ -96,7 +96,7 @@ static void pc_destruct( struct alexa_playbackcontroller* pc )
     alexa_delete( pc );
 }
 
-int alexa_pc_init( alexa_service* as )
+int alexa_pc_init(struct alexa_service* as)
 {
     as->pc = pc_construct();
     if( as->pc == NULL )
@@ -107,7 +107,7 @@ int alexa_pc_init( alexa_service* as )
     return 0;
 }
 
-int alexa_pc_done( alexa_service* as )
+int alexa_pc_done(struct alexa_service* as)
 {
     pc_destruct( as->pc );
     return 0;

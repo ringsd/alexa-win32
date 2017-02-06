@@ -21,6 +21,8 @@ extern "C" {
 #define alexa_new(x)        (x*)alexa_malloc(sizeof(x))
 #define alexa_delete(x)     alexa_free((void*)x)
 
+typedef struct alexa_mutex	alexa_mutex;
+
 #ifdef __cplusplus
 }
 #endif

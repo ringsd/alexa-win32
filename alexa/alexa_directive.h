@@ -20,6 +20,7 @@ extern "C" {
 
 struct alexa_directive_item{
     struct list_head    list;
+    cJSON*              root;
     cJSON*              directive;
     cJSON*              payload;
     cJSON*              header;

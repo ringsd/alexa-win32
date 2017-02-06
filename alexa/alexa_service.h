@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+#include	<string.h>
 #include	"cjson/cjson.h"
 #include	"list.h"
 #include	"sys_log.h"
@@ -49,13 +50,15 @@ struct alexa_service{
     struct alexa_audioplayer* ap;
     
     //PlayerController
-	struct alexa_playbackcontroller* playctrl;
+	struct alexa_playbackcontroller* pc;
     
     //Speaker
     struct alexa_speaker* speaker;
 
     //System
     struct alexa_system* system;
+
+	struct alexa_directive* directive;
 };
 
 #ifdef __cplusplus
