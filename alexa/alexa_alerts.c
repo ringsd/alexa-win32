@@ -11,6 +11,13 @@
 
 *******************************************************************************/
 
+#include	<string.h>
+
+#include	"cjson/cjson.h"
+#include	"list.h"
+#include	"alexa_service.h"
+#include	"alexa_directive.h"
+
 #define NAMESPACE       "Alerts"
 
 struct alexa_alerts{
@@ -52,8 +59,9 @@ static const char* alerts_event[] = {
 };
 
 
-static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_header, ALERTS_EVENT_ENUM event )
+static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_header, enum ALERTS_EVENT_ENUM event )
 {
+	struct alexa_alerts* alerts = &(as->alerts);
     int event_index = (int)event;
     int len = 0;
     
@@ -64,7 +72,7 @@ static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_h
     return;
 }
 
-static void alerts_event_payload_construct( struct alexa_service* as, cJSON* cj_payload, ALERTS_EVENT_ENUM event, const char* token)
+static void alerts_event_payload_construct(struct alexa_service* as, cJSON* cj_payload, enum ALERTS_EVENT_ENUM event, const char* token)
 {
     int event_index = (int)event;
     int len = 0;
@@ -81,7 +89,7 @@ static void alerts_event_payload_construct( struct alexa_service* as, cJSON* cj_
         case ALERTSTOPPED_EVENT:
         case ALERTENTEREDFOREGROUND_EVENT:
         case ALERTENTEREDBACKGROUND_EVENT:
-            cJSON_AddNumberToObject( cj_payload, "token", token);
+			cJSON_AddStringToObject(cj_payload, "token", token);
             break;
         default:
             break;
@@ -89,7 +97,7 @@ static void alerts_event_payload_construct( struct alexa_service* as, cJSON* cj_
     return;
 }
 
-const char* alexa_alerts_event_construct( alexa_service* as, ALERTS_EVENT_ENUM event, const char* token )
+const char* alexa_alerts_event_construct( struct alexa_service* as, enum ALERTS_EVENT_ENUM event, const char* token )
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -106,22 +114,24 @@ const char* alexa_alerts_event_construct( alexa_service* as, ALERTS_EVENT_ENUM e
     alerts_event_header_construct( as, cj_header, event );
     alerts_event_payload_construct( as, cj_payload, event, token );
     
-    event_json = cJSON_Print( root );
+	event_json = cJSON_Print(cj_root);
     alexa_log_d( "%s\n", event_json );
     
-    cJSON_Delete( root );
+	cJSON_Delete(cj_root);
     
     return event_json;
 }
 
-static int directive_set_alert( alexa_service* as, struct alexa_directive_item* item )
+static int directive_set_alert( struct alexa_service* as, struct alexa_directive_item* item )
 {
     cJSON* cj_payload = item->payload;
     cJSON* cj_token;
     cJSON* cj_type;
     cJSON* cj_scheduledTime;
+	struct alexa_alerts* alerts = as->alerts;
     struct alexa_alert_item* alert_item;
-    struct list_head* head;
+	struct list_head* list_item;
+	struct list_head* head;
 
     cj_token = cJSON_GetObjectItem(cj_payload, "token");
     if( cj_token == NULL ) goto err;
@@ -132,7 +142,7 @@ static int directive_set_alert( alexa_service* as, struct alexa_directive_item* 
     cj_scheduledTime = cJSON_GetObjectItem(cj_payload, "scheduledTime");
     if( cj_scheduledTime == NULL ) goto err;
     
-    list_for_each(alert_item, &alexas->alerts_head)
+	list_for_each(list_item, &alerts->alerts_head)
     {
         if( !strcmp(alert_item->token, cj_token->valuestring) )
         {

@@ -13,69 +13,129 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\alexa">
+      <UniqueIdentifier>{e8656f15-88e3-483b-8fb7-00c09e317808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\alexa">
+      <UniqueIdentifier>{beddb93a-d082-43ac-b1d9-ba004d1031e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{eee19153-f470-4e24-aa71-3a5ddb4b22ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{0f99d645-0e08-4811-a41c-f56285184a37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cjson">
+      <UniqueIdentifier>{4e645e5b-acb2-4888-bbb8-c2c23989fcf5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\alexa\alexa_alerts.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_audioplayer.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_auth.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_context.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_device.c">
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_directive.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_http2.c">
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_record.c">
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_service.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_speaker.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_speechrecognizer.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_speechsynthesizer.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_system.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\amazon_alexa.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\sys_log.c">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\alexa\alexa_alerts.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_audioplayer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\alexa\alexa_auth.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\alexa\alexa_context.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\alexa\alexa_device.h">
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_directive.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\alexa\alexa_http2.h">
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_playbackcontroller.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\alexa\alexa_record.h">
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_service.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_speaker.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_speechrecognizer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_speechsynthesizer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\alexa_system.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\alexa\amazon_alexa_if.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sys_log.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa_platform.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cjson\cjson.h">
+      <Filter>Header Files\cjson</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_directive.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_directive.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/13 17:03:29
+    TIME LIST:
+    CREATE By Ringsd   2017/01/13 17:03:29
 
 *******************************************************************************/
 
@@ -19,8 +19,10 @@ extern "C" {
 #endif
 
 struct alexa_directive_item{
-	struct list_head    list;
-    cJSON*              cj_directive;
+    struct list_head    list;
+    cJSON*              directive;
+    cJSON*              payload;
+    cJSON*              header;
     int                 data_len;
     const char*         data;
 };
@@ -42,5 +44,5 @@ void alexa_directive_done( struct alexa_service* as );
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

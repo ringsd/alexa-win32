@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_http2.c
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_http2.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/18 16:38:46
+    TIME LIST:
+    CREATE By Ringsd   2017/01/18 16:38:46
 
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/docs/managing-an-http-2-connection
     
@@ -91,7 +91,7 @@ struct alexa_http2{
 };
 
 struct alexa_event_item{
-	struct list_head    list;
+    struct list_head    list;
     char*               content;
     int                 content_len;
 };
@@ -206,29 +206,29 @@ int alexa_http2_event_audio_remove( struct alexa_event_item* item )
 
 static size_t directives_response(void *buffer, size_t size, size_t nmemb, void *userp)
 {
-	int response_len = 0;
-	char *response = *(char **)userp;
-	char *new_response;
+    int response_len = 0;
+    char *response = *(char **)userp;
+    char *new_response;
 
-	if (response)
-		response_len = strlen(response);
+    if (response)
+        response_len = strlen(response);
 
-	new_response = (char*)calloc(response_len + size * nmemb + 1, 1);
-	if (new_response == NULL) {
-		free(response);
-		*(char **)userp = NULL;
-		return 0;
-	}
+    new_response = (char*)calloc(response_len + size * nmemb + 1, 1);
+    if (new_response == NULL) {
+        free(response);
+        *(char **)userp = NULL;
+        return 0;
+    }
 
-	if (response) {
-		memcpy(new_response, response, response_len);
-		free(response);
-	}
-	memcpy(new_response + response_len, buffer, size * nmemb);
+    if (response) {
+        memcpy(new_response, response, response_len);
+        free(response);
+    }
+    memcpy(new_response + response_len, buffer, size * nmemb);
 
-	*(char **)userp = new_response;
+    *(char **)userp = new_response;
 
-	return size * nmemb;
+    return size * nmemb;
 }
 
 
@@ -236,7 +236,7 @@ static size_t directives_response(void *buffer, size_t size, size_t nmemb, void 
 static void setup_directives(CURL *hnd, struct curl_slist *headers, char** response)
 {
     /* set the http header */
-	curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
     /* set the directives URL */ 
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives" );
@@ -250,8 +250,8 @@ static void setup_directives(CURL *hnd, struct curl_slist *headers, char** respo
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
     
     /* write to this data */ 
-	curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, directives_response);
-	curl_easy_setopt(hnd, CURLOPT_WRITEDATA, response);
+    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, directives_response);
+    curl_easy_setopt(hnd, CURLOPT_WRITEDATA, response);
 
     /* HTTP/2 please */ 
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
@@ -266,7 +266,7 @@ static void setup_directives(CURL *hnd, struct curl_slist *headers, char** respo
 static void setup_ping(CURL *hnd, struct curl_slist *headers)
 {
     /* set the http header */
-	curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
     
     /* set the ping URL */ 
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/ping" );
@@ -303,9 +303,9 @@ static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fiel
     //curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
     //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
 
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
-	/* set CURLOPT_POSTFIELDSIZE, or will send poststring as string */
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, len);    
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
+    /* set CURLOPT_POSTFIELDSIZE, or will send poststring as string */
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, len);    
     
     /* HTTP/2 please */ 
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
@@ -461,19 +461,19 @@ static void* alexa_http2_process( void* data )
 
         curl_multi_timeout(multi_handle, &curl_timeo);
         if(curl_timeo >= 0) {
-          timeout.tv_sec = curl_timeo / 1000;
-          if(timeout.tv_sec > 1)
-            timeout.tv_sec = 1;
-          else
-            timeout.tv_usec = (curl_timeo % 1000) * 1000;
+            timeout.tv_sec = curl_timeo / 1000;
+            if(timeout.tv_sec > 1)
+                timeout.tv_sec = 1;
+            else
+                timeout.tv_usec = (curl_timeo % 1000) * 1000;
         }
 
         /* get file descriptors from the transfers */ 
         mc = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
         if(mc != CURLM_OK) {
-          fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
-          break;
+            fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
+            break;
         }
 
         /* On success the value of maxfd is guaranteed to be >= -1. We call
@@ -484,29 +484,29 @@ static void* alexa_http2_process( void* data )
 
         if(maxfd == -1) {
         #ifdef _WIN32
-          Sleep(100);
-          rc = 0;
+            Sleep(100);
+            rc = 0;
         #else
-          /* Portable sleep for platforms other than Windows. */ 
-          struct timeval wait = { 0, 100 * 1000 }; /* 100ms */ 
-          rc = select(0, NULL, NULL, NULL, &wait);
+            /* Portable sleep for platforms other than Windows. */ 
+            struct timeval wait = { 0, 100 * 1000 }; /* 100ms */ 
+            rc = select(0, NULL, NULL, NULL, &wait);
         #endif
         }
         else {
-          /* Note that on some platforms 'timeout' may be modified by select().
-             If you need access to the original value save a copy beforehand. */ 
-          rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+            /* Note that on some platforms 'timeout' may be modified by select().
+               If you need access to the original value save a copy beforehand. */ 
+            rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
         }
 
         switch(rc) {
-        case -1:
-          /* select error */ 
-          break;
-        case 0:
-        default:
-          /* timeout or readable/writable sockets */ 
-          curl_multi_perform(multi_handle, &still_running);
-          break;
+            case -1:
+                /* select error */ 
+                break;
+            case 0:
+            default:
+                /* timeout or readable/writable sockets */ 
+                curl_multi_perform(multi_handle, &still_running);
+                break;
         }
 
         /*
@@ -598,7 +598,7 @@ static void* alexa_http2_process( void* data )
         
     } while(1); /* as long as we have transfers going */ 
 
-    //loop 
+    //loop ??
     do {
         int msgq = 0;;
         m = curl_multi_info_read(multi_handle, &msgq);
@@ -607,7 +607,7 @@ static void* alexa_http2_process( void* data )
             curl_multi_remove_handle(multi_handle, e);
             curl_easy_cleanup(e);
         }
-    } while(m);    
+    } while(m);
     
     curl_multi_cleanup(multi_handle);
 }
@@ -624,5 +624,5 @@ void alexa_http2_done( struct alexa_service* as )
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

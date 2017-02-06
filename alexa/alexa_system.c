@@ -1,17 +1,19 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_system.c
+    File: alexa_system.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/13 16:22:09
+    TIME LIST:
+    CREATE By Ringsd   2017/01/13 16:22:09
     
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/system
 
 *******************************************************************************/
+
+#include    "cjson/cjson.h"
 
 #define     NAMESPACE      "System"
 
@@ -32,7 +34,7 @@ static const char* system_event[] = {
 };
 
 enum{
-    INVALID_REQUEST_EXCEPTION=400,	
+    INVALID_REQUEST_EXCEPTION=400,
     UNAUTHORIZED_REQUEST_EXCEPTION=403,
     THROTTLING_EXCEPTION=429,
     INTERNAL_SERVICE_EXCEPTION=500,
@@ -44,7 +46,7 @@ struct system_exception{
     const char* err_desc;
 };
 
-static system_exception system_exception_list[] = {
+static struct system_exception system_exception_list[] = {
     {INVALID_REQUEST_EXCEPTION,         "The request was malformed."},
     {UNAUTHORIZED_REQUEST_EXCEPTION,    "The request was not authorized."},
     {THROTTLING_EXCEPTION,              "Too many requests to the Alexa Voice Service."},
@@ -223,5 +225,5 @@ int alexa_system_done(alexa_service* as)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

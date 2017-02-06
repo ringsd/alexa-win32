@@ -10,6 +10,45 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\alexa\alexa_alerts.c" />
+    <ClCompile Include="..\alexa\alexa_audioplayer.c" />
+    <ClCompile Include="..\alexa\alexa_auth.c" />
+    <ClCompile Include="..\alexa\alexa_context.c" />
+    <ClCompile Include="..\alexa\alexa_device.c" />
+    <ClCompile Include="..\alexa\alexa_directive.c" />
+    <ClCompile Include="..\alexa\alexa_http2.c" />
+    <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
+    <ClCompile Include="..\alexa\alexa_record.c" />
+    <ClCompile Include="..\alexa\alexa_service.c" />
+    <ClCompile Include="..\alexa\alexa_speaker.c" />
+    <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
+    <ClCompile Include="..\alexa\alexa_speechsynthesizer.c" />
+    <ClCompile Include="..\alexa\alexa_system.c" />
+    <ClCompile Include="..\alexa\amazon_alexa.c" />
+    <ClCompile Include="..\common\sys_log.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\alexa\alexa_alerts.h" />
+    <ClInclude Include="..\alexa\alexa_audioplayer.h" />
+    <ClInclude Include="..\alexa\alexa_auth.h" />
+    <ClInclude Include="..\alexa\alexa_context.h" />
+    <ClInclude Include="..\alexa\alexa_device.h" />
+    <ClInclude Include="..\alexa\alexa_directive.h" />
+    <ClInclude Include="..\alexa\alexa_http2.h" />
+    <ClInclude Include="..\alexa\alexa_playbackcontroller.h" />
+    <ClInclude Include="..\alexa\alexa_record.h" />
+    <ClInclude Include="..\alexa\alexa_service.h" />
+    <ClInclude Include="..\alexa\alexa_speaker.h" />
+    <ClInclude Include="..\alexa\alexa_speechrecognizer.h" />
+    <ClInclude Include="..\alexa\alexa_speechsynthesizer.h" />
+    <ClInclude Include="..\alexa\alexa_system.h" />
+    <ClInclude Include="..\alexa\amazon_alexa_if.h" />
+    <ClInclude Include="..\common\sys_log.h" />
+    <ClInclude Include="..\include\alexa_platform.h" />
+    <ClInclude Include="..\include\cjson\cjson.h" />
+    <ClInclude Include="..\include\list.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5A8EE4C1-4E29-4B9B-A61A-F0401809822C}</ProjectGuid>
     <RootNamespace>alexawin32</RootNamespace>
@@ -44,6 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -63,30 +103,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\alexa\alexa_alerts.c" />
-    <ClCompile Include="..\alexa\alexa_audioplayer.c" />
-    <ClCompile Include="..\alexa\alexa_directive.c" />
-    <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
-    <ClCompile Include="..\alexa\alexa_service.c" />
-    <ClCompile Include="..\alexa\alexa_speaker.c" />
-    <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
-    <ClCompile Include="..\alexa\alexa_speechsynthesizer.c" />
-    <ClCompile Include="..\alexa\alexa_system.c" />
-    <ClCompile Include="..\alexa\amazon_alexa.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\alexa\alexa_alerts.h" />
-    <ClInclude Include="..\alexa\alexa_audioplayer.h" />
-    <ClInclude Include="..\alexa\alexa_directive.h" />
-    <ClInclude Include="..\alexa\alexa_playbackcontroller.h" />
-    <ClInclude Include="..\alexa\alexa_service.h" />
-    <ClInclude Include="..\alexa\alexa_speaker.h" />
-    <ClInclude Include="..\alexa\alexa_speechrecognizer.h" />
-    <ClInclude Include="..\alexa\alexa_speechsynthesizer.h" />
-    <ClInclude Include="..\alexa\alexa_system.h" />
-    <ClInclude Include="..\alexa\amazon_alexa_if.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
