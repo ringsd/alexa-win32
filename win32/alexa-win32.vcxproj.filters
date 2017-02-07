@@ -36,9 +36,6 @@
     <ClCompile Include="..\alexa\alexa_audioplayer.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
-    <ClCompile Include="..\alexa\alexa_auth.c">
-      <Filter>Source Files\alexa</Filter>
-    </ClCompile>
     <ClCompile Include="..\alexa\alexa_context.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
@@ -84,50 +81,11 @@
     <ClCompile Include="..\common\alexa_base.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="..\alexa\alexa_auth.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\alexa\alexa_alerts.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_audioplayer.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_auth.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_context.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_device.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_directive.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_http2.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_playbackcontroller.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_record.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_service.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_speaker.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_speechrecognizer.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_speechsynthesizer.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\alexa\alexa_system.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\sys_log.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -148,6 +106,48 @@
     </ClInclude>
     <ClInclude Include="..\include\alexa_base.h">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_alerts.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_audioplayer.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_auth.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_context.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_device.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_directive.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_http2.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_playbackcontroller.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_record.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_service.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_speaker.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_speechrecognizer.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_speechsynthesizer.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_system.h">
+      <Filter>Header Files\alexa</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

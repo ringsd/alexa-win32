@@ -11,9 +11,13 @@
 
 *******************************************************************************/
 
+#include "alexa_service.h"
+#include "alexa_auth.h"
 
 int main( int argv, const char* argc[])
 {
+	alexa_authmng_init();
+	alexa_http2_init(NULL);
 	return 0;
 }
 

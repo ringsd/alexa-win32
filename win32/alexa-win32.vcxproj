@@ -31,21 +31,21 @@
     <ClCompile Include="alexa_platform.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\alexa\alexa_alerts.h" />
-    <ClInclude Include="..\alexa\alexa_audioplayer.h" />
-    <ClInclude Include="..\alexa\alexa_auth.h" />
-    <ClInclude Include="..\alexa\alexa_context.h" />
-    <ClInclude Include="..\alexa\alexa_device.h" />
-    <ClInclude Include="..\alexa\alexa_directive.h" />
-    <ClInclude Include="..\alexa\alexa_http2.h" />
-    <ClInclude Include="..\alexa\alexa_playbackcontroller.h" />
-    <ClInclude Include="..\alexa\alexa_record.h" />
-    <ClInclude Include="..\alexa\alexa_service.h" />
-    <ClInclude Include="..\alexa\alexa_speaker.h" />
-    <ClInclude Include="..\alexa\alexa_speechrecognizer.h" />
-    <ClInclude Include="..\alexa\alexa_speechsynthesizer.h" />
-    <ClInclude Include="..\alexa\alexa_system.h" />
     <ClInclude Include="..\common\sys_log.h" />
+    <ClInclude Include="..\include\alexa\alexa_alerts.h" />
+    <ClInclude Include="..\include\alexa\alexa_audioplayer.h" />
+    <ClInclude Include="..\include\alexa\alexa_auth.h" />
+    <ClInclude Include="..\include\alexa\alexa_context.h" />
+    <ClInclude Include="..\include\alexa\alexa_device.h" />
+    <ClInclude Include="..\include\alexa\alexa_directive.h" />
+    <ClInclude Include="..\include\alexa\alexa_http2.h" />
+    <ClInclude Include="..\include\alexa\alexa_playbackcontroller.h" />
+    <ClInclude Include="..\include\alexa\alexa_record.h" />
+    <ClInclude Include="..\include\alexa\alexa_service.h" />
+    <ClInclude Include="..\include\alexa\alexa_speaker.h" />
+    <ClInclude Include="..\include\alexa\alexa_speechrecognizer.h" />
+    <ClInclude Include="..\include\alexa\alexa_speechsynthesizer.h" />
+    <ClInclude Include="..\include\alexa\alexa_system.h" />
     <ClInclude Include="..\include\alexa_base.h" />
     <ClInclude Include="..\include\alexa_platform.h" />
     <ClInclude Include="..\include\base64.h" />
@@ -87,8 +87,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\include\alexa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
