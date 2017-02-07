@@ -81,6 +81,9 @@
     <ClCompile Include="alexa_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\alexa_base.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\alexa\alexa_alerts.h">
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\base64.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa_base.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>

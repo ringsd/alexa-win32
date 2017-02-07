@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-
+cJSON* speaker_volume_state(alexa_service* as);
 
 #ifdef __cplusplus
 }

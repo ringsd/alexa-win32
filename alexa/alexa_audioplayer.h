@@ -20,6 +20,7 @@ extern "C" {
 
 typedef struct alexa_audioplayer alexa_audioplayer;
 
+cJSON* audioplayer_playback_state(struct alexa_service* as);
 
 #ifdef __cplusplus
 }

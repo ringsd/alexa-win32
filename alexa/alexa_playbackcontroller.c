@@ -69,8 +69,8 @@ const char* alexa_pc_event_construct(struct alexa_service* as, enum PLAYBACKCONT
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    pc_event_header_construct( as, cj_header, event );
-	pc_event_payload_construct(as, cj_payload, event);
+    pc_event_header_construct( as->pc, cj_header, event );
+	pc_event_payload_construct(as->pc, cj_payload, event);
 
     event_json = cJSON_Print( cj_root );
     cJSON_Delete( cj_root );

@@ -19,6 +19,8 @@
 #include "cjson/cjson.h"
 #include "base64.h"
 #include "alexa_platform.h"
+#include "alexa_base.h"
+#include "sys_log.h"
 
 #define TODO 1
 
@@ -31,17 +33,6 @@
 #endif
 
 #define ALEXA_AHTH_URL  "https://api.amazon.com/auth/o2/token"
-
-char* alexa_strdup(const char* str)
-{
-	int len = strlen(str);
-	char* actual_str = (char*)alexa_malloc(len + 1);
-	if (actual_str)
-	{
-		strcpy(actual_str, str);
-	}
-	return actual_str;
-}
 
 static char* authmng_cjson_dup_string(cJSON* json, const char* key)
 {
@@ -164,7 +155,7 @@ err:
 
 static int authmng_save_key_file( struct alexa_authmng* authmng, const char* file )
 {
-    //ignore the cJSON error
+	int ret = 0;
 	struct cJSON* cj_root = cJSON_CreateObject();
 	struct cJSON* cj_auth = cJSON_CreateObject();
 	struct cJSON* cj_token = cJSON_CreateObject();
@@ -182,14 +173,16 @@ static int authmng_save_key_file( struct alexa_authmng* authmng, const char* fil
 	cJSON_AddItemToObject(cj_token, "refresh_token", cJSON_CreateString(token->refresh_token));
 	cJSON_AddItemToObject(cj_token, "token_type", cJSON_CreateString(token->token_type));
 	cJSON_AddNumberToObject(cj_token, "expires_in", token->expires_in);
-	cJSON_AddNumberToObject(cj_token, "current_time", token->current_time);
+	cJSON_AddNumberToObject(cj_token, "current_time", (double)token->current_time);
 
 	if (authmng_save2file(cj_root, file) < 0)
     {
         sys_log_e( TAG, "save the auth fail.\n" );
+		ret = -1;
     }
 
 	cJSON_Delete(cj_root);
+	return ret;
 }
 
 static void authmng_parse_auth(struct alexa_authmng* authmng, cJSON* cj_auth)

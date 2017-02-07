@@ -24,6 +24,9 @@ extern "C" {
 #include	"sys_log.h"
 
 #include	"alexa_platform.h"
+#include	"alexa_base.h"
+
+#include	"alexa_context.h"
 
 typedef struct alexa_service alexa_service;
 

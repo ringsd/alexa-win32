@@ -74,7 +74,7 @@ struct alexa_speechrecognizer{
 //wake up the thread by the key or by the directive
 void alexa_speechrecognizer_user_wake_up( struct alexa_service* as )
 {
-    struct alexa_speechrecognizer* sr = &as->sr;
+    struct alexa_speechrecognizer* sr = as->sr;
     alexa_mutex_lock(sr->mutex);
     if( sr->state == IDLE )
     {
@@ -86,7 +86,7 @@ void alexa_speechrecognizer_user_wake_up( struct alexa_service* as )
 
 void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
 {
-    struct alexa_speechrecognizer* sr = &as->sr;
+    struct alexa_speechrecognizer* sr = as->sr;
     alexa_mutex_lock(sr->mutex);
     sr->wakeup_source = WAKE_UP_BY_DIRECTIVE;
     alexa_cond_signal(sr->cond);
@@ -95,7 +95,7 @@ void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
 
 void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
 {
-    struct alexa_speechrecognizer* sr = &as->sr;
+    struct alexa_speechrecognizer* sr = as->sr;
     alexa_mutex_lock(sr->mutex);
     sr->wakeup_source = WAKE_UP_BY_EXIT;
     alexa_cond_signal(sr->cond);
@@ -121,7 +121,7 @@ static void sr_set_state( struct alexa_speechrecognizer* sr, enum SPEECH_RECOGIN
 
 void alexa_speechrecognizer_process(struct alexa_service* as)
 {
-    struct alexa_speechrecognizer* sr = &(as->sr);
+    struct alexa_speechrecognizer* sr = as->sr;
     enum WAKE_UP_SOURCE_ENUM wakeup_source = sr->wakeup_source;
     
     while(1)
@@ -208,7 +208,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 alexa_mutex_lock(sr->mutex);
                 while(1)
                 {
-                    const struct timespec * abstime;
+                    //const struct timespec * abstime;
                     
                     wakeup_source = sr->wakeup_source;
                     //clear the wake up state
@@ -219,7 +219,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         break;
                     }
 
-                    directive = alexa_directive_get( as );
+                    directive = alexa_directive_get( as->directive );
                     if( directive )
                     {
                         //get the directive
@@ -346,8 +346,6 @@ static int directive_stop_capture( alexa_service* as, cJSON* root )
     //close the micro, stop listen 
     
     return 0;
-err:
-    return -1;
 }
 
 
@@ -358,8 +356,6 @@ static int directive_expect_speech( alexa_service* as, cJSON* root )
     //if microphone open time out send ExpectSpeechTimedOut Event
 
     return 0;
-err:
-    return -1;
 }
 
 static int directive_process( alexa_service* as, struct alexa_directive_item* item )

@@ -22,8 +22,8 @@ struct alexa_directive{
 
 struct alexa_directive_process_item{
     struct list_head list;
-    const char* name_space; //actual is namespace, the c++ using this for key word
-    int (*process)( alexa_service* as, struct alexa_directive_item* item);
+    char name_space[40]; //actual is namespace, the c++ using this for key word
+	int(*process)(struct alexa_service* as, struct alexa_directive_item* item);
 };
 
 LIST_HEAD(alexa_directive_process_head);
@@ -37,9 +37,9 @@ LIST_HEAD(alexa_directive_process_head);
  *   0 success
  *  -1 fail
  */
-int alexa_directive_register(const char* name_space, int(*process)( alexa_service* as, struct alexa_directive_item* item) )
+int alexa_directive_register(const char* name_space, int(*process)( struct alexa_service* as, struct alexa_directive_item* item) )
 {
-    struct alexa_directive_process_item* process_item =  alexa_new( struct alexa_directive_process_item );
+	struct alexa_directive_process_item* process_item = alexa_new(struct alexa_directive_process_item);
     if( process_item )
     {
         strcpy( process_item->name_space, name_space );
@@ -69,7 +69,7 @@ int alexa_directive_unregister(const char* name_space)
     {
         if( !strcmp(process_item->name_space, name_space) )
         {
-            list_del(process_item);
+			list_del(&(process_item->list));
             return 0;
         }
     }
@@ -79,8 +79,6 @@ int alexa_directive_unregister(const char* name_space)
 
 /*
  *@brief
- *
- *
  *
  *@param
  *@return
@@ -127,19 +125,19 @@ int alexa_directive_add( struct alexa_service* as, const char* value )
     }
     
     //add the json directive to list
-    alexa_mutex_lock(&directive->mutex);
+    alexa_mutex_lock(directive->mutex);
     list_add(&(item->list), &directive->head);
-    alexa_mutex_unlock(&directive->mutex);
+    alexa_mutex_unlock(directive->mutex);
 
     return 0;
-err2:
+
 err1:
     alexa_delete(item);
 err:
     return ret;
 }
 
-int alexa_directive_free( struct alexa_directive_item* item )
+void alexa_directive_free( struct alexa_directive_item* item )
 {
     //free the directive resource
     cJSON_Delete(item->root);
@@ -150,13 +148,13 @@ struct alexa_directive_item* alexa_directive_get(struct alexa_directive* directi
 {
     struct alexa_directive_item* item = NULL;
     
-    alexa_mutex_lock(&directive->mutex);
+    alexa_mutex_lock(directive->mutex);
     if( !list_empty(&directive->head) )
     {
         item = list_first_entry(&directive->head, struct alexa_directive_item, list);
         list_del(&(item->list));
     }
-    alexa_mutex_unlock(&directive->mutex);
+    alexa_mutex_unlock(directive->mutex);
 
     return item;
 }
@@ -237,7 +235,7 @@ int alexa_directive_init( struct alexa_service* as )
 void alexa_directive_done( struct alexa_service* as )
 {
     directive_destruct( as->directive );
-    return 0;
+    return;
 }
 
 /*******************************************************************************

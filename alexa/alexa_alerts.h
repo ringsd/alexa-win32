@@ -20,6 +20,8 @@ extern "C" {
 
 typedef struct alexa_alerts alexa_alerts;
 
+cJSON* alerts_alerts_state(struct alexa_service* as);
+
 #ifdef __cplusplus
 }
 #endif

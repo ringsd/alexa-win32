@@ -144,13 +144,13 @@ int base64_encode_urlsafe(char *encoded, const char *string, int len)
 	int encode_len = base64_encode(encoded, string, len);
     for(i=0; i<encode_len; i++)
     {
-        if( string[i] == '=' )
+		if (encoded[i] == '=')
         {
-            string[i] == '\0';
+			encoded[i] = '\0';
             k++;
         }
-        else if( string[i] == '+' ) string[i] == '-';
-        else if( string[i] == '/' ) string[i] == '_';
+		else if (encoded[i] == '+') encoded[i] = '-';
+		else if (encoded[i] == '/') encoded[i] = '_';
     }
     
     return encode_len - k;

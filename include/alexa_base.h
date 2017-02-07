@@ -1,26 +1,24 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_speechsynthesizer.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_base.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 18:01:10
+    TIME LIST:
+    CREATE By Ringsd   2017/2/07 18:06:44
 
 *******************************************************************************/
 
-#ifndef _alexa_speechsynthesizer_h_
-#define _alexa_speechsynthesizer_h_
+#ifndef _alexa_base_h_
+#define _alexa_base_h_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct alexa_speechsynthesizer alexa_speechsynthesizer;
-
-cJSON* speechsynthesizer_speech_state(alexa_service* as);
+char* alexa_strdup(const char* str);
 
 #ifdef __cplusplus
 }
@@ -29,5 +27,5 @@ cJSON* speechsynthesizer_speech_state(alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

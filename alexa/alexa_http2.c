@@ -204,9 +204,9 @@ err:
     return -1;
 }
 
-int alexa_http2_event_add( const char* event )
+int alexa_http2_event_add( struct alexa_http2* http2, const char* event, int event_len )
 {
-    return alexa_http2_event_add( event, NULL, 0 );
+	return alexa_http2_event_audio_add(http2, event, event_len, NULL, 0);
 }
 
 int alexa_http2_event_audio_remove( struct alexa_event_item* item )
@@ -632,13 +632,13 @@ static void* alexa_http2_process( void* data )
 
 int alexa_http2_init( struct alexa_service* as )
 {
-    //
+	return 0;
 }
 
 
 void alexa_http2_done( struct alexa_service* as )
 {
-    
+	return;
 }
 
 /*******************************************************************************

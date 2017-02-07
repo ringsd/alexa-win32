@@ -18,6 +18,9 @@
 extern "C" {
 #endif
 
+void* alexa_malloc(int size);
+void alexa_free(void* p);
+
 #define alexa_new(x)        (x*)alexa_malloc(sizeof(x))
 #define alexa_delete(x)     alexa_free((void*)x)
 

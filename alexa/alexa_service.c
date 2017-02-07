@@ -51,11 +51,11 @@ struct alexa_service* alexa_service_init(void)
     if( alexa_speechrecognizer_init(as) < 0 ) goto err2;
     if( alexa_speechsynthesizer_init(as) < 0 ) goto err3;
     if( alexa_alerts_init(as) < 0 ) goto err4;
-    alexa_audioplayer_init( as );
+	if (alexa_audioplayer_init(as) < 0) goto err5;
     if( alexa_pc_init( as ) < 0 ) goto err6;
     if( alexa_speaker_init( as ) < 0 ) goto err7;
     if( alexa_system_init( as ) < 0 ) goto err8;
-    
+
     return as;
 
 err8:

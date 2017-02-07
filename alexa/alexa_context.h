@@ -24,8 +24,7 @@ extern "C" {
  *@param struct alexa_service* as, the alexa_service object
  *@return alexa_context json object
  */
-cJSON* alexa_context_get_state( struct alexa_service* as );
-
+cJSON* alexa_context_get_state(struct alexa_service* as);
 
 #ifdef __cplusplus
 }

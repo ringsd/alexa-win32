@@ -179,8 +179,6 @@ static int directive_set_alert( struct alexa_service* as, struct alexa_directive
     cJSON* cj_scheduledTime;
     struct alexa_alerts* alerts = as->alerts;
     struct alexa_alert_item* alert_item;
-    struct list_head* list_item;
-    struct list_head* head;
 
     char* event_string;
 
@@ -236,7 +234,7 @@ static int directive_set_alert( struct alexa_service* as, struct alexa_directive
     
     //else
     //send set timer success event
-    event_string = alexa_alerts_event_construct( as, SETALERTFAILED_EVENT, alert_item->token );
+	event_string = alexa_alerts_event_construct(as, SETALERTFAILED_EVENT, alert_item->token);
     
     
     return 0;
@@ -257,7 +255,7 @@ static int directive_delete_alert( struct alexa_service* as, struct alexa_direct
     if( !cj_token ) goto err;
     
     //send the alert stop event
-	event_string = alexa_alerts_event_construct(as, ALERTSTOPPED_EVENT, cj_token->valuestring);
+	event_string = alexa_alerts_event_construct(as, ALERTSTOPPED_EVENT, (const char*)cj_token->valuestring);
     
     list_for_each_entry_type(alert_item, &alerts->alerts_head, struct alexa_alert_item, list)
     {
@@ -269,15 +267,15 @@ static int directive_delete_alert( struct alexa_service* as, struct alexa_direct
             alert_item->scheduledTime = NULL;
             alexa_free( alert_item->type );
             alert_item->type = NULL;
-            list_del( alert_item );
+			list_del(&(alert_item->list));
             //delete the alert
 
             // alert 
             // if find the alert delete, and report success
-            event_string = alexa_alerts_event_construct( as, DELETEALERTSUCCEEDED_EVENT, alert_item->token );
+			event_string = alexa_alerts_event_construct(as, DELETEALERTSUCCEEDED_EVENT, (const char*)alert_item->token);
             //
             // else report fail
-            event_string = alexa_alerts_event_construct( as, DELETEALERTFAILED_EVENT, alert_item->token );
+			event_string = alexa_alerts_event_construct(as, DELETEALERTFAILED_EVENT, (const char*)alert_item->token);
             //
             break;;
         }

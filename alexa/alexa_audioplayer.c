@@ -86,7 +86,7 @@ struct alexa_audioplayer{
 	char*	token;
 	char*	messageId;
 	int		offsetInMilliseconds;
-	int		playerActivity;
+	char*	playerActivity;
 	int		stutterDurationInMilliseconds;
 	char*	type;
 	char*	message;
@@ -431,8 +431,6 @@ static int directive_stop(struct alexa_service* as, struct alexa_directive_item*
     //send PlaybackStopped Event
     
     return 0;
-err:
-    return -1;
 }
 
 
