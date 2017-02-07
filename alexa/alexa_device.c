@@ -12,6 +12,8 @@
 *******************************************************************************/
 
 #include <string.h>
+#include <stdlib.h>
+#include "base64.h"
 #include "alexa_platform.h"
 
 #define ALEXA_CODE_CHALLENGE_METHOD_S256    "S256"
@@ -53,7 +55,7 @@ static char* generate_code_verifier(void)
 static char* generate_code_challenge(const char* code_verifier, const char* code_challenge_method)
 {
     int encode_len;
-    unsigned char *code_verifier_s256;
+    unsigned char *code_verifier_s256 = NULL;
     unsigned char *code_challenge_number = NULL;
     char *code_challenge;
     if( code_challenge_method == "S256" )
@@ -61,6 +63,7 @@ static char* generate_code_challenge(const char* code_verifier, const char* code
         //
         //sha256 code_verifier
         //code_challenge = code_verifier_s256;
+		code_verifier_s256 = code_verifier_s256;
     }
     else
     {

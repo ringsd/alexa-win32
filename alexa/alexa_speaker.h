@@ -20,6 +20,11 @@ extern "C" {
 
 cJSON* speaker_volume_state(alexa_service* as);
 
+
+int alexa_speaker_init(alexa_service* as);
+
+int alexa_speaker_done(alexa_service* as);
+
 #ifdef __cplusplus
 }
 #endif

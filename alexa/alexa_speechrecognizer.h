@@ -20,6 +20,14 @@ extern "C" {
 
 typedef struct alexa_speechrecognizer alexa_speechrecognizer;
 
+
+int alexa_speechrecognizer_init(struct alexa_service* as);
+
+int alexa_speechrecognizer_done(struct alexa_service* as);
+
+void alexa_speechrecognizer_process(struct alexa_service* as);
+
+
 #ifdef __cplusplus
 }
 #endif

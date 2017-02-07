@@ -128,9 +128,6 @@
     <ClInclude Include="..\alexa\alexa_system.h">
       <Filter>Header Files\alexa</Filter>
     </ClInclude>
-    <ClInclude Include="..\alexa\amazon_alexa_if.h">
-      <Filter>Header Files\alexa</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\sys_log.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>

@@ -16,6 +16,7 @@
 #include <string.h>
 #include "curl/curl.h"
 #include "list.h"
+#include "sys_log.h"
 #include "alexa_platform.h"
 
 #define TODO	1

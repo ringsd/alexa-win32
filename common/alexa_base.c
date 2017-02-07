@@ -11,6 +11,7 @@
 
 *******************************************************************************/
 
+#include <string.h>
 #include "alexa_platform.h"
 
 char* alexa_strdup(const char* str)

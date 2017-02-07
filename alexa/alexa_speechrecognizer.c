@@ -175,7 +175,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 else if( directive )
                 {
                     alexa_directive_process( as, directive);
-                    alexa_directive_free( as, directive );
+                    alexa_directive_free( directive );
                     directive = NULL;
                 }
                 sr->wakeup_source = WAKE_UP_BY_NONE;
@@ -183,7 +183,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
             }
             case RECOGNIZING:
             {
-                char* event;
+                const char* event;
                 //record data
                 //send Recognize Event to avs
                 //change state to BUSY
@@ -237,7 +237,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 if( directive )
                 {
                     alexa_directive_process( as, directive );
-                    alexa_directive_free( as, directive );
+                    alexa_directive_free( directive );
                     directive = NULL;
                     if( 0 )//msg id is equal )
                     {

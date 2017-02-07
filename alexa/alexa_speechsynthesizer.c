@@ -102,7 +102,7 @@ static const char* ss_event_construct( alexa_service* as, enum SPEECHSYNTHESIZER
 void alexa_speechsynthesizer_set_event( alexa_service* as, const char* playerActivity )
 {
 	struct alexa_speechsynthesizer* ss = as->ss;
-    ss->playerActivity = playerActivity;
+    ss->playerActivity = (char*)playerActivity;
 }
 
 const char* alexa_speechsynthesizer_event_construct( alexa_service* as )

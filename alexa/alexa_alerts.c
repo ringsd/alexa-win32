@@ -180,7 +180,7 @@ static int directive_set_alert( struct alexa_service* as, struct alexa_directive
     struct alexa_alerts* alerts = as->alerts;
     struct alexa_alert_item* alert_item;
 
-    char* event_string;
+    const char* event_string;
 
     cj_token = cJSON_GetObjectItem(cj_payload, "token");
     if( cj_token == NULL ) goto err;
@@ -249,7 +249,7 @@ static int directive_delete_alert( struct alexa_service* as, struct alexa_direct
     struct alexa_alerts* alerts = as->alerts;
     struct alexa_alert_item* alert_item;
 
-    char* event_string;
+    const char* event_string;
     
     cj_token = cJSON_GetObjectItem(cj_payload, "token");
     if( !cj_token ) goto err;

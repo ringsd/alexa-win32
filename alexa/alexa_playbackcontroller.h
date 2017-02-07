@@ -27,6 +27,11 @@ enum PLAYBACKCONTROLLER_EVENT_ENUM{
 
 typedef struct alexa_playbackcontroller alexa_playbackcontroller;
 
+
+int alexa_pc_init(struct alexa_service* as);
+
+int alexa_pc_done(struct alexa_service* as);
+
 #ifdef __cplusplus
 }
 #endif

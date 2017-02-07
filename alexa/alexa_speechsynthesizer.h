@@ -22,6 +22,10 @@ typedef struct alexa_speechsynthesizer alexa_speechsynthesizer;
 
 cJSON* speechsynthesizer_speech_state(alexa_service* as);
 
+int alexa_speechsynthesizer_init(alexa_service* as);
+
+int alexa_speechsynthesizer_done(alexa_service* as);
+
 #ifdef __cplusplus
 }
 #endif

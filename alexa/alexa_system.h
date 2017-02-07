@@ -18,6 +18,9 @@
 extern "C" {
 #endif
 
+int alexa_system_init(alexa_service* as);
+int alexa_system_done(alexa_service* as);
+
 #ifdef __cplusplus
 }
 #endif
