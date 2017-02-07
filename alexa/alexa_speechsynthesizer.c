@@ -95,7 +95,7 @@ static const char* ss_event_construct( alexa_service* as, enum SPEECHSYNTHESIZER
     
     cJSON_Delete( cj_root );
 
-    alexa_log_d( "%s\n", event_string );
+    sys_log_d( "%s\n", event_string );
     return event_string;
 }
 

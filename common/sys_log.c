@@ -65,7 +65,7 @@ int sys_log(int level, const char* tag, const char* fmt, ...)
 	int		len;
 
 	va_start(arg, fmt);
-	vsprintf(buf, fmt, arg);
+	vsnprintf(buf, sizeof(buf), fmt, arg);
 	va_end(arg);
 
 	len = strlen(buf);
@@ -85,7 +85,7 @@ int sys_log_d(const char* tag, const char* fmt, ...)
         int		len;
 
         va_start(arg, fmt);
-        vsprintf(buf, fmt, arg);
+		vsnprintf(buf, sizeof(buf), fmt, arg);
         va_end(arg);
 
         len = strlen(buf);
@@ -112,8 +112,8 @@ int sys_log_i(const char* tag, const char* fmt, ...)
         int		len;
 
         va_start(arg, fmt);
-        vsprintf(buf, fmt, arg);
-        va_end(arg);
+		vsnprintf(buf, sizeof(buf), fmt, arg);
+		va_end(arg);
 
         len = strlen(buf);
 
@@ -140,8 +140,8 @@ int sys_log_w(const char* tag, const char* fmt, ...)
         int		len;
 
         va_start(arg, fmt);
-        vsprintf(buf, fmt, arg);
-        va_end(arg);
+		vsnprintf(buf, sizeof(buf), fmt, arg);
+		va_end(arg);
 
         len = strlen(buf);
 
@@ -168,8 +168,8 @@ int sys_log_e(const char* tag, const char* fmt, ...)
         int		len;
 
         va_start(arg, fmt);
-        vsprintf(buf, fmt, arg);
-        va_end(arg);
+		vsnprintf(buf, sizeof(buf), fmt, arg);
+		va_end(arg);
 
         len = strlen(buf);
 

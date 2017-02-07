@@ -114,7 +114,7 @@ static void system_event_payload_construct( struct alexa_system* system, cJSON* 
 
 const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_ENUM event )
 {
-    struct alexa_system* system;
+    struct alexa_system* system = as->system;
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -144,7 +144,7 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
     system_event_payload_construct( system, cj_payload, event );    
 
     event_json = cJSON_Print( cj_root );
-    alexa_log_d( "%s\n", event_json );
+    sys_log_d( "%s\n", event_json );
     
     cJSON_Delete( cj_root );    
     

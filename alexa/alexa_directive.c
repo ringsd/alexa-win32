@@ -196,7 +196,7 @@ static struct alexa_directive* directive_construct( void )
     if( directive )
     {
         INIT_LIST_HEAD(&directive->head);
-        alexa_mutex_init( &directive->mutex );
+		directive->mutex = alexa_mutex_create();
     }
     return directive;
 }
@@ -204,7 +204,7 @@ static struct alexa_directive* directive_construct( void )
 static void directive_destruct( struct alexa_directive* directive )
 {
     //clear directive list
-    alexa_mutex_lock(&directive->mutex);
+    alexa_mutex_lock(directive->mutex);
     while(1)
     {
         struct alexa_directive_item* item;
@@ -218,8 +218,8 @@ static void directive_destruct( struct alexa_directive* directive )
             break;
         }
     }
-    alexa_mutex_unlock(&directive->mutex);
-    alexa_mutex_destory(&directive->mutex);
+    alexa_mutex_unlock(directive->mutex);
+    alexa_mutex_destroy(directive->mutex);
     alexa_delete(directive);
 }
 

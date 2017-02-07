@@ -23,6 +23,9 @@ struct alexa_alerts{
 
 struct alexa_alert_item{
     struct list_head list;
+
+	int active;
+
     char* type;
     char* token; //the unique id 
     char* scheduledTime; //The scheduled time for an alert in ISO 8601 format
@@ -39,6 +42,8 @@ enum{
     ALERTSTOPPED_EVENT,
     ALERTENTEREDFOREGROUND_EVENT,
     ALERTENTEREDBACKGROUND_EVENT,
+
+	ALERTSSTATE_EVENT,
 }ALERTS_EVENT_ENUM;
 
 static const char* alerts_event[] = {
@@ -52,12 +57,60 @@ static const char* alerts_event[] = {
     "AlertStopped",
     "AlertEnteredForeground",
     "AlertEnteredBackground",
+
+	"AlertsState",
 };
 
-
-static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_header, enum ALERTS_EVENT_ENUM event )
+/*
+*@brief construct the alerts state
+*
+*https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/context
+*
+*@param struct alexa_service* as, the alexa_service object
+*@return Alerts.AlertsState cJSON object
+*/
+cJSON* alerts_alerts_state(struct alexa_service* as)
 {
-    struct alexa_alerts* alerts = &(as->alerts);
+	struct alexa_alerts* alerts = as->alerts;
+
+	cJSON* cj_alerts_state = cJSON_CreateObject();
+	cJSON* cj_header = cJSON_CreateObject();
+	cJSON* cj_payload = cJSON_CreateObject();
+	cJSON* cj_all_alerts = cJSON_CreateArray();
+	cJSON* cj_active_alerts = cJSON_CreateArray();
+	cJSON* cj_alert_item;
+
+	struct alexa_alert_item* alert_item;
+
+	cJSON_AddItemToObject(cj_alerts_state, "header", cj_header);
+	cJSON_AddStringToObject(cj_header, "namespace", NAMESPACE);
+	cJSON_AddStringToObject(cj_header, "name", alerts_event[ALERTSSTATE_EVENT]);
+
+	cJSON_AddItemToObject(cj_alerts_state, "payload", cj_payload);
+	cJSON_AddItemToObject(cj_payload, "allAlerts", cj_all_alerts);
+	cJSON_AddItemToObject(cj_payload, "activeAlerts", cj_active_alerts);
+
+	list_for_each_entry_type(alert_item, &alerts->alerts_head, struct alexa_alert_item, list)
+	{
+		cj_alert_item = cJSON_CreateObject();
+
+		cJSON_AddStringToObject(cj_alert_item, "token", alert_item->token);
+		cJSON_AddStringToObject(cj_alert_item, "type", alert_item->type);
+		cJSON_AddStringToObject(cj_alert_item, "scheduledTime", alert_item->scheduledTime);
+
+		cJSON_AddItemToArray(cj_all_alerts, cj_alert_item);
+		if (alert_item->active)
+		{
+			cj_alert_item = cJSON_Duplicate(cj_alert_item, 1);
+			cJSON_AddItemToArray(cj_active_alerts, cj_alert_item);
+		}
+	}
+
+	return cj_alerts_state;
+}
+
+static void alerts_event_header_construct(struct alexa_alerts* alerts, cJSON* cj_header, enum ALERTS_EVENT_ENUM event)
+{
     int event_index = (int)event;
     int len = 0;
     
@@ -68,7 +121,7 @@ static void alerts_event_header_construct( struct alexa_service* as, cJSON* cj_h
     return;
 }
 
-static void alerts_event_payload_construct(struct alexa_service* as, cJSON* cj_payload, enum ALERTS_EVENT_ENUM event, const char* token)
+static void alerts_event_payload_construct(struct alexa_alerts* alerts, cJSON* cj_payload, enum ALERTS_EVENT_ENUM event, const char* token)
 {
     int event_index = (int)event;
     int len = 0;
@@ -107,11 +160,11 @@ const char* alexa_alerts_event_construct( struct alexa_service* as, enum ALERTS_
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    alerts_event_header_construct( as, cj_header, event );
-    alerts_event_payload_construct( as, cj_payload, event, token );
+    alerts_event_header_construct(as->alerts, cj_header, event);
+	alerts_event_payload_construct(as->alerts, cj_payload, event, token);
     
     event_json = cJSON_Print(cj_root);
-    alexa_log_d( "%s\n", event_json );
+    sys_log_d( "%s\n", event_json );
     
     cJSON_Delete(cj_root);
     
@@ -204,7 +257,7 @@ static int directive_delete_alert( struct alexa_service* as, struct alexa_direct
     if( !cj_token ) goto err;
     
     //send the alert stop event
-    event_string = alexa_alerts_event_construct( as, ALERTSTOPPED_EVENT, alert_item->token );
+	event_string = alexa_alerts_event_construct(as, ALERTSTOPPED_EVENT, cj_token->valuestring);
     
     list_for_each_entry_type(alert_item, &alerts->alerts_head, struct alexa_alert_item, list)
     {

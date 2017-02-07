@@ -70,7 +70,7 @@ const char* alexa_pc_event_construct(struct alexa_service* as, enum PLAYBACKCONT
 
     //
     pc_event_header_construct( as, cj_header, event );
-    playback_ctrl_event_payload_construct( as, cj_payload, event );
+	pc_event_payload_construct(as, cj_payload, event);
 
     event_json = cJSON_Print( cj_root );
     cJSON_Delete( cj_root );

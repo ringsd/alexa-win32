@@ -24,8 +24,9 @@
     <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
     <ClCompile Include="..\alexa\alexa_speechsynthesizer.c" />
     <ClCompile Include="..\alexa\alexa_system.c" />
-    <ClCompile Include="..\alexa\amazon_alexa.c" />
+    <ClCompile Include="..\common\base64.c" />
     <ClCompile Include="..\common\sys_log.c" />
+    <ClCompile Include="alexa_main.c" />
     <ClCompile Include="alexa_platform.c" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
     <ClInclude Include="..\alexa\amazon_alexa_if.h" />
     <ClInclude Include="..\common\sys_log.h" />
     <ClInclude Include="..\include\alexa_platform.h" />
+    <ClInclude Include="..\include\base64.h" />
     <ClInclude Include="..\include\cjson\cjson.h" />
     <ClInclude Include="..\include\list.h" />
     <ClInclude Include="..\include\sys_types.h" />
@@ -85,10 +87,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>cjson.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

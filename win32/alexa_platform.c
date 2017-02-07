@@ -113,7 +113,7 @@ int alexa_mutex_unlock(struct alexa_mutex* mutex)
 	return 0;
 }
 
-void alexa_mutex_destory(struct alexa_mutex* mutex)
+void alexa_mutex_destroy(struct alexa_mutex* mutex)
 {
 	CloseHandle(mutex->h);
     alexa_delete(mutex);
@@ -149,7 +149,7 @@ int alexa_cond_timedwait(struct alexa_cond* cond, struct alexa_mutex* mutex, str
 	return 0;
 }
 
-void alexa_cond_destory( struct alexa_cond* cond )
+void alexa_cond_destroy( struct alexa_cond* cond )
 {
     alexa_delete(cond);
 }
