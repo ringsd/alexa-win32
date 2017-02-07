@@ -14,6 +14,9 @@
 #include "alexa_service.h"
 #include "alexa_auth.h"
 
+#pragma comment ( lib, "ws2_32.lib" )
+#pragma comment ( lib, "winmm.lib" )
+
 int main( int argv, const char* argc[])
 {
 	alexa_authmng_init();
