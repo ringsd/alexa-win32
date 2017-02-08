@@ -1,5 +1,5 @@
 /*******************************************************************************
-    Copyright SmartAction Tech. 2017.
+    Copyright Ringsd. 2017.
     All Rights Reserved.
 
     File: alexa_main.c

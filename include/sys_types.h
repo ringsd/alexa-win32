@@ -1,5 +1,5 @@
 /*******************************************************************************
-    Copyright SmartAction Tech. 2016.
+    Copyright Ringsd. 2016.
     All Rights Reserved.
     
     File: sys_types.h
