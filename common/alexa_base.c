@@ -16,13 +16,13 @@
 
 char* alexa_strdup(const char* str)
 {
-	int len = strlen(str);
-	char* actual_str = (char*)alexa_malloc(len + 1);
-	if (actual_str)
-	{
-		strcpy(actual_str, str);
-	}
-	return actual_str;
+    int len = strlen(str);
+    char* actual_str = (char*)alexa_malloc(len + 1);
+    if (actual_str)
+    {
+        strcpy(actual_str, str);
+    }
+    return actual_str;
 }
 
 

@@ -29,15 +29,15 @@ void alexa_free(void* p);
 
 #ifdef _WIN32
 
-#define ETIMEDOUT			-1
+#define ETIMEDOUT            -1
 
 typedef struct alexa_mutex alexa_mutex;
 typedef struct alexa_cond alexa_cond;
 
 #else
 
-#definf alexa_cond	pthread_cond_t
-#definf alexa_mutex	pthread_mutex
+#definf alexa_cond    pthread_cond_t
+#definf alexa_mutex    pthread_mutex
 
 
 #endif

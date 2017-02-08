@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_playbackcontroller.c
+    File: alexa_playbackcontroller.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/13 16:27:07
+    TIME LIST:
+    CREATE By Ringsd   2017/01/13 16:27:07
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/playbackcontroller
 
 *******************************************************************************/
@@ -70,7 +70,7 @@ const char* alexa_pc_event_construct(struct alexa_service* as, enum PLAYBACKCONT
 
     //
     pc_event_header_construct( as->pc, cj_header, event );
-	pc_event_payload_construct(as->pc, cj_payload, event);
+    pc_event_payload_construct(as->pc, cj_payload, event);
 
     event_json = cJSON_Print( cj_root );
     cJSON_Delete( cj_root );
@@ -114,5 +114,5 @@ int alexa_pc_done(struct alexa_service* as)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

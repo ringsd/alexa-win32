@@ -18,8 +18,8 @@
 
 int main( int argv, const char* argc[])
 {
-	alexa_main();
-	return 0;
+    alexa_main();
+    return 0;
 }
 
 

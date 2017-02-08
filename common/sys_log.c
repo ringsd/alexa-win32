@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: sys_log.c
+    File: sys_log.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/04 11:51:25
+    TIME LIST:
+    CREATE By Ringsd   2017/01/04 11:51:25
 
 *******************************************************************************/
 
@@ -60,19 +60,19 @@ int sys_log_get_level(void)
 
 int sys_log(int level, const char* tag, const char* fmt, ...)
 {
-	char	buf[1024];
-	va_list	arg;
-	int		len;
+    char    buf[1024];
+    va_list    arg;
+    int        len;
 
-	va_start(arg, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, arg);
-	va_end(arg);
+    va_start(arg, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, arg);
+    va_end(arg);
 
-	len = strlen(buf);
+    len = strlen(buf);
 
-	printf("("SYS_LOG_PROFIX"): %s", tag, buf);
+    printf("("SYS_LOG_PROFIX"): %s", tag, buf);
 
-	return len;
+    return len;
 }
 
 int sys_log_d(const char* tag, const char* fmt, ...)
@@ -80,12 +80,12 @@ int sys_log_d(const char* tag, const char* fmt, ...)
 #if DEBUG_LEVEL > 3
     if( sys_log_level > 3 )
     {
-        char	buf[1024];
-        va_list	arg;
-        int		len;
+        char    buf[1024];
+        va_list    arg;
+        int        len;
 
         va_start(arg, fmt);
-		vsnprintf(buf, sizeof(buf), fmt, arg);
+        vsnprintf(buf, sizeof(buf), fmt, arg);
         va_end(arg);
 
         len = strlen(buf);
@@ -107,13 +107,13 @@ int sys_log_i(const char* tag, const char* fmt, ...)
 #if DEBUG_LEVEL > 2
     if( sys_log_level > 2 )
     {
-        char	buf[1024];
-        va_list	arg;
-        int		len;
+        char    buf[1024];
+        va_list    arg;
+        int        len;
 
         va_start(arg, fmt);
-		vsnprintf(buf, sizeof(buf), fmt, arg);
-		va_end(arg);
+        vsnprintf(buf, sizeof(buf), fmt, arg);
+        va_end(arg);
 
         len = strlen(buf);
 
@@ -135,13 +135,13 @@ int sys_log_w(const char* tag, const char* fmt, ...)
 #if DEBUG_LEVEL > 1
     if( sys_log_level > 1 )
     {
-        char	buf[1024];
-        va_list	arg;
-        int		len;
+        char    buf[1024];
+        va_list    arg;
+        int        len;
 
         va_start(arg, fmt);
-		vsnprintf(buf, sizeof(buf), fmt, arg);
-		va_end(arg);
+        vsnprintf(buf, sizeof(buf), fmt, arg);
+        va_end(arg);
 
         len = strlen(buf);
 
@@ -163,13 +163,13 @@ int sys_log_e(const char* tag, const char* fmt, ...)
 #if DEBUG_LEVEL > 0
     if( sys_log_level > 0 )
     {
-        char	buf[1024];
-        va_list	arg;
-        int		len;
+        char    buf[1024];
+        va_list    arg;
+        int        len;
 
         va_start(arg, fmt);
-		vsnprintf(buf, sizeof(buf), fmt, arg);
-		va_end(arg);
+        vsnprintf(buf, sizeof(buf), fmt, arg);
+        va_end(arg);
 
         len = strlen(buf);
 
@@ -192,5 +192,5 @@ int sys_log_e(const char* tag, const char* fmt, ...)
 
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

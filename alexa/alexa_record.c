@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_record.c
+    File: alexa_record.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/16 10:50:34
+    TIME LIST:
+    CREATE By Ringsd   2017/01/16 10:50:34
 
 *******************************************************************************/
 
@@ -34,5 +34,5 @@ void alexa_record_close(alexa_record* record)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

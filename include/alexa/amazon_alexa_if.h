@@ -1,14 +1,14 @@
 /*******************************************************************************
-	Copyright Ringsd. 2016.
-	All Rights Reserved.
-	
-	File: amazon_alexa_if.h
+    Copyright Ringsd. 2016.
+    All Rights Reserved.
+    
+    File: amazon_alexa_if.h
 
-	Description:
+    Description:
     1.aa means the amazon alexa
 
-	TIME LIST:
-	CREATE By Ringsd   2016/1/20 13:50:04
+    TIME LIST:
+    CREATE By Ringsd   2016/1/20 13:50:04
 
 *******************************************************************************/
 
@@ -23,26 +23,26 @@ extern "C" {
  * @brief voice recognition state
  */
 enum aa_state_type {
-	/**
-	 * @brief shutdown state
-	 */
-	AA_STATE_SHUTDOWN = 0,
-	/**
-	 * @brief idle state
-	 */
-	AA_STATE_IDLE,
-	/**
-	 * @brief recognize state
-	 */
-	AA_STATE_RECOG,
-	/**
-	 * @brief quit state
-	 */
-	AA_STATE_QUIT,
-	/**
-	 * @brief error state
-	 */
-	AA_STATE_ERROR,
+    /**
+     * @brief shutdown state
+     */
+    AA_STATE_SHUTDOWN = 0,
+    /**
+     * @brief idle state
+     */
+    AA_STATE_IDLE,
+    /**
+     * @brief recognize state
+     */
+    AA_STATE_RECOG,
+    /**
+     * @brief quit state
+     */
+    AA_STATE_QUIT,
+    /**
+     * @brief error state
+     */
+    AA_STATE_ERROR,
 };
 
 typedef struct aa_service aa_service;
@@ -83,5 +83,5 @@ void aa_set_authorization(char *authorization_code, char *redirect_uri, char *cl
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_audioplayer.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_audioplayer.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 10:02:05
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 10:02:05
 
 *******************************************************************************/
 
@@ -44,5 +44,5 @@ int alexa_audioplayer_done(struct alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

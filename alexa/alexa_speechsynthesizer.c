@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_speechsynthesizer.c
+    File: alexa_speechsynthesizer.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 17:53:05
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 17:53:05
 
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/speechsynthesizer
     
@@ -76,7 +76,7 @@ static void ss_event_header_construct( cJSON* cj_header, enum SPEECHSYNTHESIZER_
 //has binary audio attachment
 static const char* ss_event_construct( alexa_service* as, enum SPEECHSYNTHESIZER_EVENT_ENUM event )
 {
-	struct alexa_speechsynthesizer* ss = as->ss;
+    struct alexa_speechsynthesizer* ss = as->ss;
     const char* event_string;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -101,13 +101,13 @@ static const char* ss_event_construct( alexa_service* as, enum SPEECHSYNTHESIZER
 
 void alexa_speechsynthesizer_set_event( alexa_service* as, const char* playerActivity )
 {
-	struct alexa_speechsynthesizer* ss = as->ss;
+    struct alexa_speechsynthesizer* ss = as->ss;
     ss->playerActivity = (char*)playerActivity;
 }
 
 const char* alexa_speechsynthesizer_event_construct( alexa_service* as )
 {
-	return ss_event_construct(as, SPEECHSTARTED_EVENT);
+    return ss_event_construct(as, SPEECHSTARTED_EVENT);
 }
 
 static int directive_speak( alexa_service* as, struct alexa_directive_item* item )
@@ -194,5 +194,5 @@ int alexa_speechsynthesizer_done(alexa_service* as)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

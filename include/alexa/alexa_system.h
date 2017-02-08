@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_system.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_system.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 16:43:39
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 16:43:39
 
 *******************************************************************************/
 
@@ -28,5 +28,5 @@ int alexa_system_done(alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

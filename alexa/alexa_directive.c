@@ -23,7 +23,7 @@ struct alexa_directive{
 struct alexa_directive_process_item{
     struct list_head list;
     char name_space[40]; //actual is namespace, the c++ using this for key word
-	int(*process)(struct alexa_service* as, struct alexa_directive_item* item);
+    int(*process)(struct alexa_service* as, struct alexa_directive_item* item);
 };
 
 LIST_HEAD(alexa_directive_process_head);
@@ -39,17 +39,17 @@ LIST_HEAD(alexa_directive_process_head);
  */
 int alexa_directive_register(const char* name_space, int(*process)( struct alexa_service* as, struct alexa_directive_item* item) )
 {
-	struct alexa_directive_process_item* process_item = alexa_new(struct alexa_directive_process_item);
+    struct alexa_directive_process_item* process_item = alexa_new(struct alexa_directive_process_item);
     if( process_item )
     {
         strcpy( process_item->name_space, name_space );
         process_item->process = process;
         list_add(&(process_item->list), &alexa_directive_process_head);
-		return 0;
-	}
+        return 0;
+    }
     else
     {
-		return -1;
+        return -1;
     }
 }
 
@@ -69,7 +69,7 @@ int alexa_directive_unregister(const char* name_space)
     {
         if( !strcmp(process_item->name_space, name_space) )
         {
-			list_del(&(process_item->list));
+            list_del(&(process_item->list));
             return 0;
         }
     }
@@ -123,20 +123,20 @@ int alexa_directive_add( struct alexa_service* as, const char* value )
             item->payload = cj_payload;
         }
     }
-	else
-	{
-		cj_header = cJSON_GetObjectItem(cj_root, "header");
-		if (cj_header)
-		{
-			item->header = cj_header;
-		}
+    else
+    {
+        cj_header = cJSON_GetObjectItem(cj_root, "header");
+        if (cj_header)
+        {
+            item->header = cj_header;
+        }
 
-		cj_payload = cJSON_GetObjectItem(cj_root, "payload");
-		if (cj_payload)
-		{
-			item->payload = cj_payload;
-		}
-	}
+        cj_payload = cJSON_GetObjectItem(cj_root, "payload");
+        if (cj_payload)
+        {
+            item->payload = cj_payload;
+        }
+    }
 
     //add the json directive to list
     alexa_mutex_lock(directive->mutex);
@@ -208,7 +208,7 @@ static struct alexa_directive* directive_construct( void )
     if( directive )
     {
         INIT_LIST_HEAD(&directive->head);
-		directive->mutex = alexa_mutex_create();
+        directive->mutex = alexa_mutex_create();
     }
     return directive;
 }

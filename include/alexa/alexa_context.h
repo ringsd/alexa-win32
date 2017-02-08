@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_context.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_context.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/1/17 14:56:40
+    TIME LIST:
+    CREATE By Ringsd   2017/1/17 14:56:40
 
 *******************************************************************************/
 
@@ -33,5 +33,5 @@ cJSON* alexa_context_get_state(struct alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

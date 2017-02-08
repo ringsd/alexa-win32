@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_speechrecognizer.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_speechrecognizer.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 17:52:37
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 17:52:37
 
 *******************************************************************************/
 
@@ -35,5 +35,5 @@ void alexa_speechrecognizer_process(struct alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

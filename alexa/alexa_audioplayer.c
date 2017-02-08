@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: alexa_audioplayer.c
+    File: alexa_audioplayer.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/13 15:39:28
+    TIME LIST:
+    CREATE By Ringsd   2017/01/13 15:39:28
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer
 
 *******************************************************************************/
@@ -16,11 +16,11 @@
 #include    "alexa_service.h"
 
 #define NAMESPACE       "AudioPlayer"
-#define TAG				"AudioPlayer"
+#define TAG                "AudioPlayer"
 
 #define URL_CID         "cid:"
 
-#define	TODO			1
+#define    TODO            1
 
 enum{
     PLAYBACKSTARTED_EVENT = 0,
@@ -82,14 +82,14 @@ static const char* audioplayer_state[] = {
 };
 
 struct alexa_audioplayer{
-	enum AUDIOPLAYER_STATE_ENUM state;
-	char*	token;
-	char*	messageId;
-	int		offsetInMilliseconds;
-	char*	playerActivity;
-	int		stutterDurationInMilliseconds;
-	char*	type;
-	char*	message;
+    enum AUDIOPLAYER_STATE_ENUM state;
+    char*    token;
+    char*    messageId;
+    int        offsetInMilliseconds;
+    char*    playerActivity;
+    int        stutterDurationInMilliseconds;
+    char*    type;
+    char*    message;
 };
 
 static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_STATE_ENUM state )
@@ -113,7 +113,7 @@ static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_ST
  */
 cJSON* audioplayer_playback_state(struct alexa_service* as )
 {
-	struct alexa_audioplayer* ap = as->ap;
+    struct alexa_audioplayer* ap = as->ap;
     cJSON* cj_playback_state = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -124,8 +124,8 @@ cJSON* audioplayer_playback_state(struct alexa_service* as )
     
     cJSON_AddItemToObject( cj_playback_state, "payload", cj_payload );
     cJSON_AddStringToObject( cj_payload, "token", ap->token);
-	cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
-	cJSON_AddStringToObject(cj_payload, "playerActivity", ap->playerActivity);
+    cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
+    cJSON_AddStringToObject(cj_payload, "playerActivity", ap->playerActivity);
     
     return cj_playback_state;
 }
@@ -138,14 +138,14 @@ static void audioplayer_event_header_construct( struct alexa_service* as, cJSON*
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", audioplayer_event[event_index]);
-	cJSON_AddStringToObject(cj_header, "messageId", ap->messageId);
+    cJSON_AddStringToObject(cj_header, "messageId", ap->messageId);
     
     return;
 }
 
 static void audioplayer_event_payload_construct(struct alexa_service* as, cJSON* cj_payload, enum AUDIOPLAYER_EVENT_ENUM event)
 {
-	struct alexa_audioplayer* ap = as->ap;
+    struct alexa_audioplayer* ap = as->ap;
     int event_index = (int)event;
     int len = 0;
     
@@ -163,27 +163,27 @@ static void audioplayer_event_payload_construct(struct alexa_service* as, cJSON*
         case PLAYBACKPAUSED_EVENT:
         case PLAYBACKRESUMED_EVENT:
             cJSON_AddStringToObject( cj_payload, "token", ap->token);
-			cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
+            cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
             break;
         case PLAYBACKSTUTTERFINISHED_EVENT:
-			cJSON_AddStringToObject(cj_payload, "token", ap->token);
-			cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
-			cJSON_AddNumberToObject(cj_payload, "stutterDurationInMilliseconds", ap->stutterDurationInMilliseconds);
+            cJSON_AddStringToObject(cj_payload, "token", ap->token);
+            cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
+            cJSON_AddNumberToObject(cj_payload, "stutterDurationInMilliseconds", ap->stutterDurationInMilliseconds);
             break;
         case PLAYBACKFAILED_EVENT:
             {
                 cJSON* currentPlaybackState = cJSON_CreateObject();
                 cJSON* error = cJSON_CreateObject();
 
-				cJSON_AddStringToObject(cj_payload, "token", ap->token);
-				cJSON_AddItemToObject(cj_payload, "currentPlaybackState", currentPlaybackState);
-				cJSON_AddStringToObject(currentPlaybackState, "token", ap->token);
-				cJSON_AddNumberToObject(currentPlaybackState, "offsetInMilliseconds", ap->offsetInMilliseconds);
-				cJSON_AddStringToObject(currentPlaybackState, "playerActivity", ap->playerActivity);
+                cJSON_AddStringToObject(cj_payload, "token", ap->token);
+                cJSON_AddItemToObject(cj_payload, "currentPlaybackState", currentPlaybackState);
+                cJSON_AddStringToObject(currentPlaybackState, "token", ap->token);
+                cJSON_AddNumberToObject(currentPlaybackState, "offsetInMilliseconds", ap->offsetInMilliseconds);
+                cJSON_AddStringToObject(currentPlaybackState, "playerActivity", ap->playerActivity);
                 
                 cJSON_AddItemToObject( cj_payload, "error", error);
-				cJSON_AddStringToObject(currentPlaybackState, "type", ap->type);
-				cJSON_AddStringToObject(currentPlaybackState, "message", ap->message);
+                cJSON_AddStringToObject(currentPlaybackState, "type", ap->type);
+                cJSON_AddStringToObject(currentPlaybackState, "message", ap->message);
             }
             break;
         case PLAYBACKQUEUECLEARED_EVENT:
@@ -216,10 +216,10 @@ const char* alexa_audioplayer_event_construct(struct alexa_service* as, enum AUD
     audioplayer_event_header_construct( as, cj_header, event );
     audioplayer_event_payload_construct( as, cj_payload, event );
     
-	event_json = cJSON_Print(cj_root);
-	sys_log_d("%s\n", event_json);
+    event_json = cJSON_Print(cj_root);
+    sys_log_d("%s\n", event_json);
     
-	cJSON_Delete(cj_root);
+    cJSON_Delete(cj_root);
     
     return event_json;
 }
@@ -239,28 +239,28 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         }
         case AUDIOPLAYER_STATE_PLAYING:
             //playing has some issue
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKFAILED_EVENT );
             }
                 
             //directive_stop or directive_clearqueue
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
             }
             
             // alert or timer 
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PAUSED );
                 alexa_audioplayer_event_construct( as, PLAYBACKPAUSED_EVENT );
             }
         
             //ran out of buffered bytes
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_BUFFER_UNDERRUN );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERSTARTED_EVENT );
@@ -286,14 +286,14 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         case AUDIOPLAYER_STATE_PAUSED:
         {
             //play resume
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
                 alexa_audioplayer_event_construct( as, PLAYBACKRESUMED_EVENT );
             }
 
             //directive_clearqueue
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
@@ -304,14 +304,14 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         case AUDIOPLAYER_STATE_BUFFER_UNDERRUN:
         {
             //buffering finished playback resumed
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERFINISHED_EVENT );
             }
             
             //directive_clearqueue
-			if(TODO)
+            if(TODO)
             {
                 audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
                 alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
@@ -336,7 +336,7 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
 
 static int directive_play( struct alexa_service* as, struct alexa_directive_item* item )
 {
-	cJSON* cj_payload = item->payload;
+    cJSON* cj_payload = item->payload;
     cJSON* cj_playBehavior;
     cJSON* cj_audioItem;
     cJSON* cj_audioItemId;
@@ -349,8 +349,8 @@ static int directive_play( struct alexa_service* as, struct alexa_directive_item
     cJSON* cj_progressReportDelayInMilliseconds;
     cJSON* cj_progressReportIntervalInMilliseconds;
 
-	cJSON* cj_token;
-	cJSON* cj_expectedPreviousToken;
+    cJSON* cj_token;
+    cJSON* cj_expectedPreviousToken;
 
     cj_playBehavior = cJSON_GetObjectItem(cj_payload, "playBehavior");
     if( !cj_playBehavior ) goto err;
@@ -513,7 +513,7 @@ static struct alexa_audioplayer* audioplayer_construct(void)
  */
 int alexa_audioplayer_init(struct alexa_service* as)
 {
-	as->ap = audioplayer_construct();
+    as->ap = audioplayer_construct();
     alexa_directive_register(NAMESPACE, directive_process );
     return 0;
 }
@@ -530,5 +530,5 @@ int alexa_audioplayer_done(struct alexa_service* as)
 }
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

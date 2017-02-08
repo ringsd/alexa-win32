@@ -39,7 +39,7 @@ static char* generate_code_verifier(void)
     //base 64 url encode 
     encode_len = base64_encode_len(sizeof(code_verifier_number));
     code_verifier = alexa_malloc(encode_len);
-	encode_len = base64_encode_urlsafe(code_verifier, code_verifier_number, sizeof(code_verifier_number));
+    encode_len = base64_encode_urlsafe(code_verifier, code_verifier_number, sizeof(code_verifier_number));
     return code_verifier;
 }
 
@@ -48,9 +48,9 @@ static char* generate_code_challenge(const char* code_verifier, const char* code
     int encode_len;
     unsigned char code_challenge_number[32];
     char *code_challenge;
-	if (strcmp(code_challenge_method, ALEXA_CODE_CHALLENGE_METHOD_S256) == 0)
+    if (strcmp(code_challenge_method, ALEXA_CODE_CHALLENGE_METHOD_S256) == 0)
     {
-		SHA256(code_verifier, strlen(code_verifier), code_challenge_number);
+        SHA256(code_verifier, strlen(code_verifier), code_challenge_number);
     }
     else
     {
@@ -60,7 +60,7 @@ static char* generate_code_challenge(const char* code_verifier, const char* code
     //base 64 url encode 
     encode_len = base64_encode_len(sizeof(code_challenge_number));
     code_challenge = alexa_malloc(encode_len);
-	encode_len = base64_encode_urlsafe(code_challenge, code_challenge_number, sizeof(code_challenge_number));
+    encode_len = base64_encode_urlsafe(code_challenge, code_challenge_number, sizeof(code_challenge_number));
 
     return code_challenge;
 }
@@ -101,14 +101,14 @@ void alexa_device_destruct( struct alexa_device* device )
 {
     if( device )
     {
-		ALEXA_SAFE_FREE(device->manufacturer);
-		ALEXA_SAFE_FREE(device->product);
-		ALEXA_SAFE_FREE(device->model);
+        ALEXA_SAFE_FREE(device->manufacturer);
+        ALEXA_SAFE_FREE(device->product);
+        ALEXA_SAFE_FREE(device->model);
         
-		ALEXA_SAFE_FREE(device->codeVerifier);
-		ALEXA_SAFE_FREE(device->codeChallenge);
-		ALEXA_SAFE_FREE(device->codeChallengeMethod);
-		ALEXA_SAFE_FREE(device->sessionId);
+        ALEXA_SAFE_FREE(device->codeVerifier);
+        ALEXA_SAFE_FREE(device->codeChallenge);
+        ALEXA_SAFE_FREE(device->codeChallengeMethod);
+        ALEXA_SAFE_FREE(device->sessionId);
         
         alexa_delete(device);
     }
@@ -129,9 +129,9 @@ void alexa_device_start_discovery( struct alexa_device* device )
 
 void alexa_device_stop_discovery(struct alexa_device* device)
 {
-	//disconnect the app
+    //disconnect the app
 
-	//stop broadcast online
+    //stop broadcast online
 }
 
 void alexa_device_app_auth( struct alexa_device* device )

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
 
-	File: sys_log.h
+    File: sys_log.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/04 11:52:56
+    TIME LIST:
+    CREATE By Ringsd   2017/01/04 11:52:56
 
 *******************************************************************************/
 
@@ -35,5 +35,5 @@ int sys_log_e(const char* tag, const char* fmt, ...);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_speechsynthesizer.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_speechsynthesizer.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 18:01:10
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 18:01:10
 
 *******************************************************************************/
 
@@ -33,5 +33,5 @@ int alexa_speechsynthesizer_done(alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

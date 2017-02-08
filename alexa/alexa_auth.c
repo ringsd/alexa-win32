@@ -171,20 +171,20 @@ static int authmng_save_config_file( struct alexa_authmng* authmng, const char* 
     int ret = 0;
     struct cJSON* cj_root = cJSON_CreateObject();
     struct cJSON* cj_device = cJSON_CreateObject();
-	struct cJSON* cj_auth = cJSON_CreateObject();
-	struct cJSON* cj_token = cJSON_CreateObject();
+    struct cJSON* cj_auth = cJSON_CreateObject();
+    struct cJSON* cj_token = cJSON_CreateObject();
     struct alexa_authorization* auth = &authmng->auth;
     struct alexa_token* token = &authmng->token;
-	struct alexa_device* device = authmng->device;
+    struct alexa_device* device = authmng->device;
 
-	cJSON_AddItemToObject(cj_root, "device", cj_device);
-	cJSON_AddItemToObject(cj_device, "manufacturer", cJSON_CreateString(device->manufacturer));
-	cJSON_AddItemToObject(cj_device, "product", cJSON_CreateString(device->product));
-	cJSON_AddItemToObject(cj_device, "model", cJSON_CreateString(device->model));
-	cJSON_AddItemToObject(cj_device, "codeVerifier", cJSON_CreateString(device->codeVerifier));
-	cJSON_AddItemToObject(cj_device, "codeChallenge", cJSON_CreateString(device->codeChallenge));
-	cJSON_AddItemToObject(cj_device, "codeChallengeMethod", cJSON_CreateString(device->codeChallengeMethod));
-	cJSON_AddItemToObject(cj_device, "sessionId", cJSON_CreateString(device->sessionId));
+    cJSON_AddItemToObject(cj_root, "device", cj_device);
+    cJSON_AddItemToObject(cj_device, "manufacturer", cJSON_CreateString(device->manufacturer));
+    cJSON_AddItemToObject(cj_device, "product", cJSON_CreateString(device->product));
+    cJSON_AddItemToObject(cj_device, "model", cJSON_CreateString(device->model));
+    cJSON_AddItemToObject(cj_device, "codeVerifier", cJSON_CreateString(device->codeVerifier));
+    cJSON_AddItemToObject(cj_device, "codeChallenge", cJSON_CreateString(device->codeChallenge));
+    cJSON_AddItemToObject(cj_device, "codeChallengeMethod", cJSON_CreateString(device->codeChallengeMethod));
+    cJSON_AddItemToObject(cj_device, "sessionId", cJSON_CreateString(device->sessionId));
 
     cJSON_AddItemToObject(cj_root, "authorization", cj_auth);
     cJSON_AddItemToObject(cj_auth, "authorizationCode", cJSON_CreateString(auth->authorizationCode));
@@ -199,7 +199,7 @@ static int authmng_save_config_file( struct alexa_authmng* authmng, const char* 
     cJSON_AddNumberToObject(cj_token, "expires_in", token->expires_in);
     cJSON_AddNumberToObject(cj_token, "current_time", (double)token->current_time);
 
-	if (authmng_json_save2file(cj_root, file) < 0)
+    if (authmng_json_save2file(cj_root, file) < 0)
     {
         sys_log_e( TAG, "save the auth fail.\n" );
         ret = -1;
@@ -384,10 +384,10 @@ static int authmng_parse_token_response(struct alexa_authmng* authmng, char *res
         if(error_desc || error) 
         {
             sys_log_e( TAG, "parse response error:%s desc:%s\n", error == NULL ? "NULL" : error, error_desc == NULL ? "NULL" : error_desc );
-			ALEXA_SAFE_FREE(error_desc);
-			ALEXA_SAFE_FREE(error);
-			cJSON_Delete(cj_root);
-			goto err;
+            ALEXA_SAFE_FREE(error_desc);
+            ALEXA_SAFE_FREE(error);
+            cJSON_Delete(cj_root);
+            goto err;
         }
         else if( access_token && refresh_token && token_type )
         {
@@ -524,24 +524,24 @@ static int authmng_authorization_code(struct alexa_authmng* authmng)
 
 static void authmng_auth_set(struct alexa_authorization* auth, const char* authorizationCode, const char* redirectUri, const char* clientId, const char* codeVerifier)
 {
-	auth->authorizationCode = alexa_strdup(authorizationCode);
-	auth->redirectUri = alexa_strdup(redirectUri);
-	auth->clientId = alexa_strdup(clientId);
-	auth->codeVerifier = alexa_strdup(codeVerifier);
+    auth->authorizationCode = alexa_strdup(authorizationCode);
+    auth->redirectUri = alexa_strdup(redirectUri);
+    auth->clientId = alexa_strdup(clientId);
+    auth->codeVerifier = alexa_strdup(codeVerifier);
 }
 
 static void authmng_token_set(struct alexa_token* token, const char* access_token, const char* refresh_token, const char* token_type)
 {
-	token->access_token = alexa_strdup(access_token);
-	token->refresh_token = alexa_strdup(refresh_token);
-	token->token_type = alexa_strdup(token_type);
-	token->expires_in = 0;
-	token->current_time = 0;
+    token->access_token = alexa_strdup(access_token);
+    token->refresh_token = alexa_strdup(refresh_token);
+    token->token_type = alexa_strdup(token_type);
+    token->expires_in = 0;
+    token->current_time = 0;
 }
 
 const char*alexa_authmng_get_access_token(struct alexa_authmng* authmng)
 {
-	return authmng->token.access_token;
+    return authmng->token.access_token;
 }
 
 void alexa_authmng_cancel(void)
@@ -561,8 +561,8 @@ static struct alexa_authmng* alexa_authmng_construct(void)
 
 static void alexa_authmng_destruct(struct alexa_authmng* authmng)
 {
-	authmng_auth_free(&authmng->auth);
-	authmng_token_free(&authmng->token);
+    authmng_auth_free(&authmng->auth);
+    authmng_token_free(&authmng->token);
     alexa_delete(authmng);
 }
 
@@ -580,14 +580,14 @@ struct alexa_authmng* alexa_authmng_init(void)
     authmng->device = device;
 
     //load alexa auth information
-	if (authmng_load_config_file(authmng, ALEXA_CONFIG_PATH) < 0)
+    if (authmng_load_config_file(authmng, ALEXA_CONFIG_PATH) < 0)
     {
         //first load or some error happen
         sys_log_e( TAG, "auth chenk config fail.\n" );
 
         //generate the device code for
-		//set device info
-		alexa_device_code_regenerate(device);
+        //set device info
+        alexa_device_code_regenerate(device);
         alexa_device_info_set(device, "HiBy Music", "HiBy Music Player", "G10" );
         alexa_device_sessionid_set(device, "HiBy Music");
 
@@ -595,7 +595,7 @@ struct alexa_authmng* alexa_authmng_init(void)
         //char* redirectUri = "amzn://com.amazon.alexa.avs.companion";
         //char* clientID = "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322";
         //char* codeVerifier = "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4";
-		authmng_auth_set(&authmng->auth, "ANsdtryAfaZSPGbuKBYF", "amzn://com.amazon.alexa.avs.companion", "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4");
+        authmng_auth_set(&authmng->auth, "ANsdtryAfaZSPGbuKBYF", "amzn://com.amazon.alexa.avs.companion", "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4");
 
         alexa_device_start_discovery(device);
 
@@ -624,41 +624,41 @@ err:
 
 void alexa_authmng_done(struct alexa_authmng* authmng)
 {
-	alexa_device_stop_discovery(authmng->device);
-	alexa_device_destruct(authmng->device);
+    alexa_device_stop_discovery(authmng->device);
+    alexa_device_destruct(authmng->device);
 
-	alexa_delete(authmng);
+    alexa_delete(authmng);
 }
 
 #ifdef ALEXA_UNIT_TEST
 void alexa_authmng_test(void)
 {
-	struct alexa_authmng* authmng;
-	struct alexa_device* device;
+    struct alexa_authmng* authmng;
+    struct alexa_device* device;
 
-	authmng = alexa_authmng_construct();
-	device = alexa_device_construct();
-	authmng->device = device;
+    authmng = alexa_authmng_construct();
+    device = alexa_device_construct();
+    authmng->device = device;
 
-	authmng_load_config_file(authmng, ALEXA_CONFIG_PATH);
+    authmng_load_config_file(authmng, ALEXA_CONFIG_PATH);
 
-	authmng_auth_free( &authmng->auth);
-	authmng_token_free(&authmng->token);
+    authmng_auth_free( &authmng->auth);
+    authmng_token_free(&authmng->token);
 
-	if (authmng->device->manufacturer == NULL)
-	{
-		//set device info
-		alexa_device_code_regenerate(authmng->device);
-		alexa_device_info_set(authmng->device, "HiBy Music", "HiBy Music Player", "G10");
-		alexa_device_sessionid_set(authmng->device, "HiBy Music");
-	}
-	authmng_auth_set(&authmng->auth, "ANsdtryAfaZSPGbuKBYF", "amzn://com.amazon.alexa.avs.companion", "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4");
-	authmng_token_set(&authmng->token, "access_token", "refresh_token", "token_type");
+    if (authmng->device->manufacturer == NULL)
+    {
+        //set device info
+        alexa_device_code_regenerate(authmng->device);
+        alexa_device_info_set(authmng->device, "HiBy Music", "HiBy Music Player", "G10");
+        alexa_device_sessionid_set(authmng->device, "HiBy Music");
+    }
+    authmng_auth_set(&authmng->auth, "ANsdtryAfaZSPGbuKBYF", "amzn://com.amazon.alexa.avs.companion", "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4");
+    authmng_token_set(&authmng->token, "access_token", "refresh_token", "token_type");
 
-	authmng_save_config_file(authmng, ALEXA_CONFIG_PATH);
+    authmng_save_config_file(authmng, ALEXA_CONFIG_PATH);
 
-	alexa_device_destruct(authmng->device);
-	alexa_authmng_destruct(authmng);
+    alexa_device_destruct(authmng->device);
+    alexa_authmng_destruct(authmng);
 }
 #endif
 

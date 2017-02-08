@@ -20,20 +20,20 @@ int alexa_main(void* data)
     //authmng init
 
 #ifdef ALEXA_UNIT_TEST
-	{
-		//alexa_authmng_test();
-	}
+    {
+        //alexa_authmng_test();
+    }
 #endif
 
     struct alexa_authmng* authmng = alexa_authmng_init();
     if( authmng )
     {
         //start alexa_service
-		struct alexa_service* service = alexa_service_init();
-		if (service)
+        struct alexa_service* service = alexa_service_init();
+        if (service)
         {
-			struct alexa_http2* http2 = alexa_http2_init(service, authmng);
-			alexa_service_process(service, http2);
+            struct alexa_http2* http2 = alexa_http2_init(service, authmng);
+            alexa_service_process(service, http2);
             if( service ) alexa_service_done(service);
             alexa_http2_done(http2);
         }

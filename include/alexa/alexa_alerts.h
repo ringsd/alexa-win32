@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_alerts.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_alerts.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/16 10:42:09
+    TIME LIST:
+    CREATE By Ringsd   2017/01/16 10:42:09
 
 *******************************************************************************/
 
@@ -33,5 +33,5 @@ int alexa_alerts_done(struct alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

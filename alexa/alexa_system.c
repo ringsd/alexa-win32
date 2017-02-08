@@ -18,27 +18,27 @@
 #define     NAMESPACE      "System"
 
 struct alexa_system{
-    char*	messageId;
-	int		inactiveTimeInSeconds;
-	char*	unparsedDirective;
-	char*	type;
-	char*	message;
-	char*	code;
-	char*	description;
+    char*    messageId;
+    int      inactiveTimeInSeconds;
+    char*    unparsedDirective;
+    char*    type;
+    char*    message;
+    char*    code;
+    char*    description;
 };
 
 enum{
     SYNCHRONIZESTATE_EVENT = 0,
     USERINACTIVITYREPORT_EVENT,
     EXCEPTIONENCOUNTERED_EVENT,
-	SYSTEMEXCEPTION_EVENT,
+    SYSTEMEXCEPTION_EVENT,
 }SYSTEM_EVENT_ENUM;
 
 static const char* system_event[] = {
     "SynchronizeState",
     "UserInactivityReport",
     "ExceptionEncountered",
-	"SYSTEMEXCEPTION_EVENT",
+    "SYSTEMEXCEPTION_EVENT",
 };
 
 enum{
@@ -50,7 +50,7 @@ enum{
 };
 
 struct system_exception{
-    int err_code;
+    int         err_code;
     const char* err_desc;
 };
 
@@ -64,7 +64,7 @@ static struct system_exception system_exception_list[] = {
 
 static cJSON* system_event_context_construct( struct alexa_service* as )
 {
-	return alexa_context_get_state(as);
+    return alexa_context_get_state(as);
 }
 
 static void system_event_header_construct( struct alexa_system* system, cJSON* cj_header, enum SYSTEM_EVENT_ENUM event )
@@ -94,16 +94,16 @@ static void system_event_payload_construct( struct alexa_system* system, cJSON* 
             {
                 cJSON* cj_error = cJSON_CreateObject();        
             
-				cJSON_AddStringToObject(cj_payload, "unparsedDirective", system->unparsedDirective);
+                cJSON_AddStringToObject(cj_payload, "unparsedDirective", system->unparsedDirective);
                 cJSON_AddItemToObject( cj_payload, "error", cj_error );                
                 
-				cJSON_AddStringToObject(cj_error, "type", system->type);
-				cJSON_AddStringToObject(cj_error, "message", system->message);
+                cJSON_AddStringToObject(cj_error, "type", system->type);
+                cJSON_AddStringToObject(cj_error, "message", system->message);
             }
             break;
         case SYSTEMEXCEPTION_EVENT:
-			cJSON_AddStringToObject(cj_payload, "code", system->code);
-			cJSON_AddStringToObject(cj_payload, "description", system->description);
+            cJSON_AddStringToObject(cj_payload, "code", system->code);
+            cJSON_AddStringToObject(cj_payload, "description", system->description);
             break;
         default:
             break;
@@ -183,23 +183,23 @@ static int directive_reset_user_inactivity( struct alexa_service* as, struct ale
 
 static int directive_process(alexa_service* as, struct alexa_directive_item* item)
 {
-	cJSON* cj_header = item->header;
-	cJSON* cj_name;
+    cJSON* cj_header = item->header;
+    cJSON* cj_name;
     
-	cj_name = cJSON_GetObjectItem(cj_header, "name");
-	if (!cj_name)
+    cj_name = cJSON_GetObjectItem(cj_header, "name");
+    if (!cj_name)
     {
         goto err;
     }
     
-	if (!strcmp(cj_name->valuestring, "ResetUserInactivity"))
+    if (!strcmp(cj_name->valuestring, "ResetUserInactivity"))
     {
         directive_reset_user_inactivity( as, item );
     }
-	else if (!strcmp(cj_name->valuestring, "Exception"))
-	{
-		exception_process(as, item);
-	}
+    else if (!strcmp(cj_name->valuestring, "Exception"))
+    {
+        exception_process(as, item);
+    }
     
     return 0;
 
@@ -224,7 +224,7 @@ static void system_destruct( struct alexa_system* system )
 
 int alexa_system_init(alexa_service* as)
 {
-	as->system = system_construct();
+    as->system = system_construct();
     alexa_directive_register(NAMESPACE, directive_process );
     
     return 0;
@@ -232,7 +232,7 @@ int alexa_system_init(alexa_service* as)
 
 int alexa_system_done(alexa_service* as)
 {
-	system_destruct(as->system);
+    system_destruct(as->system);
     alexa_directive_unregister(NAMESPACE);    
 
     return 0;

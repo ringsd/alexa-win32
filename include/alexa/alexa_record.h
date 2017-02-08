@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_record.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_record.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/16 10:53:15
+    TIME LIST:
+    CREATE By Ringsd   2017/01/16 10:53:15
 
 *******************************************************************************/
 
@@ -29,5 +29,5 @@ struct alexa_record{
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

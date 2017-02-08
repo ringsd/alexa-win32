@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_playbackcontroller.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_playbackcontroller.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/14 17:00:58
+    TIME LIST:
+    CREATE By Ringsd   2017/01/14 17:00:58
 
 *******************************************************************************/
 
@@ -39,5 +39,5 @@ int alexa_pc_done(struct alexa_service* as);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

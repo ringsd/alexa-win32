@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright SmartAction Tech. 2016.
-	All Rights Reserved.
-	
-	File: sys_types.h
+    Copyright SmartAction Tech. 2016.
+    All Rights Reserved.
+    
+    File: sys_types.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2016/06/08 11:35:59
+    TIME LIST:
+    CREATE By Ringsd   2016/06/08 11:35:59
 
 *******************************************************************************/
 
@@ -38,5 +38,5 @@ extern "C" {
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_auth.h
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_auth.h
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/1/19 11:28:04
+    TIME LIST:
+    CREATE By Ringsd   2017/1/19 11:28:04
 
 *******************************************************************************/
 
@@ -37,5 +37,5 @@ void alexa_authmng_test(void);
 #endif
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

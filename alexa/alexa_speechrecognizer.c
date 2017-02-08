@@ -17,7 +17,7 @@
 
 #include "alexa_service.h"
 
-#define TODO					1
+#define TODO                    1
 
 #define TAG                     "speechrecognizer"
 
@@ -191,7 +191,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 //how to implement the NEAR_FIELD FAR_FIELD profile
 
                 sr_generate_request_id( sr );
-				event = sr_recognizer_event(as);
+                event = sr_recognizer_event(as);
                 
                 //event + binary audio stream
 
@@ -293,7 +293,7 @@ static const char* sr_recognizer_event( struct alexa_service* as )
     cJSON_AddItemToObject( cj_root, "context", cj_context );
     cJSON_AddItemToObject( cj_root, "event", cj_event );
     
-	cJSON_AddItemToArray(cj_context, alexa_context_get_state(as));
+    cJSON_AddItemToArray(cj_context, alexa_context_get_state(as));
     
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
@@ -316,8 +316,8 @@ static const char* sr_recognizer_event( struct alexa_service* as )
 static const char* sr_expect_speech_timedout_event(alexa_service* as)
 {
     const char* event_string;
-	struct alexa_speechrecognizer* sr = as->sr;
-	cJSON* cj_root = cJSON_CreateObject();
+    struct alexa_speechrecognizer* sr = as->sr;
+    cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -327,7 +327,7 @@ static const char* sr_expect_speech_timedout_event(alexa_service* as)
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", "ExpectSpeechTimedOut");
-	cJSON_AddStringToObject(cj_header, "messageId", sr->messageId);
+    cJSON_AddStringToObject(cj_header, "messageId", sr->messageId);
     
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
     
@@ -394,7 +394,7 @@ err:
 
 static struct alexa_speechrecognizer* sr_construct(void)
 {
-	struct alexa_speechrecognizer* sr = alexa_new(struct alexa_speechrecognizer);
+    struct alexa_speechrecognizer* sr = alexa_new(struct alexa_speechrecognizer);
     if( sr )
     {
         sr->wakeup_source = WAKE_UP_BY_NONE;
@@ -412,8 +412,8 @@ static void sr_destruct(struct alexa_speechrecognizer* sr)
 {
     if( sr )
     {
-		alexa_cond_destroy(sr->cond);
-		alexa_mutex_destroy(sr->mutex);
+        alexa_cond_destroy(sr->cond);
+        alexa_mutex_destroy(sr->mutex);
         
         alexa_delete( sr );
     }

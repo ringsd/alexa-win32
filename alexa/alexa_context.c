@@ -1,20 +1,20 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_context.c
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_context.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/17 14:56:19
+    TIME LIST:
+    CREATE By Ringsd   2017/01/17 14:56:19
     https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/context    
 
 *******************************************************************************/
 
 #include "alexa_service.h"
 
-#define TAG		"alexa_context"
+#define TAG        "alexa_context"
 
 /*
  *@brief construct the alexa context
@@ -24,7 +24,7 @@
 cJSON* alexa_context_get_state( struct alexa_service* as )
 {
     cJSON* cj_context = cJSON_CreateArray();
-	cJSON* cj_state;
+    cJSON* cj_state;
 
     if( !cj_context )
     {
@@ -56,5 +56,5 @@ err:
 
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/
