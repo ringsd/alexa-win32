@@ -17,7 +17,10 @@
 #include "curl/curl.h"
 #include "list.h"
 #include "sys_log.h"
+#include "alexa_service.h"
 #include "alexa_platform.h"
+#include "alexa_base.h"
+#include "alexa_auth.h"
 
 #define TODO    1
 
@@ -25,7 +28,6 @@
 
 #define ALEXA_BASE_URL      "https://avs-alexa-na.amazon.com"
 #define ALEXA_API_VERSION   "v20160207" 
-
 #define ALEXA_BOUNDARY      "BOUNDARY1234"
 
 #define ALEXA_EVENT_JSON_HEADER                                                \
@@ -40,7 +42,7 @@
 "Content-Type: application/octet-stream"\
 "\r\n"
 
-
+#define ALEXA_MAX_EVENTS_COUNT	5
 #define HTTP2_MAX_STREAMS   10
 
 /*
@@ -93,7 +95,8 @@
 
 struct alexa_http2{
 	struct alexa_authmng* authmng;
-    char*   accesss_token;
+	struct alexa_service* as;
+	char*   access_token;
     char*   boundary;
     char*   api_version;
     char*   base_url;
@@ -331,7 +334,7 @@ static CURL* curl_directives_construct(struct alexa_http2* http2, char** respons
         goto err;
     }
     
-    sprintf( header_auth, "authorization = Bearer %s", http2->accesss_token );
+    sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
     headers = curl_slist_append(headers, header_auth);
     setup_directives(directives_hnd, headers, response);
     
@@ -355,7 +358,7 @@ static CURL* curl_ping_construct(struct alexa_http2* http2)
         goto err;
     }
     
-    sprintf( header_auth, "authorization = Bearer %s", http2->accesss_token );
+    sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
     headers = curl_slist_append(headers, header_auth);
     setup_ping(ping_hnd, headers);
     
@@ -388,7 +391,7 @@ static CURL* curl_events_construct(struct alexa_http2* http2)
         item = list_first_entry(&http2->events_head, struct alexa_event_item, list);
         list_del(&(item->list));
 
-        sprintf( header_auth, "authorization = Bearer %s", http2->accesss_token );
+        sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
         sprintf( header_content, "content-type = multipart/form-data; boundary=%s", http2->boundary );
 
         headers = curl_slist_append(headers, header_auth);
@@ -405,17 +408,20 @@ err:
     return NULL;
 }
 
-
-static void* alexa_http2_process( void* data )
+#ifdef WIN32
+static void alexa_http2_process( void* data )
+#else
+static void* alexa_http2_process(void* data)
+#endif
 {
-    CURL*    ping_hnd;
-    CURL*    directives_hnd;
-    CURL*    events_hnd;
-    CURLM*    multi_handle;
-    char*    directives_response;
+    CURL*    ping_hnd = NULL;
+	CURL*    directives_hnd = NULL;
+	CURL*    events_hnd = NULL;
+    CURLM*   multi_handle;
+    char*    directives_response = NULL;
     int still_running; /* keep number of running handles */ 
     struct CURLMsg *m;
-    struct alexa_http2* http2;
+    struct alexa_http2* http2 = (struct alexa_http2*)data;
     int ping_hnd_timeout = 0;
 
     /* init a multi stack */ 
@@ -531,7 +537,8 @@ static void* alexa_http2_process( void* data )
                 {
                     //we get the new directive
                     //add the directive to the list
-                    
+					alexa_directive_add(http2->as, directives_response);
+
                     //wake up the directive process
 
                     directives_hnd = NULL;
@@ -612,15 +619,48 @@ static void* alexa_http2_process( void* data )
     curl_multi_cleanup(multi_handle);
 }
 
-
-struct alexa_http2* alexa_http2_init(struct alexa_authmng* authmng)
+static struct alexa_http2* alexa_http2_construct(struct alexa_service* as, struct alexa_authmng* authmng)
 {
-	return NULL;
+	struct alexa_http2* http2 = alexa_new( struct alexa_http2 );
+	if (http2)
+	{
+		http2->as = as;
+		http2->authmng = authmng;
+		http2->access_token = alexa_strdup(alexa_authmng_get_access_token(authmng));
+		http2->base_url = ALEXA_BASE_URL;
+		http2->api_version = ALEXA_API_VERSION;
+		http2->boundary = ALEXA_BOUNDARY;
+		http2->boundary_len = strlen(ALEXA_BOUNDARY);
+		http2->dummy_len = 4;
+		http2->audio_header_len = strlen(ALEXA_BINARY_AUDIO_HEADER);
+		http2->event_header_len = strlen(ALEXA_EVENT_JSON_HEADER);
+
+		http2->max_events_count = ALEXA_MAX_EVENTS_COUNT;
+
+		INIT_LIST_HEAD(&http2->events_head);
+
+	}
+	return http2;
+}
+
+static void alexa_http2_destruct(struct alexa_http2* http2)
+{
+	ALEXA_SAFE_FREE(http2->access_token);
+	alexa_delete(http2);
+}
+
+struct alexa_http2* alexa_http2_init(struct alexa_service* as, struct alexa_authmng* authmng)
+{
+	struct alexa_http2* http2 = alexa_http2_construct(as, authmng);
+
+	alexa_begin_thread(alexa_http2_process, (void*)http2, NULL, 0);
+
+	return http2;
 }
 
 void alexa_http2_done(struct alexa_http2* http2)
 {
-
+	alexa_http2_destruct(http2);
 }
 
 

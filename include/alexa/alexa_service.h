@@ -66,7 +66,9 @@ struct alexa_service{
 };
 
 
-struct alexa_service* alexa_service_init(struct alexa_http2* http2);
+struct alexa_service* alexa_service_init(void);
+
+void alexa_service_process(struct alexa_service* as, struct alexa_http2* http2);
 
 void alexa_service_done(struct alexa_service* as);
 

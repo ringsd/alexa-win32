@@ -196,6 +196,10 @@ static int directive_process(alexa_service* as, struct alexa_directive_item* ite
     {
         directive_reset_user_inactivity( as, item );
     }
+	else if (!strcmp(cj_name->valuestring, "Exception"))
+	{
+		exception_process(as, item);
+	}
     
     return 0;
 

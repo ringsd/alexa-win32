@@ -539,6 +539,11 @@ static void authmng_token_set(struct alexa_token* token, const char* access_toke
 	token->current_time = 0;
 }
 
+const char*alexa_authmng_get_access_token(struct alexa_authmng* authmng)
+{
+	return authmng->token.access_token;
+}
+
 void alexa_authmng_cancel(void)
 {
 }
@@ -581,11 +586,9 @@ struct alexa_authmng* alexa_authmng_init(void)
         sys_log_e( TAG, "auth chenk config fail.\n" );
 
         //generate the device code for
-        alexa_device_code_regenerate(device);
-
-        //set device info
+		//set device info
+		alexa_device_code_regenerate(device);
         alexa_device_info_set(device, "HiBy Music", "HiBy Music Player", "G10" );
-
         alexa_device_sessionid_set(device, "HiBy Music");
 
         //char* authcode = "ANsdtryAfaZSPGbuKBYF";

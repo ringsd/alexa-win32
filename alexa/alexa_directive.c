@@ -45,11 +45,11 @@ int alexa_directive_register(const char* name_space, int(*process)( struct alexa
         strcpy( process_item->name_space, name_space );
         process_item->process = process;
         list_add(&(process_item->list), &alexa_directive_process_head);
-        return -1;
-    }
+		return 0;
+	}
     else
     {
-        return 0;
+		return -1;
     }
 }
 
@@ -123,7 +123,21 @@ int alexa_directive_add( struct alexa_service* as, const char* value )
             item->payload = cj_payload;
         }
     }
-    
+	else
+	{
+		cj_header = cJSON_GetObjectItem(cj_root, "header");
+		if (cj_header)
+		{
+			item->header = cj_header;
+		}
+
+		cj_payload = cJSON_GetObjectItem(cj_root, "payload");
+		if (cj_payload)
+		{
+			item->payload = cj_payload;
+		}
+	}
+
     //add the json directive to list
     alexa_mutex_lock(directive->mutex);
     list_add(&(item->list), &directive->head);
@@ -224,7 +238,7 @@ static void directive_destruct( struct alexa_directive* directive )
 int alexa_directive_init( struct alexa_service* as )
 {
     as->directive = directive_construct();
-    if( as->directive )
+    if( as->directive == NULL )
     {
         sys_log_e( TAG, "construct alexa directive fail.\n" );
         return -1;

@@ -22,7 +22,7 @@ void alexa_service_wakeup(void)
     //user wake up the alexa service
 }
 
-struct alexa_service* alexa_service_init(struct alexa_http2* http2)
+struct alexa_service* alexa_service_init(void)
 {
     struct alexa_service* as = alexa_new(struct alexa_service);
     if (as == NULL)
@@ -60,6 +60,12 @@ err1:
     alexa_delete( as );
 err:
     return NULL;
+}
+
+void alexa_service_process(struct alexa_service* as, struct alexa_http2* http2)
+{
+	as->http2 = http2;
+	alexa_speechrecognizer_process(as);
 }
 
 void alexa_service_done( struct alexa_service* as )

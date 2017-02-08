@@ -29,10 +29,11 @@ int alexa_main(void* data)
     if( authmng )
     {
         //start alexa_service
-        struct alexa_http2* http2 = alexa_http2_init(authmng);
-        if( http2 )
+		struct alexa_service* service = alexa_service_init();
+		if (service)
         {
-            struct alexa_service* service = alexa_service_init(http2);
+			struct alexa_http2* http2 = alexa_http2_init(service, authmng);
+			alexa_service_process(service, http2);
             if( service ) alexa_service_done(service);
             alexa_http2_done(http2);
         }

@@ -422,7 +422,7 @@ static void sr_destruct(struct alexa_speechrecognizer* sr)
 int alexa_speechrecognizer_init(struct alexa_service* as)
 {
     as->sr = sr_construct();
-    if( !as->sr )
+    if( as->sr == NULL )
     {
         sys_log_e( TAG, "construct speechrecognizer fail.\n" );
         return -1;
