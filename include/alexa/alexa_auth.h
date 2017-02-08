@@ -18,7 +18,10 @@
 extern "C" {
 #endif
 
-int alexa_authmng_init(void);
+
+struct alexa_authmng* alexa_authmng_init(void);
+
+void alexa_authmng_done(struct alexa_authmng* authmng);
 
 
 #ifdef __cplusplus

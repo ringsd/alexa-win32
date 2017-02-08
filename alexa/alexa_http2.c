@@ -19,7 +19,7 @@
 #include "sys_log.h"
 #include "alexa_platform.h"
 
-#define TODO	1
+#define TODO    1
 
 #define TAG "http2"
 
@@ -92,6 +92,7 @@
 
 
 struct alexa_http2{
+	struct alexa_authmng* authmng;
     char*   accesss_token;
     char*   boundary;
     char*   api_version;
@@ -99,14 +100,14 @@ struct alexa_http2{
     void*   curl_handle;
     CURL*   curl;
 
-	int		events_count;
-	int		max_events_count;
+    int     events_count;
+    int     max_events_count;
 
-	struct list_head events_head;
-	int boundary_len;
-	int dummy_len;
-	int audio_header_len;
-	int event_header_len;
+    struct list_head events_head;
+    int boundary_len;
+    int dummy_len;
+    int audio_header_len;
+    int event_header_len;
 };
 
 struct alexa_event_item{
@@ -115,26 +116,6 @@ struct alexa_event_item{
     int                 content_len;
 };
 
-alexa_http2_event()
-{
-    
-}
-
-alexa_http2_downchannel()
-{
-    
-}
-
-alexa_http2_ping()
-{
-    
-}
-
-alexa_http2_conn_establishing(struct alexa_http2* http2)
-{
-	http2 = http2;
-}
-
 int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, int event_len, const char* audio_data, int audio_data_len)
 {
     int content_len = 0;
@@ -142,7 +123,7 @@ int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, in
     char* content_pos;
     struct alexa_event_item* item;
     
-	item = alexa_new(struct alexa_event_item);
+    item = alexa_new(struct alexa_event_item);
     if( !item )
     {
         sys_log_e( TAG, "don't have enough mem\n" );
@@ -207,7 +188,7 @@ err:
 
 int alexa_http2_event_add( struct alexa_http2* http2, const char* event, int event_len )
 {
-	return alexa_http2_event_audio_add(http2, event, event_len, NULL, 0);
+    return alexa_http2_event_audio_add(http2, event, event_len, NULL, 0);
 }
 
 int alexa_http2_event_audio_remove( struct alexa_event_item* item )
@@ -319,7 +300,7 @@ static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fiel
 
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, fields);
     /* set CURLOPT_POSTFIELDSIZE, or will send poststring as string */
-	curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE, len);
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE, len);
     
     /* HTTP/2 please */ 
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
@@ -427,15 +408,15 @@ err:
 
 static void* alexa_http2_process( void* data )
 {
-	CURL*	ping_hnd;
-	CURL*	directives_hnd;
-	CURL*	events_hnd;
-    CURLM*	multi_handle;
-	char*	directives_response;
+    CURL*    ping_hnd;
+    CURL*    directives_hnd;
+    CURL*    events_hnd;
+    CURLM*    multi_handle;
+    char*    directives_response;
     int still_running; /* keep number of running handles */ 
     struct CURLMsg *m;
-	struct alexa_http2* http2;
-	int ping_hnd_timeout = 0;
+    struct alexa_http2* http2;
+    int ping_hnd_timeout = 0;
 
     /* init a multi stack */ 
     multi_handle = curl_multi_init();
@@ -571,7 +552,7 @@ static void* alexa_http2_process( void* data )
         {
         }
         //ping hnd timeout, set a ping request, and start the ping request timeout
-		else if (TODO && ping_hnd_timeout)
+        else if (TODO && ping_hnd_timeout)
         {
             //every 5 minutes, send the ping get request
             ping_hnd = curl_ping_construct(http2);
@@ -588,7 +569,7 @@ static void* alexa_http2_process( void* data )
         //has directive done, add the directive get request
         if( directives_hnd == NULL )
         {
-			directives_hnd = curl_directives_construct(http2, &directives_response);
+            directives_hnd = curl_directives_construct(http2, &directives_response);
             if( directives_hnd == NULL )
             {
                 sys_log_e( TAG, "construct the directives request error.\n" );
@@ -631,16 +612,17 @@ static void* alexa_http2_process( void* data )
     curl_multi_cleanup(multi_handle);
 }
 
-int alexa_http2_init( struct alexa_service* as )
+
+struct alexa_http2* alexa_http2_init(struct alexa_authmng* authmng)
 {
-	return 0;
+	return NULL;
 }
 
-
-void alexa_http2_done( struct alexa_service* as )
+void alexa_http2_done(struct alexa_http2* http2)
 {
-	return;
+
 }
+
 
 /*******************************************************************************
     END OF FILE

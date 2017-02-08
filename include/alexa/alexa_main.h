@@ -2,26 +2,23 @@
     Copyright Ringsd. 2017.
     All Rights Reserved.
     
-    File: alexa_http2.h
+    File: alexa_main.h
 
     Description:
 
     TIME LIST:
-    CREATE By Ringsd   2017/1/18 16:39:09
+    CREATE By Ringsd   2017/2/08 17:10:24
 
 *******************************************************************************/
 
-#ifndef _alexa_http2_h_
-#define _alexa_http2_h_
+#ifndef _alexa_main_h_
+#define _alexa_main_h_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-struct alexa_http2* alexa_http2_init(struct alexa_authmng* authmng);
-
-void alexa_http2_done(struct alexa_http2* http2);
+void alexa_main(void);
 
 #ifdef __cplusplus
 }

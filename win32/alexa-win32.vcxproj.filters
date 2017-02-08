@@ -75,14 +75,17 @@
     <ClCompile Include="..\common\base64.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="alexa_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\alexa_base.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_auth.c">
       <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_main.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

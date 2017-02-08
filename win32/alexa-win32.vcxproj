@@ -18,6 +18,7 @@
     <ClCompile Include="..\alexa\alexa_device.c" />
     <ClCompile Include="..\alexa\alexa_directive.c" />
     <ClCompile Include="..\alexa\alexa_http2.c" />
+    <ClCompile Include="..\alexa\alexa_main.c" />
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
     <ClCompile Include="..\alexa\alexa_service.c" />
     <ClCompile Include="..\alexa\alexa_speaker.c" />
@@ -27,8 +28,8 @@
     <ClCompile Include="..\common\alexa_base.c" />
     <ClCompile Include="..\common\base64.c" />
     <ClCompile Include="..\common\sys_log.c" />
-    <ClCompile Include="alexa_main.c" />
     <ClCompile Include="alexa_platform.c" />
+    <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\sys_log.h" />
@@ -92,7 +93,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cjson.lib;libcurl.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cjson.lib;libcurl.lib;nghttp2.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

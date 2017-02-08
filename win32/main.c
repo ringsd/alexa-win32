@@ -11,16 +11,14 @@
 
 *******************************************************************************/
 
-#include "alexa_service.h"
-#include "alexa_auth.h"
+#include "alexa_main.h"
 
 #pragma comment ( lib, "ws2_32.lib" )
 #pragma comment ( lib, "winmm.lib" )
 
 int main( int argv, const char* argc[])
 {
-	alexa_authmng_init();
-	alexa_http2_init(NULL);
+	alexa_main();
 	return 0;
 }
 

@@ -1,13 +1,13 @@
 /*******************************************************************************
-	Copyright Ringsd. 2017.
-	All Rights Reserved.
-	
-	File: alexa_platform.c
+    Copyright Ringsd. 2017.
+    All Rights Reserved.
+    
+    File: alexa_platform.c
 
-	Description:
+    Description:
 
-	TIME LIST:
-	CREATE By Ringsd   2017/01/17 09:46:03
+    TIME LIST:
+    CREATE By Ringsd   2017/01/17 09:46:03
 
 *******************************************************************************/
 
@@ -20,7 +20,7 @@
 
 #include "alexa_platform.h"
 
-#define TAG			"win32"
+#define TAG            "win32"
 
 void* alexa_malloc( int size )
 {
@@ -43,24 +43,24 @@ void alexa_generate_uuid( const char* uuid, int len )
 
 int alexa_begin_thread(alexa_thread_proc proc, void* p_data, void* stack, int prio)
 {
-	prio = prio;
-	stack = stack;
-	return _beginthread(proc, 0, p_data);
+    prio = prio;
+    stack = stack;
+    return _beginthread(proc, 0, p_data);
 }
 
 int alexa_begin_thread2(alexa_thread_proc proc, void* p_data, void* stack, int prio, int size)
 {
-	prio = prio;
-	stack = stack;
-	size = size;
-	return _beginthread(proc, 0, p_data);
+    prio = prio;
+    stack = stack;
+    size = size;
+    return _beginthread(proc, 0, p_data);
 }
 
 int alexa_end_thread(int id)
 {
-	id = id;
-//	_endthreadex(id);
-	return 0;
+    id = id;
+//    _endthreadex(id);
+    return 0;
 }
 
 /*******************************************************************************
@@ -68,11 +68,11 @@ int alexa_end_thread(int id)
 *******************************************************************************/
 
 struct alexa_mutex{
-	HANDLE  h;
+    HANDLE  h;
 };
 
 struct alexa_cond{
-	HANDLE  h;
+    HANDLE  h;
 };
 
 struct alexa_mutex* alexa_mutex_create(void)
@@ -94,28 +94,28 @@ struct alexa_mutex* alexa_mutex_create(void)
 
 int alexa_mutex_lock(struct alexa_mutex* mutex)
 {
-	int ret;
+    int ret;
 
-	ret = WaitForSingleObject(mutex->h, 0);
+    ret = WaitForSingleObject(mutex->h, 0);
 
-	if (WAIT_OBJECT_0 == ret)
-		return 0;
+    if (WAIT_OBJECT_0 == ret)
+        return 0;
 
-	if (WAIT_TIMEOUT == ret)
-		return 1;
+    if (WAIT_TIMEOUT == ret)
+        return 1;
 
-	return -1;
+    return -1;
 }
 
 int alexa_mutex_unlock(struct alexa_mutex* mutex)
 {
-	SetEvent(mutex->h);
-	return 0;
+    SetEvent(mutex->h);
+    return 0;
 }
 
 void alexa_mutex_destroy(struct alexa_mutex* mutex)
 {
-	CloseHandle(mutex->h);
+    CloseHandle(mutex->h);
     alexa_delete(mutex);
 }
 
@@ -146,7 +146,7 @@ int alexa_cond_wait(struct alexa_cond* cond, struct alexa_mutex* mutex)
 
 int alexa_cond_timedwait(struct alexa_cond* cond, struct alexa_mutex* mutex, struct timespec * abstime)
 {
-	return 0;
+    return 0;
 }
 
 void alexa_cond_destroy( struct alexa_cond* cond )
@@ -157,10 +157,10 @@ void alexa_cond_destroy( struct alexa_cond* cond )
 
 void alexa_delay(long ms)
 {
-	Sleep(ms);
+    Sleep(ms);
 }
 
 
 /*******************************************************************************
-	END OF FILE
+    END OF FILE
 *******************************************************************************/

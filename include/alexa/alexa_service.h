@@ -40,6 +40,7 @@ typedef struct alexa_service alexa_service;
 #include	"alexa_directive.h"
 
 struct alexa_service{
+	struct alexa_http2* http2;
     //SpeechRecognizer
 	struct alexa_speechrecognizer* sr;
 
@@ -63,6 +64,11 @@ struct alexa_service{
 
 	struct alexa_directive* directive;
 };
+
+
+struct alexa_service* alexa_service_init(struct alexa_http2* http2);
+
+void alexa_service_done(struct alexa_service* as);
 
 #ifdef __cplusplus
 }
