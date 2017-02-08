@@ -25,6 +25,8 @@ void alexa_free(void* p);
 #define alexa_new(x)        (x*)alexa_zmalloc(sizeof(x))
 #define alexa_delete(x)     alexa_free((void*)x)
 
+#define ALEXA_SAFE_FREE(x) if(x){alexa_free(x);x=NULL;}
+
 #ifdef _WIN32
 
 #define ETIMEDOUT			-1

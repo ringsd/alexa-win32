@@ -101,14 +101,14 @@ void alexa_device_destruct( struct alexa_device* device )
 {
     if( device )
     {
-        if(device->manufacturer) alexa_free(device->manufacturer);
-        if(device->product) alexa_free(device->product);
-        if(device->model) alexa_free(device->model);
+		ALEXA_SAFE_FREE(device->manufacturer);
+		ALEXA_SAFE_FREE(device->product);
+		ALEXA_SAFE_FREE(device->model);
         
-        if(device->codeVerifier) alexa_free(device->codeVerifier);
-        if(device->codeChallengeMethod) alexa_free(device->codeChallengeMethod);
-        if(device->codeChallenge) alexa_free(device->codeChallenge);
-        if(device->sessionId) alexa_free(device->sessionId);
+		ALEXA_SAFE_FREE(device->codeVerifier);
+		ALEXA_SAFE_FREE(device->codeChallenge);
+		ALEXA_SAFE_FREE(device->codeChallengeMethod);
+		ALEXA_SAFE_FREE(device->sessionId);
         
         alexa_delete(device);
     }

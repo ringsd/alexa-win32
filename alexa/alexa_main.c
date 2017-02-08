@@ -18,6 +18,13 @@
 int alexa_main(void* data)
 {
     //authmng init
+
+#ifdef ALEXA_UNIT_TEST
+	{
+		//alexa_authmng_test();
+	}
+#endif
+
     struct alexa_authmng* authmng = alexa_authmng_init();
     if( authmng )
     {
