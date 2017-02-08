@@ -19,9 +19,10 @@ extern "C" {
 #endif
 
 void* alexa_malloc(int size);
+void* alexa_zmalloc(int size);
 void alexa_free(void* p);
 
-#define alexa_new(x)        (x*)alexa_malloc(sizeof(x))
+#define alexa_new(x)        (x*)alexa_zmalloc(sizeof(x))
 #define alexa_delete(x)     alexa_free((void*)x)
 
 #ifdef _WIN32

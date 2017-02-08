@@ -403,7 +403,6 @@ err:
  *      refresh_token
  *@return 
  */
-
 static int authmng_get_token(struct alexa_authmng* authmng, const char* grant_type)
 {
     struct alexa_authorization *authorization = &authmng->auth;
@@ -513,6 +512,14 @@ static int authmng_authorization_code(struct alexa_authmng* authmng)
     return authmng_get_token( authmng, "authorization_code" );
 }
 
+static void authmng_auth_set(struct alexa_authorization* auth, const char* authorizationCode, const char* redirectUri, const char* clientId, const char* codeVerifier)
+{
+	auth->authorizationCode = alexa_strdup(authorizationCode);
+	auth->redirectUri = alexa_strdup(redirectUri);
+	auth->clientId = alexa_strdup(clientId);
+	auth->codeVerifier = alexa_strdup(codeVerifier);
+}
+
 void alexa_authmng_cancel(void)
 {
 }
@@ -557,6 +564,14 @@ struct alexa_authmng* alexa_authmng_init(void)
 
         //set device info
         alexa_device_info_set(device, "HiBy Music", "HiBy Music Player", "G10" );
+
+        alexa_device_sessionid_set(device, "HiBy Music");
+
+        //char* authcode = "ANsdtryAfaZSPGbuKBYF";
+        //char* redirectUri = "amzn://com.amazon.alexa.avs.companion";
+        //char* clientID = "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322";
+        //char* codeVerifier = "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4";
+        authmng_auth_set(&authmng->auth, NULL, "http://www.hibymusic.com", NULL, NULL);
 
         alexa_device_start_discovery(device);
 

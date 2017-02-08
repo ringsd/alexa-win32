@@ -27,6 +27,13 @@ void* alexa_malloc( int size )
     return malloc(size);
 }
 
+void* alexa_zmalloc(int size)
+{
+	void* p = alexa_malloc(size);
+	if (p) memset(p, 0, size);
+	return p;
+}
+
 void alexa_free(void* p)
 {
     free( p );
