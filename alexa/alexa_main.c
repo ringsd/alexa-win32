@@ -30,6 +30,16 @@ int alexa_main(void)
     {
         //start alexa_service
         struct alexa_service* service = alexa_service_init();
+
+        if (0)
+        {
+            const char* argv[3] = {
+                "alexa",
+            };
+            argv[1] = alexa_authmng_get_access_token(authmng);
+            demo_main(2, argv);
+        }
+
         if (service)
         {
             struct alexa_http2* http2 = alexa_http2_init(service, authmng);

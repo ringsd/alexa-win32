@@ -73,23 +73,23 @@ enum AUDIOPLAYER_STATE_ENUM{
 };
 
 static const char* audioplayer_state[] = {
-    "Idle",
-    "Playing",
-    "Stopped",
-    "Paused",
-    "Buffer Underrun",
-    "Finished",
+    "IDLE",
+    "PLAYING",
+    "STOPPED",
+    "PAUSED",
+    "BUFFER_UNDERRUN",
+    "FINISHED",
 };
 
 struct alexa_audioplayer{
     enum AUDIOPLAYER_STATE_ENUM state;
-    char*    token;
-    char*    messageId;
-    int        offsetInMilliseconds;
-    char*    playerActivity;
-    int        stutterDurationInMilliseconds;
-    char*    type;
-    char*    message;
+    char        token[48];
+    char*       messageId;
+    int         offsetInMilliseconds;
+    const char* playerActivity;
+    int         stutterDurationInMilliseconds;
+    char*       type;
+    char*       message;
 };
 
 static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_STATE_ENUM state )
@@ -99,6 +99,7 @@ static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_ST
     {
         sys_log_d( TAG, "audioplayer state: %s -> %s\n", audioplayer_state[ap->state], audioplayer_state[state] );
         ap->state = state;
+        ap->playerActivity = audioplayer_state[ap->state];
     }
 }
 
@@ -499,13 +500,15 @@ err:
 
 static struct alexa_audioplayer* audioplayer_construct(void)
 {
-    struct alexa_audioplayer* audioplayer = alexa_new( struct alexa_audioplayer );
-    if( audioplayer )
+    struct alexa_audioplayer* ap = alexa_new( struct alexa_audioplayer );
+    if (ap)
     {
-        
+        alexa_generate_uuid(ap->token, sizeof(ap->token));
+        ap->state = AUDIOPLAYER_STATE_IDLE;
+        ap->playerActivity = audioplayer_state[ap->state];
     }
 
-    return audioplayer;
+    return ap;
 }
 
 

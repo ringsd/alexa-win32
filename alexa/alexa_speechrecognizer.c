@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include "alexa_service.h"
+#include <stdio.h>
 
 #define TODO                    1
 
@@ -28,6 +29,8 @@
 #define PROFILE_FAR_FIELD       "FAR_FIELD"
 
 #define RECOGNIZER_FORMAT       "AUDIO_L16_RATE_16000_CHANNELS_1"
+
+#define ALEXA_RECORD_TEST_FILE  "16k.raw"
 
 //profile
 //"CLOSE_TALK" "NEAR_FILELD" "FAR_FIELD"
@@ -66,9 +69,9 @@ struct alexa_speechrecognizer{
     char*                        profile;
     char*                        format;
     // bind the device ?? don't have enough info
-    char*                        messageId;
+    char                        messageId[48];
     //every event need generate the new request id
-    char                        dialogRequestId[40];
+    char                        dialogRequestId[48];
 };
 
 //wake up the thread by the key or by the directive
@@ -184,16 +187,30 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
             case RECOGNIZING:
             {
                 const char* event;
+                char* audio_data = NULL;
+                int audio_data_len = 0;
                 //record data
                 //send Recognize Event to avs
                 //change state to BUSY
 
                 //how to implement the NEAR_FIELD FAR_FIELD profile
 
+                FILE* fp = fopen(ALEXA_RECORD_TEST_FILE, "rb");
+                if (fp)
+                {
+                    fseek( fp, 0, SEEK_END );
+                    audio_data_len = ftell(fp);
+                    audio_data = alexa_malloc(audio_data_len);
+                    fseek(fp, 0, SEEK_SET);
+                    fread(audio_data, 1, audio_data_len, fp);
+                    fclose(fp);
+                }
+
                 sr_generate_request_id( sr );
                 event = sr_recognizer_event(as);
                 
                 //event + binary audio stream
+                alexa_http2_event_audio_add(as->http2, event, strlen(event), audio_data, audio_data_len);
 
                 sr_set_state( sr, BUSY );
                 break;
@@ -298,6 +315,7 @@ static const char* sr_recognizer_event( struct alexa_service* as )
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", "Recognize");
+    alexa_generate_uuid(sr->messageId, sizeof(sr->messageId));
     cJSON_AddStringToObject( cj_header, "messageId", sr->messageId);
     cJSON_AddStringToObject( cj_header, "dialogRequestId", sr->dialogRequestId);
 

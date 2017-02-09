@@ -457,6 +457,8 @@ static void* alexa_http2_process(void* data)
     struct alexa_http2* http2 = (struct alexa_http2*)data;
     int ping_hnd_timeout = 0;
 
+    int wakeup_test_timeout = 0;
+
     /* init a multi stack */ 
     multi_handle = curl_multi_init();
 
@@ -640,6 +642,12 @@ static void* alexa_http2_process(void* data)
             http2->events_count ++;
         }
         
+        if ( wakeup_test_timeout < 1 )
+        {
+            alexa_speechrecognizer_user_wake_up(http2->as);
+        }
+        wakeup_test_timeout += 100;
+
     } while(1); /* as long as we have transfers going */ 
 
     //loop ??

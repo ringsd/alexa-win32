@@ -66,7 +66,7 @@ void alexa_cond_destroy(struct alexa_cond* cond);
 
 void alexa_delay(long ms);
 
-void alexa_generate_uuid(const char* uuid, int len);
+void alexa_generate_uuid(char* uuid, int len);
 
 #ifdef __cplusplus
 }

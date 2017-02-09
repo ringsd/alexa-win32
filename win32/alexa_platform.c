@@ -39,11 +39,34 @@ void alexa_free(void* p)
     free( p );
 }
 
-void alexa_generate_uuid( const char* uuid, int len )
+void alexa_generate_uuid( char* uuid, int len )
 {
-    uuid = uuid;
-    len = len;
-    //linux read this file "/proc/sys/kernel/random/uuid"
+    GUID guid;
+    int w_len = 0;
+    CoCreateGuid(&guid);
+    w_len = _snprintf(uuid, len, "%08x-%04x-%04x-", guid.Data1, guid.Data2, guid.Data3);
+    if(w_len >= len)
+    {
+        uuid[len - 1] = '\0';
+        return;
+    }
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (i == 2)
+        {
+            w_len += _snprintf(&uuid[w_len], len - w_len, "-%02x", guid.Data4[i]);
+        }
+        else
+        {
+            w_len += _snprintf(&uuid[w_len], len - w_len, "%02x", guid.Data4[i]);
+        }
+        if (w_len >= len)
+        {
+            uuid[len - 1] = '\0';
+            return;
+        }
+    }
+
 }
 
 /*******************************************************************************

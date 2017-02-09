@@ -18,10 +18,13 @@
 extern "C" {
 #endif
 
-
 struct alexa_http2* alexa_http2_init(struct alexa_service* service, struct alexa_authmng* authmng);
 
 void alexa_http2_done(struct alexa_http2* http2);
+
+int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, int event_len, const char* audio_data, int audio_data_len);
+
+int alexa_http2_event_add(struct alexa_http2* http2, const char* event, int event_len);
 
 #ifdef __cplusplus
 }

@@ -615,7 +615,18 @@ struct alexa_authmng* alexa_authmng_init(void)
         alexa_device_start_discovery(device);
         
         //get the refresh code
-        authmng_refresh_token(authmng);
+        //authmng_refresh_token(authmng);
+
+        {
+            char *access_token = "Atza|IwEBIOf2Wq_cyK1qW0dKdlU0KA4PRCq9CjTAD8PYKIWjN1o2zOneEMJtNIogP2XHBVARbPX_7PnSYhRPFKpQPumUMJa7_wXD3wGXFQ7-GwZcObU1_BXTzyY326gCC_LhVyWKIBhGN9Jogx_vjWaMS2SsGc-gy45dhRxwd0TsAUZ9vlSMFgl9U-_RLrVW_Awn_r8C6ucTFg4Q6P99iKN5-3fRz26Nb3kCLZJtVktYlHhBwND-8IlSfFy_It7aN4BWrS9r0Gwe8qMt8Fm69w-utfwDIV0eilh246Aosq6tATbUZjYPMbVC-IYImPc-719wrtd-RmvrKxeAKlQXv5UtAt6YPEt_DnHaj5PJLxIaMS0iKwj_X-K_TrB7tYmBwCU1LjAUPIiXWME1AT9bR_4cBPGnBhGcEytvbEgMqVPWWEafxOB25iqCC3K_JeEVYtxNPJsALFhzdW2bPqjTicSfoQakfDS2CmAXFV8by3IH22SG67XXSxdPn-NfLNGepLEy3trg6pUWtC53bSUAV2PYB_8oABOm5bumBnbZaxgBJKLFPDmEnQ";
+
+            if (authmng->token.access_token)
+            {
+                alexa_free(authmng->token.access_token);
+            }
+            authmng->token.access_token = alexa_strdup(authmng->token.access_token);
+        }
+
     }
 
     return authmng;
