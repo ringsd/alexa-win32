@@ -341,6 +341,9 @@ static const char* sr_expect_speech_timedout_event(alexa_service* as)
 
 static int directive_stop_capture( alexa_service* as, cJSON* root )
 {
+    as = as;
+    root = root;
+
     //stop capture 
     
     //close the micro, stop listen 
@@ -351,6 +354,8 @@ static int directive_stop_capture( alexa_service* as, cJSON* root )
 
 static int directive_expect_speech( alexa_service* as, cJSON* root )
 {
+    as = as;
+    root = root;
     //open the micorphone 
     
     //if microphone open time out send ExpectSpeechTimedOut Event

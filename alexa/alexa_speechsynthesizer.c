@@ -28,12 +28,12 @@ struct alexa_speechsynthesizer{
     int                       offsetInMilliseconds;
 };
 
-enum{
+enum SPEECHSYNTHESIZER_EVENT_ENUM{
     SPEECHSTARTED_EVENT = 0,
     SPEECHFINISHED_EVENT,
     
     SPEECHSTATE_EVENT, //for context
-}SPEECHSYNTHESIZER_EVENT_ENUM;
+};
 
 static const char* speechsynthesizer_event[] = {
     "SpeechStarted",
@@ -64,7 +64,6 @@ cJSON* speechsynthesizer_speech_state( alexa_service* as )
 static void ss_event_header_construct( cJSON* cj_header, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* messageId )
 {
     int event_index = (int)event;
-    int len = 0;
 
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", speechsynthesizer_event[event_index]);
@@ -140,7 +139,6 @@ err:
 
 static int directive_process( alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* cj_root = item->root;
     cJSON* cj_header = item->header;
     cJSON* cj_name;
     

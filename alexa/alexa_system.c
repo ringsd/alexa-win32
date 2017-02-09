@@ -15,6 +15,7 @@
 
 #include    "alexa_service.h"
 
+#define     TAG            "system"
 #define     NAMESPACE      "System"
 
 struct alexa_system{
@@ -27,12 +28,12 @@ struct alexa_system{
     char*    description;
 };
 
-enum{
+enum SYSTEM_EVENT_ENUM{
     SYNCHRONIZESTATE_EVENT = 0,
     USERINACTIVITYREPORT_EVENT,
     EXCEPTIONENCOUNTERED_EVENT,
     SYSTEMEXCEPTION_EVENT,
-}SYSTEM_EVENT_ENUM;
+};
 
 static const char* system_event[] = {
     "SynchronizeState",
@@ -80,8 +81,6 @@ static void system_event_header_construct( struct alexa_system* system, cJSON* c
 
 static void system_event_payload_construct( struct alexa_system* system, cJSON* cj_payload, enum SYSTEM_EVENT_ENUM event )
 {
-    int event_index = (int)event;
-    
     switch(event)
     {
         case SYNCHRONIZESTATE_EVENT:
@@ -154,19 +153,25 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
 //
 static int exception_process( struct alexa_service* as, struct alexa_directive_item* item )
 {
-    cJSON* cj_header = item->header;
-    cJSON* cj_name;
+    cJSON* cj_payload = item->payload;
+    cJSON* cj_code;
+    cJSON* cj_description;
     
-    cj_name = cJSON_GetObjectItem(cj_header, "name");
-    if( !cj_name )
+    as = as;
+
+    cj_code = cJSON_GetObjectItem(cj_payload, "code");
+    if (!cj_code)
     {
         goto err;
     }
 
-    if( !strcmp( cj_name->valuestring, "Exception" ) )
+    cj_description = cJSON_GetObjectItem(cj_payload, "description");
+    if (!cj_description)
     {
-        //
+        goto err;
     }
+
+    sys_log_e(TAG, "Has exception code %s -> %s\n", cj_code->valuestring, cj_description->valuestring);
 
     return 0;
 
@@ -177,6 +182,8 @@ err:
 
 static int directive_reset_user_inactivity( struct alexa_service* as, struct alexa_directive_item* item )
 {
+    as = as;
+    item = item;
     //reset the inactivity timer 
     return 0;
 }

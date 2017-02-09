@@ -31,7 +31,7 @@ struct alexa_alert_item{
     char* scheduledTime; //The scheduled time for an alert in ISO 8601 format
 };
 
-enum{
+enum ALERTS_EVENT_ENUM{
     SETALERTSUCCEEDED_EVENT,
     SETALERTFAILED_EVENT,
     
@@ -44,7 +44,7 @@ enum{
     ALERTENTEREDBACKGROUND_EVENT,
 
     ALERTSSTATE_EVENT,
-}ALERTS_EVENT_ENUM;
+};
 
 static const char* alerts_event[] = {
     "SetAlertSucceeded",
@@ -112,7 +112,6 @@ cJSON* alerts_alerts_state(struct alexa_service* as)
 static void alerts_event_header_construct(struct alexa_alerts* alerts, cJSON* cj_header, enum ALERTS_EVENT_ENUM event)
 {
     int event_index = (int)event;
-    int len = 0;
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", alerts_event[event_index]);
@@ -123,9 +122,8 @@ static void alerts_event_header_construct(struct alexa_alerts* alerts, cJSON* cj
 
 static void alerts_event_payload_construct(struct alexa_alerts* alerts, cJSON* cj_payload, enum ALERTS_EVENT_ENUM event, const char* token)
 {
-    int event_index = (int)event;
-    int len = 0;
-    
+    alerts = alerts;
+
     switch( event )
     {
         case SETALERTSUCCEEDED_EVENT:
@@ -220,7 +218,6 @@ static int directive_set_alert( struct alexa_service* as, struct alexa_directive
 
     if( strcmp( alert_item->type, "TIMER" ) == 0 )
     {
-        const char* event_string = NULL;
         //set timer
     }
     else if (strcmp(alert_item->type, "ALERT") == 0)

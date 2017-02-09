@@ -70,8 +70,6 @@ static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON
 
 static void speaker_event_payload_construct(struct alexa_speaker* speaker, cJSON* cj_payload, enum SPEAKER_EVENT_ENUM event)
 {
-    int event_index = (int)event;
-    
     switch( event )
     {
         case VOLUMECHANGED_EVENT:
@@ -87,7 +85,6 @@ static void speaker_event_payload_construct(struct alexa_speaker* speaker, cJSON
 
 const char* alexa_speaker_event_construct( alexa_service* as, enum SPEAKER_EVENT_ENUM event )
 {
-    struct alexa_speaker* speaker = as->speaker;
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();

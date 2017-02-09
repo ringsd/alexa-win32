@@ -33,13 +33,13 @@ static char* generate_code_verifier(void)
     //random generate 32 byte number
     for (i = 0; i < sizeof(code_verifier_number); i++)
     {
-        code_verifier_number[i] = rand();
+        code_verifier_number[i] = (unsigned char)rand();
     }
 
     //base 64 url encode 
     encode_len = base64_encode_len(sizeof(code_verifier_number));
     code_verifier = alexa_malloc(encode_len);
-    encode_len = base64_encode_urlsafe(code_verifier, code_verifier_number, sizeof(code_verifier_number));
+    encode_len = base64_encode_urlsafe(code_verifier, (const char*)code_verifier_number, sizeof(code_verifier_number));
     return code_verifier;
 }
 
@@ -50,7 +50,7 @@ static char* generate_code_challenge(const char* code_verifier, const char* code
     char *code_challenge;
     if (strcmp(code_challenge_method, ALEXA_CODE_CHALLENGE_METHOD_S256) == 0)
     {
-        SHA256(code_verifier, strlen(code_verifier), code_challenge_number);
+        SHA256((const unsigned char*)code_verifier, strlen(code_verifier), code_challenge_number);
     }
     else
     {
@@ -60,7 +60,7 @@ static char* generate_code_challenge(const char* code_verifier, const char* code
     //base 64 url encode 
     encode_len = base64_encode_len(sizeof(code_challenge_number));
     code_challenge = alexa_malloc(encode_len);
-    encode_len = base64_encode_urlsafe(code_challenge, code_challenge_number, sizeof(code_challenge_number));
+    encode_len = base64_encode_urlsafe(code_challenge, (const char*)code_challenge_number, sizeof(code_challenge_number));
 
     return code_challenge;
 }
@@ -116,6 +116,7 @@ void alexa_device_destruct( struct alexa_device* device )
 
 void alexa_device_start_discovery( struct alexa_device* device )
 {
+    device = device;
     //device broadcast online, wait app find devcie
     
     //app connect device
@@ -129,6 +130,7 @@ void alexa_device_start_discovery( struct alexa_device* device )
 
 void alexa_device_stop_discovery(struct alexa_device* device)
 {
+    device = device;
     //disconnect the app
 
     //stop broadcast online
@@ -136,6 +138,7 @@ void alexa_device_stop_discovery(struct alexa_device* device)
 
 void alexa_device_app_auth( struct alexa_device* device )
 {
+    device = device;
 }
 
 

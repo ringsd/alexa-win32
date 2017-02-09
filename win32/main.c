@@ -18,6 +18,8 @@
 
 int main( int argv, const char* argc[])
 {
+    argv = argv;
+    argc = argc;
     alexa_main();
     return 0;
 }

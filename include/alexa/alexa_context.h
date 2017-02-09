@@ -18,7 +18,6 @@
 extern "C" {
 #endif
 
-
 /*
  *@brief construct the alexa context
  *@param struct alexa_service* as, the alexa_service object

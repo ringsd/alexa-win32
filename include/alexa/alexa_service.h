@@ -26,10 +26,9 @@ extern "C" {
 #include    "alexa_platform.h"
 #include    "alexa_base.h"
 
-#include    "alexa_context.h"
-
 typedef struct alexa_service alexa_service;
 
+#include    "alexa_context.h"
 #include    "alexa_speechrecognizer.h"
 #include    "alexa_speechsynthesizer.h"
 #include    "alexa_alerts.h"

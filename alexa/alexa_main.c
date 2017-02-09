@@ -15,7 +15,7 @@
 #include "alexa_auth.h"
 #include "alexa_http2.h"
 
-int alexa_main(void* data)
+int alexa_main(void)
 {
     //authmng init
 

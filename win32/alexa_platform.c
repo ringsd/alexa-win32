@@ -41,6 +41,8 @@ void alexa_free(void* p)
 
 void alexa_generate_uuid( const char* uuid, int len )
 {
+    uuid = uuid;
+    len = len;
     //linux read this file "/proc/sys/kernel/random/uuid"
 }
 
@@ -138,21 +140,20 @@ struct alexa_cond* alexa_cond_create( void )
 
 int alexa_cond_signal(struct alexa_cond* cond)
 {
+    cond = cond;
     return 0;
 }
 
 int alexa_cond_broadcast(struct alexa_cond* cond)
 {
+    cond = cond;
     return 0;
 }
 
 int alexa_cond_wait(struct alexa_cond* cond, struct alexa_mutex* mutex)
 {
-    return 0;
-}
-
-int alexa_cond_timedwait(struct alexa_cond* cond, struct alexa_mutex* mutex, struct timespec * abstime)
-{
+    cond = cond;
+    mutex = mutex;
     return 0;
 }
 

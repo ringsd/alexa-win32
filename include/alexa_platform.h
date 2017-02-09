@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+#include <windows.h>
+
 void* alexa_malloc(int size);
 void* alexa_zmalloc(int size);
 void alexa_free(void* p);
@@ -59,7 +61,7 @@ struct alexa_cond* alexa_cond_create(void);
 int alexa_cond_signal(struct alexa_cond* cond);
 int alexa_cond_broadcast(struct alexa_cond* cond);
 int alexa_cond_wait(struct alexa_cond* cond, struct alexa_mutex* mutex);
-int alexa_cond_timedwait(struct alexa_cond* cond, struct alexa_mutex* mutex, struct timespec * abstime);
+//int alexa_cond_timedwait(struct alexa_cond* cond, struct alexa_mutex* mutex, struct timespec* abstime);
 void alexa_cond_destroy(struct alexa_cond* cond);
 
 void alexa_delay(long ms);

@@ -64,6 +64,8 @@ int sys_log(int level, const char* tag, const char* fmt, ...)
     va_list    arg;
     int        len;
 
+    level = level;
+
     va_start(arg, fmt);
     vsnprintf(buf, sizeof(buf), fmt, arg);
     va_end(arg);

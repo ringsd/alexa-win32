@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+typedef struct alexa_directive alexa_directive;
+
 struct alexa_directive_item{
     struct list_head    list;
     cJSON*              root;
@@ -27,7 +29,6 @@ struct alexa_directive_item{
     int                 data_len;
     const char*         data;
 };
-
 
 int alexa_directive_register(const char* name_space, int(*process)(struct alexa_service* as, struct alexa_directive_item* item));
 int alexa_directive_unregister(const char* name_space);

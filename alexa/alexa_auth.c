@@ -55,8 +55,8 @@ struct alexa_token {
     char *access_token;
     char *refresh_token;
     char *token_type;
-    time_t     current_time; //second
-    long int expires_in;   //second
+    int expires_in;   //second
+    time_t   current_time; //second
 };
 
 struct alexa_authmng{
@@ -94,16 +94,16 @@ static size_t authmng_post_response(void *buffer, size_t size, size_t nmemb, voi
     if (response)
         response_len = strlen(response);
 
-    new_response = (char*)calloc(response_len + size * nmemb + 1, 1);
+    new_response = (char*)alexa_malloc(response_len + size * nmemb + 1);
     if (new_response == NULL) {
-        free(response);
+        alexa_free(response);
         *(char **)userp = NULL;
         return 0;
     }
 
     if (response) {
         memcpy(new_response, response, response_len);
-        free(response);
+        alexa_free(response);
     }
     memcpy(new_response + response_len, buffer, size * nmemb);
 
@@ -391,6 +391,7 @@ static int authmng_parse_token_response(struct alexa_authmng* authmng, char *res
         }
         else if( access_token && refresh_token && token_type )
         {
+            authmng_token_free(token);
             if(access_token) token->access_token = access_token;
             if(refresh_token) token->refresh_token = refresh_token;
             if(token_type) token->token_type = token_type;
@@ -595,7 +596,11 @@ struct alexa_authmng* alexa_authmng_init(void)
         //char* redirectUri = "amzn://com.amazon.alexa.avs.companion";
         //char* clientID = "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322";
         //char* codeVerifier = "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4";
-        authmng_auth_set(&authmng->auth, "ANsdtryAfaZSPGbuKBYF", "amzn://com.amazon.alexa.avs.companion", "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4");
+        authmng_auth_set(&authmng->auth, 
+                        "ANsJYGGnTIkLHWtIFawt", 
+                        "amzn://com.amazon.alexa.avs.companion", 
+                        "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", 
+                        "F3c7aEv0MnirJjiS0N9IPN30PlbxqU_TzIbmVps0LyA");
 
         alexa_device_start_discovery(device);
 
@@ -615,7 +620,6 @@ struct alexa_authmng* alexa_authmng_init(void)
 
     return authmng;
 
-    alexa_device_destruct(device);
 err2:
     alexa_authmng_destruct(authmng);
 err:
@@ -631,6 +635,15 @@ void alexa_authmng_done(struct alexa_authmng* authmng)
 }
 
 #ifdef ALEXA_UNIT_TEST
+
+const char* sessionIdTest = "123456";
+const char* clientIdTest = "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322";
+const char* redirectUriTest = "amzn://com.amazon.alexa.avs.companion";
+const char* authorizationCodeTest = "ANsJYGGnTIkLHWtIFawt";
+const char* codeVerifierTest = "F3c7aEv0MnirJjiS0N9IPN30PlbxqU_TzIbmVps0LyA";
+const char* codeChallengeTest = "2uc6zTIJz9Vpmgybc-eoA8TcNs8bA1C3QONL0G7QTak";
+const char* codeChallengeMethodTest = "S256";
+
 void alexa_authmng_test(void)
 {
     struct alexa_authmng* authmng;

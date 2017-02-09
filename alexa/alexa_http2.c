@@ -30,6 +30,9 @@
 #define ALEXA_API_VERSION   "v20160207" 
 #define ALEXA_BOUNDARY      "BOUNDARY1234"
 
+#define ALEXA_HEADER_AUTH       "authorization = Bearer %s"
+#define ALEXA_HEADER_CONTENT    "content-type = multipart/form-data; boundary=%s"
+
 #define ALEXA_EVENT_JSON_HEADER                                                \
 "Content-Disposition: form-data; name=\"metadata\""\
 "\r\n"\
@@ -100,6 +103,9 @@ struct alexa_http2{
     char*   boundary;
     char*   api_version;
     char*   base_url;
+    char*   header_auth;
+    char*   header_content;
+
     void*   curl_handle;
     CURL*   curl;
 
@@ -216,19 +222,18 @@ static size_t directives_response(void *buffer, size_t size, size_t nmemb, void 
     if (response)
         response_len = strlen(response);
 
-    new_response = (char*)calloc(response_len + size * nmemb + 1, 1);
+    new_response = (char*)alexa_malloc(response_len + size * nmemb + 1);
     if (new_response == NULL) {
-        free(response);
+        alexa_free(response);
         *(char **)userp = NULL;
         return 0;
     }
 
     if (response) {
         memcpy(new_response, response, response_len);
-        free(response);
+        alexa_free(response);
     }
     memcpy(new_response + response_len, buffer, size * nmemb);
-
     *(char **)userp = new_response;
 
     return size * nmemb;
@@ -294,6 +299,9 @@ static void setup_ping(CURL *hnd, struct curl_slist *headers)
 //post events
 static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fields, int len)
 {
+    /* set the http header */
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+
     /* set the events URL */ 
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events" );
 
@@ -319,13 +327,46 @@ static void setup_events(CURL *hnd, struct curl_slist *headers, const char *fiel
  
 }
 
+static void alexa_http2_header_construct(struct alexa_http2* http2)
+{
+    int len;
+    char* header_auth;
+    char* header_content;
+
+    //construct header auth
+    len = strlen(ALEXA_HEADER_AUTH) + strlen(http2->access_token) + http2->dummy_len;
+    header_auth = (char*)alexa_malloc( len );
+    if (header_auth == NULL)
+    {
+        sys_log_e( TAG, "alloc memory for header auth error.\n" );
+    }
+    else
+    {
+        sprintf(header_auth, ALEXA_HEADER_AUTH, http2->access_token);
+        http2->header_auth = header_auth;
+    }
+
+    //construct header auth
+    len = strlen(ALEXA_HEADER_CONTENT) + strlen(http2->boundary) + http2->dummy_len;
+    header_content = (char*)alexa_malloc(len);
+    if (header_content == NULL)
+    {
+        sys_log_e(TAG, "alloc memory for header content error.\n");
+    }
+    else
+    {
+        sprintf(header_content, ALEXA_HEADER_CONTENT, http2->boundary);
+        http2->header_content = header_content;
+    }
+
+    return;
+}
 
 static CURL* curl_directives_construct(struct alexa_http2* http2, char** response)
 {
     //send the directives get request
     CURL* directives_hnd = NULL;
     struct curl_slist *headers = NULL;
-    char header_auth[128];
 
     directives_hnd = curl_easy_init();
     if( directives_hnd == NULL )
@@ -334,8 +375,7 @@ static CURL* curl_directives_construct(struct alexa_http2* http2, char** respons
         goto err;
     }
     
-    sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
-    headers = curl_slist_append(headers, header_auth);
+    headers = curl_slist_append(headers, http2->header_auth);
     setup_directives(directives_hnd, headers, response);
     
     return directives_hnd;
@@ -349,7 +389,6 @@ static CURL* curl_ping_construct(struct alexa_http2* http2)
 {
     CURL* ping_hnd = NULL;
     struct curl_slist *headers = NULL;
-    char header_auth[128];
     
     ping_hnd = curl_easy_init();
     if( ping_hnd == NULL )
@@ -358,8 +397,7 @@ static CURL* curl_ping_construct(struct alexa_http2* http2)
         goto err;
     }
     
-    sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
-    headers = curl_slist_append(headers, header_auth);
+    headers = curl_slist_append(headers, http2->header_auth);
     setup_ping(ping_hnd, headers);
     
     return ping_hnd;
@@ -377,8 +415,6 @@ static CURL* curl_events_construct(struct alexa_http2* http2)
     {
         //send the events post request
         struct curl_slist *headers = NULL;
-        char header_auth[128];
-        char header_content[128];
         struct alexa_event_item* item;
 
         events_hnd = curl_easy_init();
@@ -391,11 +427,8 @@ static CURL* curl_events_construct(struct alexa_http2* http2)
         item = list_first_entry(&http2->events_head, struct alexa_event_item, list);
         list_del(&(item->list));
 
-        sprintf( header_auth, "authorization = Bearer %s", http2->access_token );
-        sprintf( header_content, "content-type = multipart/form-data; boundary=%s", http2->boundary );
-
-        headers = curl_slist_append(headers, header_auth);
-        headers = curl_slist_append(headers, header_content);
+        headers = curl_slist_append(headers, http2->header_auth);
+        headers = curl_slist_append(headers, http2->header_content);
 
         setup_events(events_hnd, headers, item->content, item->content_len);
 
@@ -537,12 +570,16 @@ static void* alexa_http2_process(void* data)
                 {
                     //we get the new directive
                     //add the directive to the list
-                    alexa_directive_add(http2->as, directives_response);
+                    if (directives_response)
+                    {
+                        alexa_directive_add(http2->as, directives_response);
 
-                    //wake up the directive process
+                        //wake up the directive process
 
+                        alexa_free(directives_response);
+                        directives_response = NULL;
+                    }
                     directives_hnd = NULL;
-                    directives_response = NULL;
                 }
                 else
                 {
@@ -639,12 +676,15 @@ static struct alexa_http2* alexa_http2_construct(struct alexa_service* as, struc
 
         INIT_LIST_HEAD(&http2->events_head);
 
+        alexa_http2_header_construct(http2);
     }
     return http2;
 }
 
 static void alexa_http2_destruct(struct alexa_http2* http2)
 {
+    ALEXA_SAFE_FREE(http2->header_auth);
+    ALEXA_SAFE_FREE(http2->header_content);
     ALEXA_SAFE_FREE(http2->access_token);
     alexa_delete(http2);
 }
