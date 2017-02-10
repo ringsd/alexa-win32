@@ -16,6 +16,8 @@
 *******************************************************************************/
 
 #include "alexa_service.h"
+#include "alexa_auth.h"
+#include "alexa_http2.h"
 #include <stdio.h>
 
 #define TODO                    1
@@ -188,13 +190,39 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
             {
                 const char* event;
                 char* audio_data = NULL;
-                int audio_data_len = 0;
+                int audio_read_len = 0;
+                int audio_data_len = 16 / 8 * 16000 * 10;
                 //record data
                 //send Recognize Event to avs
                 //change state to BUSY
 
+                audio_data = alexa_malloc(audio_data_len);
+                if (audio_data)
+                {
+                    struct alexa_record* record = alexa_record_open(1, 16000, 16);
+                    char* audio_data_tmp = audio_data;
+                    while (audio_data_len)
+                    {
+                        int read_len = 0;
+                        read_len = alexa_record_read(record, audio_data_tmp, audio_data_len - audio_read_len);
+                        if (read_len >= 0)
+                        {
+                            audio_data_tmp += read_len;
+                            audio_read_len += read_len;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    alexa_record_save_file(record, "record.wav", audio_data, audio_read_len);
+
+                    alexa_record_close(record);
+                }
                 //how to implement the NEAR_FIELD FAR_FIELD profile
 
+#if 0
                 FILE* fp = fopen(ALEXA_RECORD_TEST_FILE, "rb");
                 if (fp)
                 {
@@ -205,6 +233,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                     fread(audio_data, 1, audio_data_len, fp);
                     fclose(fp);
                 }
+#endif
 
                 sr_generate_request_id( sr );
                 event = sr_recognizer_event(as);

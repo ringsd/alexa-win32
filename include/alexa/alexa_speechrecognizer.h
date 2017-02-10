@@ -27,6 +27,7 @@ int alexa_speechrecognizer_done(struct alexa_service* as);
 
 void alexa_speechrecognizer_process(struct alexa_service* as);
 
+void alexa_speechrecognizer_user_wake_up(struct alexa_service* as);
 
 #ifdef __cplusplus
 }

@@ -19,7 +19,7 @@
 
 #define DEBUG_LEVEL     4
 
-static int sys_log_level = 1;
+static int sys_log_level = 4;
 
 struct log_level_item{
     const char* name;
