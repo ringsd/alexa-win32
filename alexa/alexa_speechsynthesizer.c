@@ -124,7 +124,7 @@ static int directive_speak( alexa_service* as, struct alexa_directive_item* item
     // sync
     alexa_speechsynthesizer_set_event( as, SPEECHSYNTHESIZER_STATE_PLAYING );
     alexa_speechsynthesizer_event_construct( as );
-    
+
     // play the sound
     
     // play the sound end 

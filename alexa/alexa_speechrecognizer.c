@@ -335,7 +335,7 @@ const char* sr_recognizer_event( struct alexa_service* as )
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
 
-    cj_context = alexa_context_get_state(as);
+    //cj_context = alexa_context_get_state(as);
     cJSON_AddItemToObject(cj_root, "context", cj_context);
     cJSON_AddItemToObject(cj_root, "event", cj_event);
 

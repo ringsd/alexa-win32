@@ -527,14 +527,11 @@ enum{
     CONTENT_TYPE_BINARY,
 };
 
-void alexa_parse_multipart(struct alexa_http2* http2, struct alexa_response* response)
+static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_response* response, char* boundary)
 {
-    char boundary[64];
     unsigned int boundary_len;
     char* buffer = response->data;
     unsigned int buffe_len = response->pos;
-
-    get_header_content(&http2->directive_header, "boundary=", ';', boundary, sizeof(boundary));
 
     boundary_len = strlen(boundary);
     buffer = alexa_strstr(buffer, buffe_len, boundary);
@@ -601,6 +598,34 @@ void alexa_parse_multipart(struct alexa_http2* http2, struct alexa_response* res
     }
 }
 
+static void http2_parse_response(struct alexa_http2* http2, struct alexa_response* header, struct alexa_response* body)
+{
+    if (header->pos > 0)
+    {
+        sys_log_i(TAG, "%s\n", header->data);
+        if (body->pos > 0)
+        {
+            char content_type[32];
+            //parse the header
+            if (get_header_content(header, "content-type:", ';', content_type, sizeof(content_type)) >= 0)
+            {
+                if (strcmp(content_type, "application/json") == 0)
+                {
+                    alexa_directive_add(http2->as, body->data);
+                }
+                else if (strcmp(content_type, "multipart/related") == 0)
+                {
+                    char boundary[64];
+                    get_header_content(header, "boundary=", ';', boundary, sizeof(boundary));
+                    http2_parse_multipart(http2, body, boundary);
+                }
+            }
+        }
+        header->pos = 0;
+        body->pos = 0;
+    }
+}
+
 #ifdef WIN32
 static void alexa_http2_process( void* data )
 #else
@@ -643,7 +668,7 @@ static void* alexa_http2_process(void* data)
         curl_multi_add_handle(multi_handle, directives_hnd);
     }
 
-#if 0
+#if 1
     {
     const char* event;
     char* audio_data = NULL;
@@ -812,33 +837,7 @@ static void* alexa_http2_process(void* data)
                 {
                     //we get the new directive
                     //add the directive to the list
-                    if (http2->directive_header.pos > 0)
-                    {
-                        sys_log_i(TAG, "%s\n", http2->directive_header.data);
-                        if (http2->directive_body.pos > 0)
-                        {
-                            char content_type[32];
-                            if (get_header_content(&http2->directive_header, "content-type:", ';', content_type, sizeof(content_type)) >= 0)
-                            {
-                                //parse the header
-                                if (strcmp(content_type, "application/json") == 0)
-                                {
-                                    alexa_directive_add(http2->as, http2->directive_body.data);
-                                }
-                                else if (strcmp(content_type, "multipart/related") == 0)
-                                {
-                                    alexa_parse_multipart(http2, &http2->directive_body);
-                                }
-                                //sys_log_i(TAG, "%s\n", http2->directive_body.data);
-                            }
-                        }
-                        //alexa_directive_add(http2->as, http2->directives_response);
-
-                        //wake up the directive process
-
-                        http2->directive_header.pos = 0;
-                        http2->directive_body.pos = 0;
-                    }
+                    http2_parse_response(http2, &http2->directive_header, &http2->directive_body);
                     directives_hnd = NULL;
                 }
                 else
@@ -850,6 +849,9 @@ static void* alexa_http2_process(void* data)
                         if (!strcmp(item->curl, e))
                         {
                             list_del(&(item->list));
+
+                            http2_parse_response(http2, &item->event_header, &item->event_body);
+
                             alexa_http2_event_audio_remove(item);
                             break;
                         }
