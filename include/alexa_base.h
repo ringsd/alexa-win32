@@ -22,6 +22,9 @@ char* alexa_strdup(const char* str);
 
 char* alexa_trim(char* str);
 
+char *alexa_strstr(char *s, unsigned int len, char *p);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -47,6 +47,68 @@ char* alexa_trim(char* str)
     return str_org;
 }
 
+static void getnext(char str[], unsigned int _next[], int size)
+{
+    _next[0] = 0;
+    _next[1] = 0;
+    int i = 1, j = 0;
+    for (; i<size - 1; i++)
+    {
+        j = _next[i];
+        if (str[i] == str[j])
+        {
+            _next[i + 1] = j + 1;
+        }
+        else
+        {
+            j = _next[j];
+            while ((str[i] != str[j]) && (j != 0))
+            {
+                j = _next[j];
+            }
+            _next[i + 1] = j;
+        }
+    }
+}
+
+char *alexa_strstr(char *s, unsigned int len, char *p)
+{
+    unsigned int* next = NULL;
+    unsigned int sn = len;
+    unsigned int pn = strlen(p);
+    unsigned int i = 0, j = 0;
+    if (pn == 0)
+        return s;
+
+    next = alexa_malloc(pn * sizeof(unsigned int) );
+    if (next == NULL)
+    {
+        return NULL;
+    }
+
+    getnext(p, next, pn);
+    while (j < sn)
+    {
+        if (p[i] == s[j])
+        {
+            i++;
+            j++;
+        }
+        else if (i == 0)
+            j++;
+        else
+            i = next[i];
+
+        if (i == pn)
+        {
+            alexa_free(next);
+            return s + j - i;
+        }
+    }
+    alexa_free(next);
+    return NULL;
+}
+
 
 /*******************************************************************************
     END OF FILE

@@ -30,7 +30,7 @@ size_t readFileFunc(char *buffer, size_t size, size_t nitems, void *instream)
 #define DEL_HTTPHEAD_EXPECT  "Expect:"
 #define DEL_HTTPHEAD_ACCEPT  "Accept:"
 
-char *atoken = "Atza|IwEBIMSa4ugXJqryOx-dNvGdtj5UJyzA4rvwOfBTfwwacP0Dsbxc9KHy4Q4VFq18rM5nSmxhps3sOBBGoKovdlT1RAaLLsHFK4DDCHwbex0qh9CNdiH2SP4S968YUmjvtQvONAj0ZZFLwJdV0H_w9YG3nCMKvJdxCPnnI0SeGuhawE__S5BODopFPrZnYqC01gGBWYXCx8PRjgwlAdNFA-FEiETx24SZEfXTbYH4MyVxilIKdTaANlnIi1dJgvUueh-QJKlyHqaK7mnfEI075ljs03LRdMo4XY775C5BpAyr2xb7QloaiKBw5XMQPD8OnlMhK8gLcysh0gRGHXusV6sIEiSS6lmqoixTev2W0B5KQLGQYduH32hdgoRjt5Is_twqyr8WNR10Mh-biZjalVD0QUVkN-2BIhJLva8PEb7XXNacxRa2DFgpwT7oTB8haU-i4kTdqBgdSUtTc8rkdOhR4lcuAxjAIz13K_-f-fg1VfaXIG6ed5n0WzMVElpLDxeC7Tg5ItZHnzRsT7BZr57M1yJjtX9Kx27okgQHsJv94b9OyA";
+char *atoken = "Atza|IwEBIIjckeA0b2QTA_voOJ1VQbiLykUSfbwNdUzBfN93TBFr5pvs-GYGS0ONA4mCCbcBCZNzMWu1M-hEva0AvdNOwgtC9-WRTtvU_ysJI9Gqti-8HrOlg7j3xAwKNneMRmBBnZXJgRaraXRp4mCXTIxH9sgbnO0DxWJJ0vmV3Wf8l3hb4v_GVG1RPgxlZqrP_jERIKmcZUGdAo7xrvZlUuaCTo0fnB4nttI2wkvKcm627YMzETzHLGSFyob2nDYj_WA1r5y8q-pUR7oan_FtRb_zOhLadoCMp6mt3_g3Qv-JClDL1xxB1QVQSo5kLwy6gB04gEp2Qgca7b1_1BUTFXof__DicHVAZdQxoAim4ZBjKtjUl3H80WrBMort4CJs2wkmtJYCFDFBijfiCe2oTEux2C4PG0kSnFv_yPzt6fDKhxlX-kmeMvQaUZivTC9YUbNvbsetVPlEA8q6HrL4-765X3yIdh-I9aF0EY8n2XGpKGXo383HyIwPmK0gzVdi_Rsjg06BB43nuT4qnnrDYVEh7CRy0tQPoyHHaJw5ksAETZx-Xw";
 
 int demo_main(int argc, char **argv)
 {
@@ -144,8 +144,8 @@ int demo_main(int argc, char **argv)
  *--------------------------------- Formadd ---------------------------------------------
  *
  ***************************************************************************************/
-	FILE *saveHeadFile  = fopen( HEAD_FILE_NAME, "w+" );
-	FILE *saveBodyFile   = fopen( BODY_FILE_NAME,  "w+" );
+	FILE *saveHeadFile  = fopen( HEAD_FILE_NAME, "wb+" );
+	FILE *saveBodyFile   = fopen( BODY_FILE_NAME,  "wb+" );
 	FILE *uploadFile = fopen( UPLOAD_FILE_NAME, "rb" );
 	if ( ( NULL == saveHeadFile ) || ( NULL == saveBodyFile ) || ( NULL == uploadFile ) ) {
 		printf("Fopen failed ...\n" );

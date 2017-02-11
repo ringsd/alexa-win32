@@ -217,15 +217,14 @@ static void directive_destruct( struct alexa_directive* directive )
 {
     //clear directive list
     alexa_mutex_lock(directive->mutex);
-    while(1)
+    for (;;)
     {
-        struct alexa_directive_item* item;
-        item = alexa_directive_get( directive );
-        if( item )
+        struct alexa_directive_item* item = NULL;
+        item = alexa_directive_get(directive);
+        if (item)
         {
             alexa_directive_free(item);
         }
-        else
         {
             break;
         }

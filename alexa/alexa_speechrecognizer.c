@@ -128,8 +128,8 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
 {
     struct alexa_speechrecognizer* sr = as->sr;
     enum WAKE_UP_SOURCE_ENUM wakeup_source = sr->wakeup_source;
-    
-    while(1)
+
+    for (;;)
     {
         //exit from this function
         if( sr->wakeup_source == WAKE_UP_BY_EXIT )
@@ -144,7 +144,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 struct alexa_directive_item* directive = NULL;
                 //wait user wake up or wait the directive
                 alexa_mutex_lock(sr->mutex);
-                while(1)
+                for (;;)
                 {
                     wakeup_source = sr->wakeup_source;
                     //clear the wake up state
@@ -251,7 +251,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 //in busy state, we ignore the user wake up 
                 //just wait directive
                 alexa_mutex_lock(sr->mutex);
-                while(1)
+                for (;;)
                 {
                     //const struct timespec * abstime;
                     

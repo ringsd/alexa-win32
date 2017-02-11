@@ -520,6 +520,87 @@ static int get_header_content(struct alexa_response* header, const char* frontst
     }
 }
 
+
+enum{
+    CONTENT_TYPE_UNKNOWN = 0,
+    CONTENT_TYPE_JSON,
+    CONTENT_TYPE_BINARY,
+};
+
+void alexa_parse_multipart(struct alexa_http2* http2, struct alexa_response* response)
+{
+    char boundary[64];
+    unsigned int boundary_len;
+    char* buffer = response->data;
+    unsigned int buffe_len = response->pos;
+
+    get_header_content(&http2->directive_header, "boundary=", ';', boundary, sizeof(boundary));
+
+    boundary_len = strlen(boundary);
+    buffer = alexa_strstr(buffer, buffe_len, boundary);
+    while (buffer)
+    {
+        const char* content_type_json = "Content-Type: application/json";
+        const char* content_type_binary = "Content-Type: application/octet-stream";
+        int content_type_flag = CONTENT_TYPE_UNKNOWN;
+        char* content_data;
+
+        //skip the boundary
+        buffer += boundary_len;
+        buffe_len -= boundary_len;
+
+        buffer = alexa_strstr(buffer, buffe_len, "Content-Type:");
+        if (buffer == NULL)
+        {
+            break;
+        }
+
+        if (strncmp(buffer, content_type_json, strlen(content_type_json)) == 0)
+        {
+            content_type_flag = CONTENT_TYPE_JSON;
+        }
+        else if (strncmp(buffer, content_type_binary, strlen(content_type_binary)) == 0)
+        {
+            content_type_flag = CONTENT_TYPE_BINARY;
+        }
+        else
+        {
+            sys_log_e(TAG, "Unsupport this content type:%s\n", buffer);
+        }
+
+        buffer = alexa_strstr(buffer, buffe_len, "\r\n\r\n");
+        if (buffer == NULL || content_type_flag == 0)
+        {
+            sys_log_e(TAG, (buffer == NULL) ? "Not found new line\n" : "Not support content type\n");
+            continue;
+        }
+
+        //skip the new line
+        buffer += 4;
+        buffe_len -= 4;
+
+        content_data = buffer;
+
+        buffer = alexa_strstr(buffer, buffe_len, boundary);
+        if (buffer == NULL)
+        {
+            sys_log_e(TAG, "The bad request\n");
+            continue;
+        }
+
+        if (content_type_flag == CONTENT_TYPE_JSON)
+        {
+            buffer[-2] = 0;
+            alexa_directive_add(http2->as, content_data);
+        }
+        else if (content_type_flag == CONTENT_TYPE_BINARY)
+        {
+            int content_data_len = buffer - 2 - content_data;
+            alexa_directive_add(http2->as, content_data);
+        }
+    }
+}
+
 #ifdef WIN32
 static void alexa_http2_process( void* data )
 #else
@@ -638,7 +719,8 @@ static void* alexa_http2_process(void* data)
     /* we start some action by calling perform right away */ 
     curl_multi_perform(multi_handle, &still_running);
 
-    do {
+    for (;;)
+    {
         struct timeval timeout;
         int rc; /* select() return code */ 
         CURLMcode mc; /* curl_multi_fdset() return code */ 
@@ -736,7 +818,6 @@ static void* alexa_http2_process(void* data)
                         if (http2->directive_body.pos > 0)
                         {
                             char content_type[32];
-
                             if (get_header_content(&http2->directive_header, "content-type:", ';', content_type, sizeof(content_type)) >= 0)
                             {
                                 //parse the header
@@ -746,12 +827,9 @@ static void* alexa_http2_process(void* data)
                                 }
                                 else if (strcmp(content_type, "multipart/related") == 0)
                                 {
-                                    char boundary[64];
-                                    get_header_content(&http2->directive_header, "boundary=", ';', boundary, sizeof(boundary));
-
-                                    //parse the content
+                                    alexa_parse_multipart(http2, &http2->directive_body);
                                 }
-                                sys_log_i(TAG, "%s\n", http2->directive_body.data);
+                                //sys_log_i(TAG, "%s\n", http2->directive_body.data);
                             }
                         }
                         //alexa_directive_add(http2->as, http2->directives_response);
@@ -840,7 +918,7 @@ static void* alexa_http2_process(void* data)
         }
         wakeup_test_timeout += 100;
 
-    } while(1); /* as long as we have transfers going */ 
+    }
 
     //loop ??
     do {

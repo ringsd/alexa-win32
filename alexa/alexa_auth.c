@@ -615,8 +615,9 @@ struct alexa_authmng* alexa_authmng_init(void)
         alexa_device_start_discovery(device);
         
         //get the refresh code
-        //authmng_refresh_token(authmng);
+        authmng_refresh_token(authmng);
 
+        if (0)
         {
             char *access_token = "Atza|IwEBIHraeYVxwhX_0AKKKwJ-VY6j9iZzZcr4PRjwTaH9uYRSfgyRLK49lQ1450WNMO-B6CjnPCom4-dHPHQ_IAkc76hAXZdkwdLb79xx38zqykmgbstSNizwo63lNUI29DYHHkEV2GiP1B0uqZJS-Ps1_1Htem0G6aXLVbyLHlClKhNIE3ytbRbFzxMQ2XVA9nt_H4rrVC351ya91w8S9YILPU4EhTuOgIRjcoU1fqHcF5TnEHHq9WjV3WtLjNZzXoFmytePNk5x2P866euiHlvKyjRuYzcSxd5madhaQYOw4i1lF-ji40QFdk2UMh40ybqlz1ZrAtjRakq8fz79FWdEICuETzaM2zi0IPdQqCEupCpjtg-mg9UmLWR4Sp0XkwUWQvyH_4T5XpXAJAFGb__tm--Lv_q3iX3HbrosovN7spGQAWhLMuBZxjL7R6OH-ZF_6b34GT-s-nRn_nNuNBxyxolg4RcZNlinb4n6d4TvrsC52pAvPNTJ99zdKI9Bh95Vud9EizeF197UyJYemT7vfvD1sYNSl564AJIhkDaGK-eIlQ";
 
