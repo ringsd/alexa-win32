@@ -20,6 +20,8 @@ extern "C" {
 
 char* alexa_strdup(const char* str);
 
+char* alexa_trim(char* str);
+
 #ifdef __cplusplus
 }
 #endif

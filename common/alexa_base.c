@@ -25,6 +25,28 @@ char* alexa_strdup(const char* str)
     return actual_str;
 }
 
+char* alexa_trim(char* str)
+{
+    char *str_org, *str_last, *str_cur;
+    if (str == NULL)
+        return NULL;
+    str_org = str;
+    str_cur = str;
+    //found the front space and \t
+    for (; *str_cur == ' ' || *str_cur == '\t'; ++str_cur);
+
+    for (str_last = str_cur; *str_cur != '\0'; )
+    {
+        if (*str_cur != ' ' && *str_cur != '\t')
+        {
+            str_last = str;
+        }
+        *str++ = *str_cur++;
+    }
+    *++str_last = '\0';
+    return str_org;
+}
+
 
 /*******************************************************************************
     END OF FILE

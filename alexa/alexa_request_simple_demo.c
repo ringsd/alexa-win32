@@ -9,7 +9,7 @@
 
 //	int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg);
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)   //这个函数是为了符合CURLOPT_WRITEFUNCTION, 而构造的
+size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 {
 	printf("write data begin...\n");
     int written = fwrite(ptr, size, nmemb, (FILE *)stream);
@@ -30,13 +30,13 @@ size_t readFileFunc(char *buffer, size_t size, size_t nitems, void *instream)
 #define DEL_HTTPHEAD_EXPECT  "Expect:"
 #define DEL_HTTPHEAD_ACCEPT  "Accept:"
 
-char *atoken = "Atza|IwEBIOf2Wq_cyK1qW0dKdlU0KA4PRCq9CjTAD8PYKIWjN1o2zOneEMJtNIogP2XHBVARbPX_7PnSYhRPFKpQPumUMJa7_wXD3wGXFQ7-GwZcObU1_BXTzyY326gCC_LhVyWKIBhGN9Jogx_vjWaMS2SsGc-gy45dhRxwd0TsAUZ9vlSMFgl9U-_RLrVW_Awn_r8C6ucTFg4Q6P99iKN5-3fRz26Nb3kCLZJtVktYlHhBwND-8IlSfFy_It7aN4BWrS9r0Gwe8qMt8Fm69w-utfwDIV0eilh246Aosq6tATbUZjYPMbVC-IYImPc-719wrtd-RmvrKxeAKlQXv5UtAt6YPEt_DnHaj5PJLxIaMS0iKwj_X-K_TrB7tYmBwCU1LjAUPIiXWME1AT9bR_4cBPGnBhGcEytvbEgMqVPWWEafxOB25iqCC3K_JeEVYtxNPJsALFhzdW2bPqjTicSfoQakfDS2CmAXFV8by3IH22SG67XXSxdPn-NfLNGepLEy3trg6pUWtC53bSUAV2PYB_8oABOm5bumBnbZaxgBJKLFPDmEnQ";
+char *atoken = "Atza|IwEBIMSa4ugXJqryOx-dNvGdtj5UJyzA4rvwOfBTfwwacP0Dsbxc9KHy4Q4VFq18rM5nSmxhps3sOBBGoKovdlT1RAaLLsHFK4DDCHwbex0qh9CNdiH2SP4S968YUmjvtQvONAj0ZZFLwJdV0H_w9YG3nCMKvJdxCPnnI0SeGuhawE__S5BODopFPrZnYqC01gGBWYXCx8PRjgwlAdNFA-FEiETx24SZEfXTbYH4MyVxilIKdTaANlnIi1dJgvUueh-QJKlyHqaK7mnfEI075ljs03LRdMo4XY775C5BpAyr2xb7QloaiKBw5XMQPD8OnlMhK8gLcysh0gRGHXusV6sIEiSS6lmqoixTev2W0B5KQLGQYduH32hdgoRjt5Is_twqyr8WNR10Mh-biZjalVD0QUVkN-2BIhJLva8PEb7XXNacxRa2DFgpwT7oTB8haU-i4kTdqBgdSUtTc8rkdOhR4lcuAxjAIz13K_-f-fg1VfaXIG6ed5n0WzMVElpLDxeC7Tg5ItZHnzRsT7BZr57M1yJjtX9Kx27okgQHsJv94b9OyA";
 
 int demo_main(int argc, char **argv)
 {
 	int ret;
 	if( 2 != argc ){
-		printf("没有输入 AccessToken ...\n");
+		printf("No input AccessToken ...\n");
 		return -1;
 	}
 	char Authorization[1024] = "Authorization:Bearer ";
@@ -44,27 +44,28 @@ int demo_main(int argc, char **argv)
 	strcat( Authorization, atoken );
 	printf( "%s\nstarting ...\n", Authorization );
 
-
-
-
 /*************************************************************************************
  *
  *--------------------------HTTP_HEADER----------------------------------------------
  *
  * **********************************************************************************/
 	struct curl_slist		*httpHeaderSlist	= NULL;
+#if 1
 	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, DEL_HTTPHEAD_EXPECT)))
 		{ printf( "DEL_HTTPHEAD_EXPECT_ERR" );goto CURL_SLIST_APPEND_ERR; }
 	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, DEL_HTTPHEAD_ACCEPT)))
 		{ printf( "DEL_HTTPHEAD_ACCEPT_ERR" );goto CURL_SLIST_APPEND_ERR; }
 	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, "Path: /v20160207/events")))
 		{ printf( "CURL_SLIST_APPEND_PATH_ERR" );goto CURL_SLIST_APPEND_ERR; }
+#endif
 	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, Authorization)))
 		{ printf( "CURL_SLIST_APPEND_AUTH_ERR" );goto CURL_SLIST_APPEND_ERR; }
 	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, "Content-type: multipart/form-data" )))
 		{ printf( "CURL_SLIST_APPEND_TYPE_ERR" );goto CURL_SLIST_APPEND_ERR; }
-	if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, "Transfer-Encoding: chunked")))
+#if 1
+    if( NULL == (httpHeaderSlist = curl_slist_append(httpHeaderSlist, "Transfer-Encoding: chunked")))
 		{ printf( "CURL_SLIST_APPEND_CHUNK_ERR" );goto CURL_SLIST_APPEND_ERR; }
+#endif
 
 /**************************************************************************************
  *
@@ -217,10 +218,10 @@ int demo_main(int argc, char **argv)
 	if(CURLE_OK != curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpHeaderSlist))
 		{printf( "CURLOPT_HTTPHEADER_ERR\n" ); goto CURL_EASY_SETOPT_ERR;}
 
-	curl_easy_setopt(curl, CURLOPT_READFUNCTION, readFileFunc);////////////////////////////////设置读文件函数接口
-	curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, write_data );  //CURLOPT_WRITEFUNCTION 将后继的动作交给write_data函数处理
+	curl_easy_setopt(curl, CURLOPT_READFUNCTION, readFileFunc);
+	curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, write_data );
     curl_easy_setopt( curl, CURLOPT_HEADERDATA, saveHeadFile );
-    curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, write_data );  //CURLOPT_WRITEFUNCTION 将后继的动作交给write_data函数处理
+    curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, write_data );
     curl_easy_setopt( curl, CURLOPT_WRITEDATA, saveBodyFile );
 
  

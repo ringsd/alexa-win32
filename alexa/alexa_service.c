@@ -64,7 +64,7 @@ err:
 
 void alexa_service_process(struct alexa_service* as, struct alexa_http2* http2)
 {
-    as->http2 = http2;
+    http2 = http2;
     alexa_speechrecognizer_process(as);
 }
 

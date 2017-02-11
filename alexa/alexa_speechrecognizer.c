@@ -107,9 +107,9 @@ void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
     alexa_mutex_unlock(sr->mutex);
 }
 
-static const char* sr_recognizer_event(struct alexa_service* as);
+const char* sr_recognizer_event(struct alexa_service* as);
 
-static void sr_generate_request_id( struct alexa_speechrecognizer* sr )
+void sr_generate_request_id( struct alexa_speechrecognizer* sr )
 {
     //generate a uuid
     alexa_generate_uuid( sr->dialogRequestId, sizeof( sr->dialogRequestId ) - 1 );
@@ -191,11 +191,12 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 const char* event;
                 char* audio_data = NULL;
                 int audio_read_len = 0;
-                int audio_data_len = 16 / 8 * 16000 * 10;
+                int audio_data_len = 16 / 8 * 16000 * 5;
                 //record data
                 //send Recognize Event to avs
                 //change state to BUSY
 
+#if 0
                 audio_data = alexa_malloc(audio_data_len);
                 if (audio_data)
                 {
@@ -216,13 +217,11 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         }
                     }
 
-                    alexa_record_save_file(record, "record.wav", audio_data, audio_read_len);
-
+                    //alexa_record_save_file(record, "record.wav", audio_data, audio_read_len);
                     alexa_record_close(record);
                 }
                 //how to implement the NEAR_FIELD FAR_FIELD profile
-
-#if 0
+#else
                 FILE* fp = fopen(ALEXA_RECORD_TEST_FILE, "rb");
                 if (fp)
                 {
@@ -230,7 +229,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                     audio_data_len = ftell(fp);
                     audio_data = alexa_malloc(audio_data_len);
                     fseek(fp, 0, SEEK_SET);
-                    fread(audio_data, 1, audio_data_len, fp);
+                    audio_read_len = fread(audio_data, 1, audio_data_len, fp);
                     fclose(fp);
                 }
 #endif
@@ -239,7 +238,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 event = sr_recognizer_event(as);
                 
                 //event + binary audio stream
-                alexa_http2_event_audio_add(as->http2, event, strlen(event), audio_data, audio_data_len);
+                alexa_http2_event_audio_add(as->http2, event, strlen(event), audio_data, audio_read_len);
 
                 sr_set_state( sr, BUSY );
                 break;
@@ -326,7 +325,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
 }
 
 //has binary audio attachment
-static const char* sr_recognizer_event( struct alexa_service* as )
+const char* sr_recognizer_event( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = as->sr;
     const char* event_string;
@@ -336,11 +335,10 @@ static const char* sr_recognizer_event( struct alexa_service* as )
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
 
-    cJSON_AddItemToObject( cj_root, "context", cj_context );
-    cJSON_AddItemToObject( cj_root, "event", cj_event );
-    
-    cJSON_AddItemToArray(cj_context, alexa_context_get_state(as));
-    
+    cj_context = alexa_context_get_state(as);
+    cJSON_AddItemToObject(cj_root, "context", cj_context);
+    cJSON_AddItemToObject(cj_root, "event", cj_event);
+
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", "Recognize");

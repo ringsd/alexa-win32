@@ -22,7 +22,7 @@
 
 struct alexa_speechsynthesizer{
     char*                     messageId;
-    char*                     token;
+    char                      token[48];
     
     char*                     playerActivity;
     int                       offsetInMilliseconds;
@@ -55,7 +55,8 @@ cJSON* speechsynthesizer_speech_state( alexa_service* as )
     cJSON_AddStringToObject( cj_header, "name", speechsynthesizer_event[SPEECHSTATE_EVENT]);
     
     cJSON_AddItemToObject( cj_speech_state, "payload", cj_payload );
-    cJSON_AddNumberToObject( cj_payload, "offsetInMilliseconds", ss->offsetInMilliseconds);
+    cJSON_AddStringToObject(cj_payload, "token", ss->token);
+    cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ss->offsetInMilliseconds);
     cJSON_AddStringToObject( cj_payload, "playerActivity", ss->playerActivity );
     
     return cj_speech_state;
@@ -163,6 +164,7 @@ static struct alexa_speechsynthesizer* ss_construct(void)
     struct alexa_speechsynthesizer* ss = alexa_new( struct alexa_speechsynthesizer );
     if( ss )
     {
+        alexa_generate_uuid(ss->token, sizeof(ss->token));
         ss->playerActivity = SPEECHSYNTHESIZER_STATE_FINISHED;
         ss->offsetInMilliseconds = 0;
     }

@@ -618,7 +618,7 @@ struct alexa_authmng* alexa_authmng_init(void)
         //authmng_refresh_token(authmng);
 
         {
-            char *access_token = "Atza|IwEBII9T0SKmhVCLyAiJeMG8uXvid6TtlhcKGdOw0kRxJsmW3mBgBYobdHyBPm9fixF5Cb4yoPko7dwYVF61lJOrHj-ncEDQiDAyuTdjYAD6prrIkr-t_prerXFkdF5pQ3o4YeSzMOCVlW87pSDQ95vNp7ApfropwE1z8japRqbbIr123-YVn3k-ejLM5ZyftC3e7jvYkahxKCyFC2pWoCWuDALJsGv_8DsmMEtyGS0qWJOH5ca8JPAZHq2McLkTnaM2A9lPSqxplHZcjdETpN3xX8dH2Xa-Fqeu2sE9iU7WRb8kg72BIHEoyut7D-4wc1zl1BXkcqzBWDq9DjJvHfRUolxC4fXjfkVzU9Pa14Bq2MeJYkpUGO9CFs68keYlAyZHak_p_Nt7MjxlJ7INPh6_aL3gbqkH9TFiSM4sIDwuSJNKuSv9AxsGRNYeJ8Fq9sn1Y0WzpDeEV_8MzFf6SWSDSO7iuAnH_yOmLmHH7we9JyWw3FnKzHy7UfeKbMCc-nwLH_00xXlErBefE9MnQOcyUzovgNf2TGZC9Q-O_MajlcD7bwg14PWveU_c9pPt9LP2Hoo";
+            char *access_token = "Atza|IwEBIHraeYVxwhX_0AKKKwJ-VY6j9iZzZcr4PRjwTaH9uYRSfgyRLK49lQ1450WNMO-B6CjnPCom4-dHPHQ_IAkc76hAXZdkwdLb79xx38zqykmgbstSNizwo63lNUI29DYHHkEV2GiP1B0uqZJS-Ps1_1Htem0G6aXLVbyLHlClKhNIE3ytbRbFzxMQ2XVA9nt_H4rrVC351ya91w8S9YILPU4EhTuOgIRjcoU1fqHcF5TnEHHq9WjV3WtLjNZzXoFmytePNk5x2P866euiHlvKyjRuYzcSxd5madhaQYOw4i1lF-ji40QFdk2UMh40ybqlz1ZrAtjRakq8fz79FWdEICuETzaM2zi0IPdQqCEupCpjtg-mg9UmLWR4Sp0XkwUWQvyH_4T5XpXAJAFGb__tm--Lv_q3iX3HbrosovN7spGQAWhLMuBZxjL7R6OH-ZF_6b34GT-s-nRn_nNuNBxyxolg4RcZNlinb4n6d4TvrsC52pAvPNTJ99zdKI9Bh95Vud9EizeF197UyJYemT7vfvD1sYNSl564AJIhkDaGK-eIlQ";
 
             if (authmng->token.access_token)
             {
