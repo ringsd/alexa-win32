@@ -14,6 +14,7 @@
 
 #include "alexa_service.h"
 
+#define TAG             "PlaybackController"
 #define NAMESPACE       "PlaybackController"
 
 struct alexa_playbackcontroller{
@@ -75,7 +76,7 @@ const char* alexa_pc_event_construct(struct alexa_service* as, enum PLAYBACKCONT
     event_json = cJSON_Print( cj_root );
     cJSON_Delete( cj_root );
 
-    sys_log_d( "%s\n", event_json );
+    sys_log_d(TAG, "%s\n", event_json );
     
     return event_json;    
 }

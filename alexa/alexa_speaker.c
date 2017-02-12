@@ -13,6 +13,7 @@
 
 #include "alexa_service.h"
 
+#define TAG             "Speaker"
 #define NAMESPACE       "Speaker"
 
 #define MAX_VOLUME_VAL    100
@@ -102,7 +103,7 @@ const char* alexa_speaker_event_construct( alexa_service* as, enum SPEAKER_EVENT
     event_json = cJSON_Print(cj_root);
     cJSON_Delete(cj_root);
     
-    sys_log_d( "%s\n", event_json );
+    sys_log_d(TAG, "%s\n", event_json );
     return event_json;
 }
 

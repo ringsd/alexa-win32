@@ -212,7 +212,7 @@ const char* alexa_audioplayer_event_construct(struct alexa_service* as, enum AUD
     audioplayer_event_payload_construct(as->ap, cj_payload, event);
     
     event_json = cJSON_Print(cj_root);
-    sys_log_d("%s\n", event_json);
+    sys_log_d(TAG, "%s\n", event_json);
     
     cJSON_Delete(cj_root);
     

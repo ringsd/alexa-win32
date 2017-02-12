@@ -18,8 +18,11 @@
 extern "C" {
 #endif
 
-int alexa_system_init(alexa_service* as);
-int alexa_system_done(alexa_service* as);
+int alexa_system_init(struct alexa_service* as);
+int alexa_system_done(struct alexa_service* as);
+
+const char* alexa_system_synchronizestate_construct(struct alexa_service* as);
+
 
 #ifdef __cplusplus
 }

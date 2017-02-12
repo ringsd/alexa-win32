@@ -38,6 +38,9 @@ typedef struct alexa_service alexa_service;
 #include    "alexa_system.h"
 #include    "alexa_directive.h"
 
+#include    "alexa_auth.h"
+#include    "alexa_http2.h"
+
 struct alexa_service{
     struct alexa_http2* http2;
     //SpeechRecognizer

@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+typedef struct alexa_http2* alexa_http2;
+
 struct alexa_http2* alexa_http2_init(struct alexa_service* service, struct alexa_authmng* authmng);
 
 void alexa_http2_done(struct alexa_http2* http2);

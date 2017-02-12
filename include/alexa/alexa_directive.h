@@ -34,7 +34,7 @@ int alexa_directive_register(const char* name_space, int(*process)(struct alexa_
 int alexa_directive_unregister(const char* name_space);
 int alexa_directive_process(struct alexa_service* as, struct alexa_directive_item* item);
 
-int alexa_directive_add(struct alexa_service* as, const char* value);
+int alexa_directive_add(struct alexa_service* as, const char* value, const char* data, int data_len);
 
 struct alexa_directive_item* alexa_directive_get(struct alexa_directive* directive);
 

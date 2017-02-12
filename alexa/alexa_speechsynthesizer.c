@@ -15,13 +15,14 @@
 
 #include "alexa_service.h"
 
+#define TAG                     "SpeechSynthesizer"
 #define NAMESPACE               "SpeechSynthesizer"
 
 #define SPEECHSYNTHESIZER_STATE_PLAYING         "PLAYING"
 #define SPEECHSYNTHESIZER_STATE_FINISHED        "FINISHED"
 
 struct alexa_speechsynthesizer{
-    char*                     messageId;
+    char                      messageId[48];
     char                      token[48];
     
     char*                     playerActivity;
@@ -74,46 +75,51 @@ static void ss_event_header_construct( cJSON* cj_header, enum SPEECHSYNTHESIZER_
 }
 
 //has binary audio attachment
-static const char* ss_event_construct( alexa_service* as, enum SPEECHSYNTHESIZER_EVENT_ENUM event )
+static const char* ss_event_construct(struct alexa_speechsynthesizer* ss, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* token)
 {
-    struct alexa_speechsynthesizer* ss = as->ss;
+    char messageId[48];
     const char* event_string;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
 
+    ss = ss;
+
     cJSON_AddItemToObject( cj_root, "event", cj_event );
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     
-    ss_event_header_construct( cj_header, event, (const char*)ss->messageId );
+    alexa_generate_uuid(messageId, sizeof(messageId));
+    ss_event_header_construct(cj_header, event, messageId);
 
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
-    cJSON_AddStringToObject( cj_payload, "token", ss->token);
+    cJSON_AddStringToObject( cj_payload, "token", token);
     
     event_string = cJSON_Print( cj_root );
     
     cJSON_Delete( cj_root );
 
-    sys_log_d( "%s\n", event_string );
+    sys_log_d( TAG, "%s\n", event_string );
     return event_string;
 }
 
-void alexa_speechsynthesizer_set_event( alexa_service* as, const char* playerActivity )
+void alexa_speechsynthesizer_set_event(struct alexa_speechsynthesizer* ss, const char* playerActivity)
 {
-    struct alexa_speechsynthesizer* ss = as->ss;
     ss->playerActivity = (char*)playerActivity;
 }
 
-const char* alexa_speechsynthesizer_event_construct( alexa_service* as )
+const char* alexa_speechsynthesizer_event_construct(struct alexa_speechsynthesizer* ss, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* token)
 {
-    return ss_event_construct(as, SPEECHSTARTED_EVENT);
+    return ss_event_construct(ss, event, token);
 }
 
 static int directive_speak( alexa_service* as, struct alexa_directive_item* item )
 {
+    struct alexa_speechsynthesizer* ss = as->ss;
     cJSON* cj_payload = item->payload;
     cJSON* cj_url;
+    cJSON* cj_token;
+    const char* event_string;
     
     cj_url = cJSON_GetObjectItem(cj_payload, "url");
     if( !cj_url )
@@ -121,16 +127,26 @@ static int directive_speak( alexa_service* as, struct alexa_directive_item* item
         goto err;
     }
 
+    cj_token = cJSON_GetObjectItem(cj_payload, "token");
+    if (!cj_token)
+    {
+        goto err;
+    }
+
     // sync
-    alexa_speechsynthesizer_set_event( as, SPEECHSYNTHESIZER_STATE_PLAYING );
-    alexa_speechsynthesizer_event_construct( as );
+    alexa_speechsynthesizer_set_event( ss, SPEECHSYNTHESIZER_STATE_PLAYING );
+    event_string = alexa_speechsynthesizer_event_construct(ss, SPEECHSTARTED_EVENT, cj_token->valuestring);
+    alexa_http2_event_add(as->http2, event_string, strlen(event_string));
+
 
     // play the sound
-    
+    alexa_delay(1000);
+
     // play the sound end 
 
-    alexa_speechsynthesizer_set_event( as, SPEECHSYNTHESIZER_STATE_FINISHED );
-    alexa_speechsynthesizer_event_construct( as );
+    alexa_speechsynthesizer_set_event( ss, SPEECHSYNTHESIZER_STATE_FINISHED );
+    event_string = alexa_speechsynthesizer_event_construct(ss, SPEECHFINISHED_EVENT, cj_token->valuestring);
+    alexa_http2_event_add(as->http2, event_string, strlen(event_string));
 
     return 0;
 err:

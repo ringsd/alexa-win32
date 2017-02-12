@@ -83,7 +83,7 @@ int alexa_directive_unregister(const char* name_space)
  *@param
  *@return
  */
-int alexa_directive_add( struct alexa_service* as, const char* value )
+int alexa_directive_add( struct alexa_service* as, const char* value, const char* data, int data_len )
 {
     int ret = 0;
     struct alexa_directive* directive = as->directive;
@@ -137,6 +137,9 @@ int alexa_directive_add( struct alexa_service* as, const char* value )
             item->payload = cj_payload;
         }
     }
+
+    item->data_len = data_len;
+    item->data = data;
 
     //add the json directive to list
     alexa_mutex_lock(directive->mutex);

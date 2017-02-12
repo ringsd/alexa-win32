@@ -14,6 +14,7 @@
 #include    <string.h>
 #include    "alexa_service.h"
 
+#define TAG             "Alerts"
 #define NAMESPACE       "Alerts"
 
 struct alexa_alerts{
@@ -162,7 +163,7 @@ const char* alexa_alerts_event_construct( struct alexa_service* as, enum ALERTS_
     alerts_event_payload_construct(as->alerts, cj_payload, event, token);
     
     event_json = cJSON_Print(cj_root);
-    sys_log_d( "%s\n", event_json );
+    sys_log_d(TAG, "%s\n", event_json );
     
     cJSON_Delete(cj_root);
     

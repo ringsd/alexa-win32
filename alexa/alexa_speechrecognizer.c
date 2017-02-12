@@ -351,7 +351,7 @@ const char* sr_recognizer_event( struct alexa_service* as )
     cJSON_AddStringToObject( cj_payload, "format", sr->format );
     
     event_string = cJSON_Print( cj_root );
-    sys_log_d( "%s\n", event_string );
+    sys_log_d( TAG, "%s\n", event_string );
     
     cJSON_Delete( cj_root );
     
@@ -377,7 +377,7 @@ static const char* sr_expect_speech_timedout_event(alexa_service* as)
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
     
     event_string = cJSON_Print( cj_root );
-    sys_log_d( "%s\n", event_string );
+    sys_log_d( TAG, "%s\n", event_string );
     
     cJSON_Delete( cj_root );
     

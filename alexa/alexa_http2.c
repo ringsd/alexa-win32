@@ -22,7 +22,7 @@
 #include "alexa_base.h"
 #include "alexa_auth.h"
 
-#define TODO    1
+#define TODO    0
 
 #define TAG "http2"
 
@@ -44,6 +44,8 @@
 "\r\n"\
 "Content-Type: application/octet-stream"\
 "\r\n"
+
+#define ALEXA_PING_ACTIVE           (5*60)
 
 #define ALEXA_MAX_EVENTS_COUNT    5
 #define HTTP2_MAX_STREAMS   10
@@ -282,30 +284,6 @@ static size_t response_function(void *buffer, size_t size, size_t nmemb, void *u
 #define DEL_HTTPHEAD_EXPECT  "Expect:"
 #define DEL_HTTPHEAD_ACCEPT  "Accept:"
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
-
-//ping request get
-static void setup_ping(CURL *hnd, struct curl_slist *headers)
-{
-    /* set the http header */
-    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
-    
-    /* set the ping URL */ 
-    curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/ping" );
-    sys_log_i(TAG, ALEXA_BASE_URL"/ping");
-
-    /* send it verbose for max debuggaility */ 
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
-
-    /* HTTP/2 please */ 
-    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-
-    /* we use a self-signed test server, skip verification during debugging */ 
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
-}
-
 //post events
 static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* item)
 {
@@ -344,7 +322,7 @@ static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* it
 
     /* set the events URL */
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events" );
-    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events");
+    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events\n");
 
     /* send it verbose for max debuggaility */ 
     curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
@@ -369,6 +347,7 @@ static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* it
     /* we use a self-signed test server, skip verification during debugging */ 
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
 
     /* set the http header */
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
@@ -438,7 +417,7 @@ static CURL* curl_directives_construct(struct alexa_http2* http2)
 
     /* set the directives URL */
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives");
-    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives");
+    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives\n");
 
     /* send it verbose for max debuggaility */
     curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
@@ -447,6 +426,7 @@ static CURL* curl_directives_construct(struct alexa_http2* http2)
     /* we use a self-signed test server, skip verification during debugging */
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
 
     /* write to this data */
     curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, response_function);
@@ -466,20 +446,41 @@ err:
 //every 5 minutes, send the ping get request
 static CURL* curl_ping_construct(struct alexa_http2* http2)
 {
-    CURL* ping_hnd = NULL;
+    CURL* hnd = NULL;
     struct curl_slist *headers = NULL;
     
-    ping_hnd = curl_easy_init();
-    if( ping_hnd == NULL )
+    hnd = curl_easy_init();
+    if (hnd == NULL)
     {
         sys_log_e( TAG, "" );
         goto err;
     }
     
+    headers = curl_slist_append(headers, DEL_HTTPHEAD_EXPECT);
+    headers = curl_slist_append(headers, DEL_HTTPHEAD_ACCEPT);
+    headers = curl_slist_append(headers, "Path: /ping");
     headers = curl_slist_append(headers, http2->header_auth);
-    setup_ping(ping_hnd, headers);
-    
-    return ping_hnd;
+
+    /* set the http header */
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+
+    /* set the ping URL */
+    curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/ping");
+    sys_log_i(TAG, ALEXA_BASE_URL"/ping\n");
+
+    /* send it verbose for max debuggaility */
+    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
+
+    /* HTTP/2 please */
+    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+
+    /* we use a self-signed test server, skip verification during debugging */
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
+
+    return hnd;
     
 err:
     return NULL;
@@ -527,11 +528,28 @@ enum{
     CONTENT_TYPE_BINARY,
 };
 
+struct alexa_response_item{
+    struct list_head list;
+    char* json_data;
+    int json_data_len;
+    char* binary_data;
+    int binary_data_len;
+};
+
 static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_response* response, char* boundary)
 {
     unsigned int boundary_len;
     char* buffer = response->data;
     unsigned int buffe_len = response->pos;
+    char* org_buffer;
+    unsigned int org_buffe_len;
+    struct alexa_response_item* item = NULL;
+    struct list_head response_list;
+
+    INIT_LIST_HEAD(&response_list);
+
+    org_buffer = buffer;
+    org_buffe_len = buffe_len;
 
     boundary_len = strlen(boundary);
     buffer = alexa_strstr(buffer, buffe_len, boundary);
@@ -544,8 +562,8 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
 
         //skip the boundary
         buffer += boundary_len;
-        buffe_len -= boundary_len;
 
+        buffe_len = org_buffe_len - (buffer - org_buffer);
         buffer = alexa_strstr(buffer, buffe_len, "Content-Type:");
         if (buffer == NULL)
         {
@@ -565,6 +583,7 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
             sys_log_e(TAG, "Unsupport this content type:%s\n", buffer);
         }
 
+        buffe_len = org_buffe_len - (buffer - org_buffer);
         buffer = alexa_strstr(buffer, buffe_len, "\r\n\r\n");
         if (buffer == NULL || content_type_flag == 0)
         {
@@ -574,10 +593,10 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
 
         //skip the new line
         buffer += 4;
-        buffe_len -= 4;
 
         content_data = buffer;
 
+        buffe_len = org_buffe_len - (buffer - org_buffer);
         buffer = alexa_strstr(buffer, buffe_len, boundary);
         if (buffer == NULL)
         {
@@ -587,15 +606,65 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
 
         if (content_type_flag == CONTENT_TYPE_JSON)
         {
-            buffer[-2] = 0;
-            alexa_directive_add(http2->as, content_data);
+            item = alexa_new(struct alexa_response_item);
+            if (item)
+            {
+                item->json_data_len = buffer - content_data - 2;
+                item->json_data = alexa_malloc(item->json_data_len + 1);
+                if (item->json_data)
+                {
+                    memcpy(item->json_data, content_data, item->json_data_len);
+                    item->json_data[item->json_data_len] = 0;
+                    list_add(&item->list, &response_list);
+                }
+                else
+                {
+                    alexa_delete(item);
+                    item = NULL;
+                }
+            }
         }
         else if (content_type_flag == CONTENT_TYPE_BINARY)
         {
-            int content_data_len = buffer - 2 - content_data;
-            alexa_directive_add(http2->as, content_data);
+            if (item)
+            {
+                item->binary_data_len = buffer - content_data - 2;
+                item->binary_data = alexa_malloc(item->binary_data_len + 1);
+                if (item->binary_data)
+                {
+                    memcpy(item->binary_data, content_data, item->binary_data_len);
+                }
+                else
+                {
+                    item->binary_data_len = 0;
+                }
+            }
+        }
+        else
+        {
+            item = NULL;
         }
     }
+
+    list_for_each_entry_type(item, &response_list, struct alexa_response_item, list)
+    {
+        alexa_directive_add(http2->as, item->json_data, item->binary_data, item->binary_data_len);
+    }
+
+    while (!list_empty(&response_list))
+    {
+        item = list_first_entry(&response_list, struct alexa_response_item, list);
+        if (item)
+        {
+            list_del(&item->list);
+            alexa_delete(item);
+        }
+        else
+        {
+            break;
+        }
+    }
+
 }
 
 static void http2_parse_response(struct alexa_http2* http2, struct alexa_response* header, struct alexa_response* body)
@@ -611,7 +680,7 @@ static void http2_parse_response(struct alexa_http2* http2, struct alexa_respons
             {
                 if (strcmp(content_type, "application/json") == 0)
                 {
-                    alexa_directive_add(http2->as, body->data);
+                    alexa_directive_add(http2->as, body->data, NULL, 0);
                 }
                 else if (strcmp(content_type, "multipart/related") == 0)
                 {
@@ -640,6 +709,8 @@ static void* alexa_http2_process(void* data)
     struct CURLMsg *m;
     struct alexa_http2* http2 = (struct alexa_http2*)data;
     int ping_hnd_timeout = 0;
+    time_t ping_last_time;
+    time_t current_time;
 
     int wakeup_test_timeout = 0;
 
@@ -666,6 +737,17 @@ static void* alexa_http2_process(void* data)
     else
     {
         curl_multi_add_handle(multi_handle, directives_hnd);
+    }
+
+    ping_hnd = curl_ping_construct(http2);
+    if (ping_hnd == NULL)
+    {
+        sys_log_e(TAG, "construct the ping request error.\n");
+    }
+    else
+    {
+        curl_multi_add_handle(multi_handle, ping_hnd);
+        time(&ping_last_time);
     }
 
 #if 1
@@ -736,7 +818,7 @@ static void* alexa_http2_process(void* data)
 }
 #endif
 
-    //curl_multi_setopt(multi_handle, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
+    curl_multi_setopt(multi_handle, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
 
     /* We do HTTP/2 so let's stick to one connection per host */ 
     curl_multi_setopt(multi_handle, CURLMOPT_MAX_HOST_CONNECTIONS, 1L);    
@@ -831,6 +913,7 @@ static void* alexa_http2_process(void* data)
                 if( e == ping_hnd )
                 {
                     //start the ping timeout 
+                    time(&ping_last_time);
                     ping_hnd = NULL;
                 }
                 else if( e == directives_hnd )
@@ -865,12 +948,14 @@ static void* alexa_http2_process(void* data)
             }
         } while(m);
 
+
+        time(&current_time);
         //ping hnd request timeout, restart the connect
         if( TODO )
         {
         }
         //ping hnd timeout, set a ping request, and start the ping request timeout
-        else if (TODO && ping_hnd_timeout)
+        else if (ping_hnd == NULL && difftime(current_time, ping_last_time) > ALEXA_PING_ACTIVE )
         {
             //every 5 minutes, send the ping get request
             ping_hnd = curl_ping_construct(http2);

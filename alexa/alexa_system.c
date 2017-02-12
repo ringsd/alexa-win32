@@ -19,7 +19,7 @@
 #define     NAMESPACE      "System"
 
 struct alexa_system{
-    char*    messageId;
+    char     messageId[48];
     int      inactiveTimeInSeconds;
     char*    unparsedDirective;
     char*    type;
@@ -74,6 +74,7 @@ static void system_event_header_construct( struct alexa_system* system, cJSON* c
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", system_event[event_index]);
+    alexa_generate_uuid(system->messageId, sizeof(system->messageId));
     cJSON_AddStringToObject( cj_header, "messageId", system->messageId);
 
     return;
@@ -143,11 +144,16 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
     system_event_payload_construct( system, cj_payload, event );    
 
     event_json = cJSON_Print( cj_root );
-    sys_log_d( "%s\n", event_json );
+    sys_log_d( TAG, "%s\n", event_json );
     
     cJSON_Delete( cj_root );    
     
     return event_json;
+}
+
+const char* alexa_system_synchronizestate_construct(alexa_service* as)
+{
+    return alexa_system_event_construct(as, SYNCHRONIZESTATE_EVENT);
 }
 
 //
