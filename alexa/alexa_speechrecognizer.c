@@ -330,12 +330,12 @@ const char* sr_recognizer_event( struct alexa_service* as )
     struct alexa_speechrecognizer* sr = as->sr;
     const char* event_string;
     cJSON* cj_root = cJSON_CreateObject();
-    cJSON* cj_context = cJSON_CreateArray();
+    cJSON* cj_context = NULL;
     cJSON* cj_event = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
 
-    //cj_context = alexa_context_get_state(as);
+    cj_context = alexa_context_get_state(as);
     cJSON_AddItemToObject(cj_root, "context", cj_context);
     cJSON_AddItemToObject(cj_root, "event", cj_event);
 

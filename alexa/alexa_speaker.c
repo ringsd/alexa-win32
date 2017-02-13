@@ -52,7 +52,7 @@ cJSON* speaker_volume_state( alexa_service* as )
     
     cJSON_AddItemToObject( cj_volume_state, "payload", cj_payload );
     cJSON_AddNumberToObject( cj_payload, "volume", speaker->volume);
-    cJSON_AddBoolToObject( cj_payload, "mute", speaker->muted);
+    cJSON_AddBoolToObject( cj_payload, "muted", speaker->muted);
     
     return cj_volume_state;
 }
