@@ -284,6 +284,31 @@ static size_t response_function(void *buffer, size_t size, size_t nmemb, void *u
 #define DEL_HTTPHEAD_EXPECT  "Expect:"
 #define DEL_HTTPHEAD_ACCEPT  "Accept:"
 
+#define CURL_SSL_CART
+
+static void curl_common_set(CURL* hnd)
+{
+    /* HTTP/2 please */
+    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+
+    /* send it verbose for max debuggaility */
+    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
+
+    /* we use a self-signed test server, skip verification during debugging */
+#ifdef CURL_SSL_CART
+    curl_easy_setopt(hnd, CURLOPT_CAINFO, "cacert.pem");
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 2L);
+#else
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+#endif
+    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
+}
+
+
+
 //post events
 static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* item)
 {
@@ -324,30 +349,24 @@ static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* it
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events" );
     sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events\n");
 
-    /* send it verbose for max debuggaility */ 
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
-
     curl_formadd(&post_first, &post_last,
         CURLFORM_COPYNAME, "metadata",
         CURLFORM_COPYCONTENTS, item->event,
+        CURLFORM_CONTENTSLENGTH, item->event_len,
         CURLFORM_CONTENTTYPE, "application/json; charset=UTF-8",
         CURLFORM_END);
 
-    curl_formadd(&post_first, &post_last,
-        CURLFORM_COPYNAME, "audio",
-        CURLFORM_COPYCONTENTS, item->audio_data,
-        CURLFORM_CONTENTSLENGTH, item->audio_data_len,
-        CURLFORM_CONTENTTYPE, "application/octet-stream", //"audio/L16; rate=16000; channels=1",
-        CURLFORM_END);
+    //if (item->audio_data_len)
+    {
+        curl_formadd(&post_first, &post_last,
+            CURLFORM_COPYNAME, "audio",
+            CURLFORM_COPYCONTENTS, item->audio_data,
+            CURLFORM_CONTENTSLENGTH, item->audio_data_len,
+            CURLFORM_CONTENTTYPE, "application/octet-stream", //"audio/L16; rate=16000; channels=1",
+            CURLFORM_END);
+    }
 
-    /* HTTP/2 please */ 
-    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-
-    /* we use a self-signed test server, skip verification during debugging */ 
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
+    curl_common_set(hnd);
 
     /* set the http header */
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
@@ -419,23 +438,13 @@ static CURL* curl_directives_construct(struct alexa_http2* http2)
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives");
     sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives\n");
 
-    /* send it verbose for max debuggaility */
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
-
-    /* we use a self-signed test server, skip verification during debugging */
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
-
     /* write to this data */
     curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, response_function);
     curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &http2->directive_header);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, response_function);
     curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &http2->directive_body);
 
-    /* HTTP/2 please */
-    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+    curl_common_set(hnd);
     
     return hnd;
     
@@ -468,17 +477,7 @@ static CURL* curl_ping_construct(struct alexa_http2* http2)
     curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/ping");
     sys_log_i(TAG, ALEXA_BASE_URL"/ping\n");
 
-    /* send it verbose for max debuggaility */
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-    //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
-
-    /* HTTP/2 please */
-    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-
-    /* we use a self-signed test server, skip verification during debugging */
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
+    curl_common_set(hnd);
 
     return hnd;
     
@@ -785,7 +784,7 @@ static void* alexa_http2_process(void* data)
         alexa_record_close(record);
     }
     //how to implement the NEAR_FIELD FAR_FIELD profile
-#else
+#elif 0
 #define ALEXA_RECORD_TEST_FILE  "16k.raw"
 
     FILE* fp = fopen(ALEXA_RECORD_TEST_FILE, "rb");
@@ -798,10 +797,11 @@ static void* alexa_http2_process(void* data)
         audio_read_len = fread(audio_data, 1, audio_data_len, fp);
         fclose(fp);
     }
-#endif
-
     sr_generate_request_id(http2->as->sr);
     event = sr_recognizer_event(http2->as);
+#else
+    event = alexa_system_synchronizestate_construct(http2->as);
+#endif
 
     //event + binary audio stream
     alexa_http2_event_audio_add(http2, event, strlen(event), audio_data, audio_read_len);
