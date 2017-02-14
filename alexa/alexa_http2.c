@@ -103,6 +103,18 @@ struct alexa_response{
     unsigned int    size;
 };
 
+struct alexa_curl_event_item{
+    struct list_head    list;
+    CURL*               curl;
+    struct curl_slist*  curl_headers;
+    struct curl_httppost *post_first;
+    struct curl_httppost *post_last;
+    struct alexa_response event_header;
+    struct alexa_response event_body;
+
+    struct alexa_event_item* event_item;
+};
+
 struct alexa_http2{
     struct alexa_authmng* authmng;
     struct alexa_service* as;
@@ -119,8 +131,7 @@ struct alexa_http2{
     int     events_count;
     int     max_events_count;
 
-    struct list_head events_new;
-    struct list_head events_remove;
+    struct list_head events_list;
     int boundary_len;
     int dummy_len;
     int audio_header_len;
@@ -130,72 +141,19 @@ struct alexa_http2{
     struct alexa_response directive_body;
 };
 
-struct alexa_event_item{
-    struct list_head    list;
-    CURL*               curl;
-    struct curl_slist*  curl_headers;
-    char*               content;
-    int                 content_len;
-    char*               event;
-    int                 event_len;
-    char*               audio_data;
-    int                 audio_data_len;
-
-    struct alexa_response event_header;
-    struct alexa_response event_body;
-};
-
-int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, int event_len, const char* audio_data, int audio_data_len)
-{
-    struct alexa_event_item* item;
-    
-    item = alexa_new(struct alexa_event_item);
-    if( !item )
-    {
-        sys_log_e( TAG, "don't have enough mem\n" );
-        goto err;
-    }
-
-    item->event = (char*)event;
-    item->event_len = event_len;
-
-    item->audio_data = (char*)audio_data;
-    item->audio_data_len = audio_data_len;
-
-    //add the event to the events list
-    list_add(&(item->list), &http2->events_new);
-
-    return 0;
-#if 0
-err1:
-    alexa_delete( item );
-#endif
-err:
-    return -1;
-}
-
-int alexa_http2_event_add( struct alexa_http2* http2, const char* event, int event_len )
-{
-    return alexa_http2_event_audio_add(http2, event, event_len, NULL, 0);
-}
-
-int alexa_http2_event_audio_remove( struct alexa_event_item* item )
+static int http2_events_item_free(struct alexa_curl_event_item* item)
 {
     if( item )
     {
-        if (item->curl_headers)
-        {
-            curl_slist_free_all(item->curl_headers);
-        }
-        ALEXA_SAFE_FREE(item->event);
-        ALEXA_SAFE_FREE(item->audio_data);
-        ALEXA_SAFE_FREE(item->content);
+        if (item->curl_headers) curl_slist_free_all(item->curl_headers);
+        if (item->post_first) curl_formfree(item->post_first);
+        alexa_event_item_free( item->event_item );
         alexa_delete( item );
     }
     return 0;
 }
 
-static size_t response_function(void *buffer, size_t size, size_t nmemb, void *userp)
+static size_t curl_response_function(void *buffer, size_t size, size_t nmemb, void *userp)
 {
     struct alexa_response* response = (struct alexa_response*)userp;
     char *response_data = response->data;
@@ -257,76 +215,6 @@ static void curl_common_set(CURL* hnd)
     curl_easy_setopt(hnd, CURLOPT_PIPEWAIT, 1);
 }
 
-
-
-//post events
-static CURL* setup_events(struct alexa_http2* http2, struct alexa_event_item* item)
-{
-    CURL* hnd = NULL;
-    struct curl_httppost *post_first = NULL, *post_last = NULL;
-
-    //send the events post request
-    struct curl_slist *headers = NULL;
-
-    hnd = curl_easy_init();
-    if (hnd == NULL)
-    {
-        sys_log_e(TAG, "");
-        goto err;
-    }
-
-    //add to the remove list
-    list_add(&(item->list), &http2->events_remove);
-
-    headers = curl_slist_append(headers, DEL_HTTPHEAD_EXPECT);
-    headers = curl_slist_append(headers, DEL_HTTPHEAD_ACCEPT);
-    headers = curl_slist_append(headers, "Path: /v20160207/events");
-
-    headers = curl_slist_append(headers, http2->header_auth);
-    headers = curl_slist_append(headers, http2->header_content);
-
-    headers = curl_slist_append(headers, "Transfer-Encoding: chunked");
-
-    curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, response_function);
-    curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &item->event_header);
-    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, response_function);
-    curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &item->event_body);
-
-    item->curl = hnd;
-    item->curl_headers = headers;
-
-    /* set the events URL */
-    curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events" );
-    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events\n");
-
-    curl_formadd(&post_first, &post_last,
-        CURLFORM_COPYNAME, "metadata",
-        CURLFORM_COPYCONTENTS, item->event,
-        CURLFORM_CONTENTSLENGTH, item->event_len,
-        CURLFORM_CONTENTTYPE, "application/json; charset=UTF-8",
-        CURLFORM_END);
-
-    //if (item->audio_data_len)
-    {
-        curl_formadd(&post_first, &post_last,
-            CURLFORM_COPYNAME, "audio",
-            CURLFORM_COPYCONTENTS, item->audio_data,
-            CURLFORM_CONTENTSLENGTH, item->audio_data_len,
-            CURLFORM_CONTENTTYPE, "application/octet-stream", //"audio/L16; rate=16000; channels=1",
-            CURLFORM_END);
-    }
-
-    curl_common_set(hnd);
-
-    /* set the http header */
-    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
-
-    curl_easy_setopt(hnd, CURLOPT_HTTPPOST, post_first);
-
-err:
-    return hnd;
-}
-
 static void alexa_http2_header_construct(struct alexa_http2* http2)
 {
     int len;
@@ -363,7 +251,7 @@ static void alexa_http2_header_construct(struct alexa_http2* http2)
 }
 
 //directive get request
-static CURL* curl_directives_construct(struct alexa_http2* http2)
+static CURL* curl_directives_setup(struct alexa_http2* http2)
 {
     //send the directives get request
     CURL* hnd = NULL;
@@ -389,9 +277,9 @@ static CURL* curl_directives_construct(struct alexa_http2* http2)
     sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/directives\n");
 
     /* write to this data */
-    curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, response_function);
+    curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, curl_response_function);
     curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &http2->directive_header);
-    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, response_function);
+    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_response_function);
     curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &http2->directive_body);
     curl_easy_setopt(hnd, CURLOPT_TIMEOUT, 10L);
 
@@ -404,7 +292,7 @@ err:
 }
 
 //every 5 minutes, send the ping get request
-static CURL* curl_ping_construct(struct alexa_http2* http2)
+static CURL* curl_ping_setup(struct alexa_http2* http2)
 {
     CURL* hnd = NULL;
     struct curl_slist *headers = NULL;
@@ -436,18 +324,94 @@ err:
     return NULL;
 }
 
-static CURL* curl_events_construct(struct alexa_http2* http2)
+
+//post events
+static CURL* curl_event_setup_by_item(struct alexa_http2* http2, struct alexa_curl_event_item* item)
+{
+    CURL* hnd = NULL;
+    struct alexa_event_item* event_item = item->event_item;
+
+    //send the events post request
+    struct curl_slist *headers = NULL;
+
+    hnd = curl_easy_init();
+    if (hnd == NULL)
+    {
+        sys_log_e(TAG, "");
+        goto err;
+    }
+
+    //add to the remove list
+    list_add(&(item->list), &http2->events_list);
+
+    headers = curl_slist_append(headers, DEL_HTTPHEAD_EXPECT);
+    headers = curl_slist_append(headers, DEL_HTTPHEAD_ACCEPT);
+    headers = curl_slist_append(headers, "Path: /v20160207/events");
+
+    headers = curl_slist_append(headers, http2->header_auth);
+    headers = curl_slist_append(headers, http2->header_content);
+
+    headers = curl_slist_append(headers, "Transfer-Encoding: chunked");
+
+    curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, curl_response_function);
+    curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &item->event_header);
+    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_response_function);
+    curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &item->event_body);
+
+    item->curl = hnd;
+    item->curl_headers = headers;
+
+    /* set the events URL */
+    curl_easy_setopt(hnd, CURLOPT_URL, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events");
+    sys_log_i(TAG, ALEXA_BASE_URL"/"ALEXA_API_VERSION"/events\n");
+
+    curl_formadd(&item->post_first, &item->post_last,
+        CURLFORM_COPYNAME, "metadata",
+        CURLFORM_COPYCONTENTS, event_item->event_data,
+        CURLFORM_CONTENTSLENGTH, event_item->event_len,
+        CURLFORM_CONTENTTYPE, "application/json; charset=UTF-8",
+        CURLFORM_END);
+
+    if (event_item->audio_len)
+    {
+        curl_formadd(&item->post_first, &item->post_last,
+            CURLFORM_COPYNAME, "audio",
+            CURLFORM_COPYCONTENTS, event_item->audio_data,
+            CURLFORM_CONTENTSLENGTH, event_item->audio_len,
+            CURLFORM_CONTENTTYPE, "application/octet-stream", //"audio/L16; rate=16000; channels=1",
+            CURLFORM_END);
+    }
+
+    curl_common_set(hnd);
+
+    /* set the http header */
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+
+    curl_easy_setopt(hnd, CURLOPT_HTTPPOST, item->post_first);
+
+err:
+    return hnd;
+}
+
+static CURL* curl_events_setup(struct alexa_http2* http2)
 {
     CURL* events_hnd = NULL;
+    struct alexa_event_item* event_item;
     
-    if (!list_empty(&http2->events_new))
+    event_item = alexa_event_item_get(http2->as->event);
+    if (event_item)
     {
-        struct alexa_event_item* item;
-        //find the first event, and remove from the new list
-        item = list_first_entry(&http2->events_new, struct alexa_event_item, list);
-        list_del(&(item->list));
+        struct alexa_curl_event_item* item;
 
-        events_hnd = setup_events(http2, item);
+        item = alexa_new(struct alexa_curl_event_item);
+        if (item)
+        {
+            item->event_item = event_item;
+            events_hnd = curl_event_setup_by_item(http2, item);
+        }
+        else
+        {
+        }
     }
     
     return events_hnd;
@@ -470,7 +434,6 @@ static int get_header_content(struct alexa_response* header, const char* frontst
         return -1;
     }
 }
-
 
 enum{
     CONTENT_TYPE_UNKNOWN = 0,
@@ -565,7 +528,7 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
                 {
                     memcpy(item->json_data, content_data, item->json_data_len);
                     item->json_data[item->json_data_len] = 0;
-                    list_add(&item->list, &response_list);
+                    list_add_tail(&item->list, &response_list);
                 }
                 else
                 {
@@ -598,7 +561,7 @@ static void http2_parse_multipart(struct alexa_http2* http2, struct alexa_respon
 
     list_for_each_entry_type(item, &response_list, struct alexa_response_item, list)
     {
-        alexa_directive_add(http2->as, item->json_data, item->binary_data, item->binary_data_len);
+        alexa_directive_add(http2->as->directive, item->json_data, item->binary_data, item->binary_data_len);
     }
 
     while (!list_empty(&response_list))
@@ -630,7 +593,7 @@ static void http2_parse_response(struct alexa_http2* http2, struct alexa_respons
             {
                 if (strcmp(content_type, "application/json") == 0)
                 {
-                    alexa_directive_add(http2->as, body->data, NULL, 0);
+                    alexa_directive_add(http2->as->directive, body->data, NULL, 0);
                 }
                 else if (strcmp(content_type, "multipart/related") == 0)
                 {
@@ -658,7 +621,7 @@ static void* alexa_http2_process(void* data)
     int still_running; /* keep number of running handles */ 
     struct CURLMsg *m;
     struct alexa_http2* http2 = (struct alexa_http2*)data;
-    int ping_hnd_timeout = 0;
+    struct alexa_service* as = (struct alexa_service*)http2->as;
     time_t ping_last_time;
     time_t current_time;
 
@@ -679,7 +642,7 @@ static void* alexa_http2_process(void* data)
     /* init a multi stack */ 
     multi_handle = curl_multi_init();
 
-    directives_hnd = curl_directives_construct(http2);
+    directives_hnd = curl_directives_setup(http2);
     if( directives_hnd == NULL )
     {
         sys_log_e( TAG, "construct the directives request error.\n" );
@@ -689,7 +652,7 @@ static void* alexa_http2_process(void* data)
         curl_multi_add_handle(multi_handle, directives_hnd);
     }
 
-    ping_hnd = curl_ping_construct(http2);
+    ping_hnd = curl_ping_setup(http2);
     if (ping_hnd == NULL)
     {
         sys_log_e(TAG, "construct the ping request error.\n");
@@ -702,7 +665,8 @@ static void* alexa_http2_process(void* data)
 
 #if 1
     {
-    const char* event;
+    const char* event_string;
+#if 0
     char* audio_data = NULL;
     int audio_read_len = 0;
     int audio_data_len = 16 / 8 * 16000 * 5;
@@ -710,7 +674,6 @@ static void* alexa_http2_process(void* data)
     //send Recognize Event to avs
     //change state to BUSY
 
-#if 0
     audio_data = alexa_malloc(audio_data_len);
     if (audio_data)
     {
@@ -751,12 +714,12 @@ static void* alexa_http2_process(void* data)
     sr_generate_request_id(http2->as->sr);
     event = sr_recognizer_event(http2->as);
     //event + binary audio stream
-    alexa_http2_event_audio_add(http2, event, strlen(event), audio_data, audio_read_len);
+    alexa_event_item_add_event_data(http2, event, strlen(event), audio_data, audio_read_len);
 #else
-    event = alexa_system_synchronizestate_event(http2->as);
-    alexa_http2_event_add(http2, event, strlen(event));
+    event_string = alexa_system_synchronizestate_event(http2->as->system);
+    alexa_event_item_add_event(as->event, event_string);
 #endif
-    events_hnd = curl_events_construct(http2);
+    events_hnd = curl_events_setup(http2);
     if (events_hnd == NULL)
     {
     }
@@ -766,9 +729,9 @@ static void* alexa_http2_process(void* data)
         http2->events_count++;
     }
 
-    event = alexa_system_userinactivityreport_event(http2->as);
-    alexa_http2_event_add(http2, event, strlen(event));
-    events_hnd = curl_events_construct(http2);
+    event_string = alexa_system_userinactivityreport_event(http2->as->system);
+    alexa_event_item_add_event(as->event, event_string);
+    events_hnd = curl_events_setup(http2);
     if (events_hnd == NULL)
     {
     }
@@ -887,9 +850,9 @@ static void* alexa_http2_process(void* data)
                 }
                 else
                 {
-                    struct alexa_event_item* item;
+                    struct alexa_curl_event_item* item;
 
-                    list_for_each_entry_type(item, &http2->events_remove, struct alexa_event_item, list)
+                    list_for_each_entry_type(item, &http2->events_list, struct alexa_curl_event_item, list)
                     {
                         if (!strcmp(item->curl, e))
                         {
@@ -897,7 +860,7 @@ static void* alexa_http2_process(void* data)
 
                             http2_parse_response(http2, &item->event_header, &item->event_body);
 
-                            alexa_http2_event_audio_remove(item);
+                            http2_events_item_free(item);
                             break;
                         }
                     }
@@ -920,7 +883,7 @@ static void* alexa_http2_process(void* data)
         else if (ping_hnd == NULL && difftime(current_time, ping_last_time) > ALEXA_PING_ACTIVE )
         {
             //every 5 minutes, send the ping get request
-            ping_hnd = curl_ping_construct(http2);
+            ping_hnd = curl_ping_setup(http2);
             if( ping_hnd == NULL )
             {
                 sys_log_e( TAG, "construct the ping request error.\n" );
@@ -934,7 +897,7 @@ static void* alexa_http2_process(void* data)
         //has directive done, add the directive get request
         if( directives_hnd == NULL )
         {
-            directives_hnd = curl_directives_construct(http2);
+            directives_hnd = curl_directives_setup(http2);
             if( directives_hnd == NULL )
             {
                 sys_log_e( TAG, "construct the directives request error.\n" );
@@ -949,7 +912,7 @@ static void* alexa_http2_process(void* data)
         while(http2->events_count < http2->max_events_count)
         {
             //every 5 minutes, send the ping get request
-            events_hnd = curl_events_construct(http2);
+            events_hnd = curl_events_setup(http2);
             if( events_hnd == NULL )
             {
                 break;
@@ -1001,8 +964,7 @@ static struct alexa_http2* alexa_http2_construct(struct alexa_service* as, struc
 
         http2->max_events_count = ALEXA_MAX_EVENTS_COUNT;
 
-        INIT_LIST_HEAD(&http2->events_new);
-        INIT_LIST_HEAD(&http2->events_remove);
+        INIT_LIST_HEAD(&http2->events_list);
 
         alexa_http2_header_construct(http2);
     }

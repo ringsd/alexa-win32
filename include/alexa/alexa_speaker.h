@@ -18,12 +18,13 @@
 extern "C" {
 #endif
 
-cJSON* speaker_volume_state(alexa_service* as);
+typedef struct alexa_speaker alexa_speaker;
 
+cJSON* speaker_volume_state(struct alexa_speaker* speaker);
 
-int alexa_speaker_init(alexa_service* as);
+struct alexa_speaker* alexa_speaker_init(alexa_service* as);
 
-int alexa_speaker_done(alexa_service* as);
+int alexa_speaker_done(struct alexa_speaker* speaker);
 
 #ifdef __cplusplus
 }

@@ -20,22 +20,22 @@ extern "C" {
 
 typedef struct alexa_audioplayer alexa_audioplayer;
 
-cJSON* audioplayer_playback_state(struct alexa_service* as);
-
+cJSON* audioplayer_playback_state(struct alexa_audioplayer* ap);
 
 /*
 *@brief init the alexa audio player
-*@param struct alexa_service* as, the alexa_service object
-*@return 0 success, otherwise fail
+*@param
+*@return struct alexa_audioplayer* ap
+*        NULL is fail, otherwise success
 */
-int alexa_audioplayer_init(struct alexa_service* as);
+struct alexa_audioplayer* alexa_audioplayer_init(struct alexa_service* as);
 
 /*
 *@brief done the alexa audio player
-*@param struct alexa_service* as, the alexa_service object
+*@param struct alexa_audioplayer* ap, the alexa_audioplayer object
 *@return 0 success, otherwise fail
 */
-int alexa_audioplayer_done(struct alexa_service* as);
+int alexa_audioplayer_done(struct alexa_audioplayer* as);
 
 #ifdef __cplusplus
 }

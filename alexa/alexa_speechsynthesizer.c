@@ -22,6 +22,7 @@
 #define SPEECHSYNTHESIZER_STATE_FINISHED        "FINISHED"
 
 struct alexa_speechsynthesizer{
+    struct alexa_service*     as;
     char                      messageId[ALEXA_UUID_LENGTH + 1];
     char*                     token;
     
@@ -43,10 +44,8 @@ static const char* speechsynthesizer_event[] = {
     "SpeechState",
 };
 
-cJSON* speechsynthesizer_speech_state( alexa_service* as )
+cJSON* speechsynthesizer_speech_state(struct alexa_speechsynthesizer* ss)
 {
-    struct alexa_speechsynthesizer* ss = as->ss;
-
     cJSON* cj_speech_state = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -112,9 +111,8 @@ const char* alexa_speechsynthesizer_event_construct(struct alexa_speechsynthesiz
     return ss_event_construct(ss, event, token);
 }
 
-static int directive_speak( alexa_service* as, struct alexa_directive_item* item )
+static int directive_speak(struct alexa_speechsynthesizer* ss, struct alexa_directive_item* item)
 {
-    struct alexa_speechsynthesizer* ss = as->ss;
     cJSON* cj_payload = item->payload;
     cJSON* cj_url;
     cJSON* cj_token;
@@ -137,8 +135,7 @@ static int directive_speak( alexa_service* as, struct alexa_directive_item* item
     // sync
     alexa_speechsynthesizer_set_event( ss, SPEECHSYNTHESIZER_STATE_PLAYING );
     event_string = alexa_speechsynthesizer_event_construct(ss, SPEECHSTARTED_EVENT, cj_token->valuestring);
-    alexa_http2_event_add(as->http2, event_string, strlen(event_string));
-
+    alexa_event_item_add_event(ss->as->event, event_string);
 
     // play the sound
     alexa_delay(1000);
@@ -147,7 +144,7 @@ static int directive_speak( alexa_service* as, struct alexa_directive_item* item
 
     alexa_speechsynthesizer_set_event( ss, SPEECHSYNTHESIZER_STATE_FINISHED );
     event_string = alexa_speechsynthesizer_event_construct(ss, SPEECHFINISHED_EVENT, cj_token->valuestring);
-    alexa_http2_event_add(as->http2, event_string, strlen(event_string));
+    alexa_event_item_add_event(ss->as->event, event_string);
 
     return 0;
 err:
@@ -155,7 +152,7 @@ err:
 }
 
 
-static int directive_process( alexa_service* as, struct alexa_directive_item* item )
+static int directive_process( struct alexa_speechsynthesizer* ss, struct alexa_directive_item* item )
 {
     cJSON* cj_header = item->header;
     cJSON* cj_name;
@@ -167,7 +164,7 @@ static int directive_process( alexa_service* as, struct alexa_directive_item* it
     
     if( !strcmp( cj_name->valuestring, "Speak" ) )
     {
-        directive_speak( as, item );
+        directive_speak( ss, item );
     }
     
     return 0;
@@ -195,18 +192,21 @@ static void ss_destruct(struct alexa_speechsynthesizer* ss)
     alexa_delete(ss);
 }
 
-int alexa_speechsynthesizer_init(alexa_service* as)
+struct alexa_speechsynthesizer* alexa_speechsynthesizer_init(alexa_service* as)
 {
-    as->ss = ss_construct();
-    alexa_directive_register(NAMESPACE, directive_process );
-    
-    return 0;
+    struct alexa_speechsynthesizer* ss = ss_construct();
+    if (ss)
+    {
+        alexa_directive_register(NAMESPACE, directive_process, (void*)ss);
+        ss->as = as;
+    }
+    return ss;
 }
 
-int alexa_speechsynthesizer_done(alexa_service* as)
+int alexa_speechsynthesizer_done(struct alexa_speechsynthesizer* ss)
 {
-    ss_destruct( as->ss );
-    alexa_directive_unregister(NAMESPACE);    
+    alexa_directive_unregister(NAMESPACE);
+    if (ss) ss_destruct(ss);
     return 0;
 }
 

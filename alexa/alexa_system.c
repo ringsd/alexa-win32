@@ -22,6 +22,7 @@
 #define     NAMESPACE      "System"
 
 struct alexa_system{
+    struct alexa_service* as;
     char     messageId[ALEXA_UUID_LENGTH + 1];
     time_t   last_user_active;
     char     inactiveTimeInSeconds[32];
@@ -67,9 +68,9 @@ static struct system_exception system_exception_list[] = {
     {SYSTEM_EXCEPTION_NA,               "The Alexa Voice Service is unavailable."},
 };
 
-static cJSON* system_event_context_construct( struct alexa_service* as )
+static cJSON* system_event_context_construct(struct alexa_system* system)
 {
-    return alexa_context_get_state(as);
+    return alexa_context_get_state(system->as);
 }
 
 static void system_event_header_construct( struct alexa_system* system, cJSON* cj_header, enum SYSTEM_EVENT_ENUM event )
@@ -121,9 +122,8 @@ static void system_event_payload_construct( struct alexa_system* system, cJSON* 
     return;
 }
 
-const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_ENUM event )
+const char* alexa_system_event_construct(struct alexa_system* system, enum SYSTEM_EVENT_ENUM event)
 {
-    struct alexa_system* system = as->system;
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -135,7 +135,7 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
         case SYNCHRONIZESTATE_EVENT:
         case EXCEPTIONENCOUNTERED_EVENT:
         {
-            cJSON* cj_context = system_event_context_construct( as );
+            cJSON* cj_context = system_event_context_construct(system);
             cJSON_AddItemToObject( cj_root, "context", cj_context );
             break;
         }
@@ -160,24 +160,24 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
     return event_json;
 }
 
-const char* alexa_system_synchronizestate_event(alexa_service* as)
+const char* alexa_system_synchronizestate_event(struct alexa_system* system)
 {
-    return alexa_system_event_construct(as, SYNCHRONIZESTATE_EVENT);
+    return alexa_system_event_construct(system, SYNCHRONIZESTATE_EVENT);
 }
 
-const char* alexa_system_userinactivityreport_event(alexa_service* as)
+const char* alexa_system_userinactivityreport_event(struct alexa_system* system)
 {
-    return alexa_system_event_construct(as, USERINACTIVITYREPORT_EVENT);
+    return alexa_system_event_construct(system, USERINACTIVITYREPORT_EVENT);
 }
 
 //
-static int exception_process( struct alexa_service* as, struct alexa_directive_item* item )
+static int exception_process( struct alexa_system* system, struct alexa_directive_item* item )
 {
     cJSON* cj_payload = item->payload;
     cJSON* cj_code;
     cJSON* cj_description;
     
-    as = as;
+    system = system;
 
     cj_code = cJSON_GetObjectItem(cj_payload, "code");
     if (!cj_code)
@@ -200,15 +200,17 @@ err:
 }
 
 
-static int directive_reset_user_inactivity( struct alexa_service* as, struct alexa_directive_item* item )
+static int directive_reset_user_inactivity( struct alexa_system* system, struct alexa_directive_item* item )
 {
-    as = as;
     item = item;
+
     //reset the inactivity timer 
+    time(&system->last_user_active);
+
     return 0;
 }
 
-static int directive_process(alexa_service* as, struct alexa_directive_item* item)
+static int directive_process(struct alexa_system* system, struct alexa_directive_item* item)
 {
     cJSON* cj_header = item->header;
     cJSON* cj_name;
@@ -221,11 +223,11 @@ static int directive_process(alexa_service* as, struct alexa_directive_item* ite
     
     if (!strcmp(cj_name->valuestring, "ResetUserInactivity"))
     {
-        directive_reset_user_inactivity( as, item );
+        directive_reset_user_inactivity(system, item);
     }
     else if (!strcmp(cj_name->valuestring, "Exception"))
     {
-        exception_process(as, item);
+        exception_process(system, item);
     }
     
     return 0;
@@ -249,18 +251,27 @@ static void system_destruct( struct alexa_system* system )
     alexa_delete( system );
 }
 
-int alexa_system_init(alexa_service* as)
+struct alexa_system* alexa_system_init(struct alexa_service* as)
 {
-    as->system = system_construct();
-    alexa_directive_register(NAMESPACE, directive_process );
-    
-    return 0;
+    struct alexa_system* system = system_construct();
+    if (system != NULL)
+    {
+        system->as = as;
+        alexa_directive_register(NAMESPACE, directive_process, system);
+    }
+    else
+    {
+    }
+    return system;
 }
 
-int alexa_system_done(alexa_service* as)
+int alexa_system_done(struct alexa_system* system)
 {
-    system_destruct(as->system);
-    alexa_directive_unregister(NAMESPACE);    
+    if (system != NULL)
+    {
+        system_destruct(system);
+        alexa_directive_unregister(NAMESPACE);
+    }
 
     return 0;
 }

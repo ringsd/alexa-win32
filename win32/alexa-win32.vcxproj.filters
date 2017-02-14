@@ -90,6 +90,12 @@
     <ClCompile Include="..\alexa\alexa_request_simple_demo.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
+    <ClCompile Include="..\alexa\alexa_record.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\alexa\alexa_event.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\sys_log.h">
@@ -153,6 +159,9 @@
       <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\include\alexa\alexa_system.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_event.h">
       <Filter>Header Files\alexa</Filter>
     </ClInclude>
   </ItemGroup>

@@ -82,9 +82,10 @@ static const char* audioplayer_state[] = {
 };
 
 struct alexa_audioplayer{
+    struct alexa_service* as;
     enum AUDIOPLAYER_STATE_ENUM state;
     char*       token;
-    char*       messageId;
+    char        messageId[ALEXA_UUID_LENGTH + 1];
     int         offsetInMilliseconds;
     const char* playerActivity;
     int         stutterDurationInMilliseconds;
@@ -92,15 +93,19 @@ struct alexa_audioplayer{
     char*       message;
 };
 
-static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_STATE_ENUM state )
+static void audioplayer_set_state(struct alexa_audioplayer* ap, enum AUDIOPLAYER_STATE_ENUM state)
 {
-    struct alexa_audioplayer* ap = as->ap;
     if( state != ap->state )
     {
         sys_log_d( TAG, "audioplayer state: %s -> %s\n", audioplayer_state[ap->state], audioplayer_state[state] );
         ap->state = state;
         ap->playerActivity = audioplayer_state[ap->state];
     }
+}
+
+static void audioplayer_send_event(struct alexa_audioplayer* ap, const char* event_string)
+{
+    alexa_event_item_add_event(alexa_service_get_event(ap->as), event_string);
 }
 
 
@@ -112,10 +117,8 @@ static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_ST
  *@param struct alexa_service* as, the alexa_service object
  *@return AudioPlayer.PlaybackState cJSON object
  */
-cJSON* audioplayer_playback_state(struct alexa_service* as )
+cJSON* audioplayer_playback_state(struct alexa_audioplayer* ap)
 {
-    struct alexa_audioplayer* ap = as->ap;
-
     cJSON* cj_playback_state = cJSON_CreateObject();
     cJSON* cj_header = cJSON_CreateObject();
     cJSON* cj_payload = cJSON_CreateObject();
@@ -139,6 +142,7 @@ static void audioplayer_event_header_construct(struct alexa_audioplayer* ap, cJS
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", audioplayer_event[event_index]);
+    alexa_generate_uuid(ap->messageId, sizeof(ap->messageId));
     cJSON_AddStringToObject(cj_header, "messageId", ap->messageId);
     
     return;
@@ -196,7 +200,7 @@ static void audioplayer_event_payload_construct(struct alexa_audioplayer* ap, cJ
     return;
 }
 
-const char* alexa_audioplayer_event_construct(struct alexa_service* as, enum AUDIOPLAYER_EVENT_ENUM event )
+const char* alexa_audioplayer_event_construct(struct alexa_audioplayer* ap, enum AUDIOPLAYER_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -210,64 +214,62 @@ const char* alexa_audioplayer_event_construct(struct alexa_service* as, enum AUD
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
 
     //
-    audioplayer_event_header_construct( as->ap, cj_header, event );
-    audioplayer_event_payload_construct(as->ap, cj_payload, event);
+    audioplayer_event_header_construct(ap, cj_header, event );
+    audioplayer_event_payload_construct(ap, cj_payload, event);
     
     event_json = cJSON_Print(cj_root);
-    sys_log_d(TAG, "%s\n", event_json);
     
     cJSON_Delete(cj_root);
     
     return event_json;
 }
 
-static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIOPLAYER_STATE_ENUM state )
+static void alexa_audioplayer_state_process(struct alexa_audioplayer* ap, enum AUDIOPLAYER_STATE_ENUM state)
 {
+    const char* event_string = NULL;
     switch( state )
     {
         case AUDIOPLAYER_STATE_IDLE:
         {
             //recive the play directive_play
-
-            audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
-            alexa_audioplayer_event_construct( as, PLAYBACKSTARTED_EVENT );
-
+            audioplayer_set_state( ap, AUDIOPLAYER_STATE_PLAYING );
+            event_string = alexa_audioplayer_event_construct(ap, PLAYBACKSTARTED_EVENT);
             break;
         }
         case AUDIOPLAYER_STATE_PLAYING:
             //playing has some issue
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
-                alexa_audioplayer_event_construct( as, PLAYBACKFAILED_EVENT );
+                audioplayer_set_state( ap, AUDIOPLAYER_STATE_STOPPED );
+                alexa_audioplayer_event_construct( ap, PLAYBACKFAILED_EVENT );
             }
                 
             //directive_stop or directive_clearqueue
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
-                alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_STOPPED);
+                alexa_audioplayer_event_construct(ap, PLAYBACKSTOPPED_EVENT);
             }
             
             // alert or timer 
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_PAUSED );
-                alexa_audioplayer_event_construct( as, PLAYBACKPAUSED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_PAUSED);
+                alexa_audioplayer_event_construct(ap, PLAYBACKPAUSED_EVENT);
             }
         
             //ran out of buffered bytes
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_BUFFER_UNDERRUN );
-                alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERSTARTED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_BUFFER_UNDERRUN);
+                alexa_audioplayer_event_construct(ap, PLAYBACKSTUTTERSTARTED_EVENT);
             }
 
             //play finish
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_FINISHED );
-                alexa_audioplayer_event_construct( as, PLAYBACKFINISHED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_FINISHED);
+                alexa_audioplayer_event_construct(ap, PLAYBACKFINISHED_EVENT);
             }
             
             break;
@@ -275,8 +277,8 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         {
             //recive the play directive_play
 
-            audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
-            alexa_audioplayer_event_construct( as, PLAYBACKSTARTED_EVENT );
+            audioplayer_set_state(ap, AUDIOPLAYER_STATE_PLAYING);
+            alexa_audioplayer_event_construct(ap, PLAYBACKSTARTED_EVENT);
             
             break;
         }
@@ -285,15 +287,15 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
             //play resume
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
-                alexa_audioplayer_event_construct( as, PLAYBACKRESUMED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_PLAYING);
+                alexa_audioplayer_event_construct(ap, PLAYBACKRESUMED_EVENT);
             }
 
             //directive_clearqueue
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
-                alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_STOPPED);
+                alexa_audioplayer_event_construct(ap, PLAYBACKSTOPPED_EVENT);
             }
 
             break;
@@ -303,15 +305,15 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
             //buffering finished playback resumed
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
-                alexa_audioplayer_event_construct( as, PLAYBACKSTUTTERFINISHED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_PLAYING);
+                alexa_audioplayer_event_construct(ap, PLAYBACKSTUTTERFINISHED_EVENT);
             }
             
             //directive_clearqueue
             if(TODO)
             {
-                audioplayer_set_state( as, AUDIOPLAYER_STATE_STOPPED );
-                alexa_audioplayer_event_construct( as, PLAYBACKSTOPPED_EVENT );
+                audioplayer_set_state(ap, AUDIOPLAYER_STATE_STOPPED);
+                alexa_audioplayer_event_construct(ap, PLAYBACKSTOPPED_EVENT);
             }
 
             break;
@@ -320,20 +322,21 @@ static void alexa_audioplayer_state_process(struct alexa_service* as, enum AUDIO
         {
             //recive the play directive_play
 
-            audioplayer_set_state( as, AUDIOPLAYER_STATE_PLAYING );
-            alexa_audioplayer_event_construct( as, PLAYBACKSTARTED_EVENT );
+            audioplayer_set_state(ap, AUDIOPLAYER_STATE_PLAYING);
+            alexa_audioplayer_event_construct(ap, PLAYBACKSTARTED_EVENT);
             
             break;
         }
         default:
             break;
     }
+    if (event_string) audioplayer_send_event(ap, event_string);
 }
 
 
-static int directive_play( struct alexa_service* as, struct alexa_directive_item* item )
+static int directive_play(struct alexa_audioplayer* ap, struct alexa_directive_item* item)
 {
-    struct alexa_audioplayer* ap = as->ap;
+    const char* event_string;
 
     cJSON* cj_payload = item->payload;
     cJSON* cj_playBehavior;
@@ -350,8 +353,6 @@ static int directive_play( struct alexa_service* as, struct alexa_directive_item
 
     cJSON* cj_token;
     cJSON* cj_expectedPreviousToken;
-
-    as = as;
 
     cj_playBehavior = cJSON_GetObjectItem(cj_payload, "playBehavior");
     if( !cj_playBehavior ) goto err;
@@ -384,14 +385,13 @@ static int directive_play( struct alexa_service* as, struct alexa_directive_item
     cj_token = cJSON_GetObjectItem(cj_stream, "token");
     cj_expectedPreviousToken = cJSON_GetObjectItem(cj_stream, "expectedPreviousToken");
     
-    ALEXA_SAFE_FREE(ap->token);
-    ap->token = alexa_strdup(cj_token->valuestring);
-
     if( !strncmp(cj_url->valuestring, URL_CID, strlen(URL_CID) ) )
     {
         //cid
         
         //has some audio data
+        item->data;
+        item->data_len;
     }
     else
     {
@@ -402,15 +402,37 @@ static int directive_play( struct alexa_service* as, struct alexa_directive_item
 
     //build new item
 
+    ALEXA_SAFE_FREE(ap->token);
+    ap->token = alexa_strdup(cj_token->valuestring);
+
     if( !strcmp( cj_playBehavior->valuestring, "REPLACE_ALL" ) )
     {
+        if (!ap->token || !cj_expectedPreviousToken)
+        {
+            //add to the list
+        }
+        else
+        {
+            if (strcmp(ap->token, cj_expectedPreviousToken->valuestring) == 0)
+            {
+                //add to the list
+
+            }
+            else
+            {
+                //drop this item
+            }
+        }
+
         //play the new item 
 
-        //clear queue
-
         //add the new item to the queueu
-        
+
         //send PlaybackStopped Event
+        event_string = alexa_audioplayer_event_construct(ap, PLAYBACKSTOPPED_EVENT);
+        audioplayer_send_event(ap, event_string);
+
+        alexa_audioplayer_state_process(ap, ap->state);
     }
     else if( !strcmp( cj_playBehavior->valuestring, "ENQUEUE" ) )
     {
@@ -430,7 +452,7 @@ err:
     return -1;
 }
 
-static int directive_stop(struct alexa_service* as, struct alexa_directive_item* item)
+static int directive_stop(struct alexa_audioplayer* as, struct alexa_directive_item* item)
 {
     //send PlaybackStopped Event
     
@@ -441,7 +463,7 @@ static int directive_stop(struct alexa_service* as, struct alexa_directive_item*
 }
 
 
-static int directive_clearqueue(struct alexa_service* as, struct alexa_directive_item* item)
+static int directive_clearqueue(struct alexa_audioplayer* as, struct alexa_directive_item* item)
 {
     cJSON* payload = item->payload;
     cJSON* clearBehavior;
@@ -473,13 +495,11 @@ err:
 }
 
 
-static int directive_process( struct alexa_service* as, struct alexa_directive_item* item )
+static int directive_process( struct alexa_audioplayer* ap, struct alexa_directive_item* item )
 {
     cJSON* cj_header = item->header;
     cJSON* cj_name;
     
-    as = as;
-
     cj_name = cJSON_GetObjectItem(cj_header, "name");
     if( !cj_name )
     {
@@ -488,15 +508,15 @@ static int directive_process( struct alexa_service* as, struct alexa_directive_i
     
     if( !strcmp( cj_name->valuestring, "Play" ) )
     {
-        directive_play( as, item );
+        directive_play(ap, item);
     }
     else if( !strcmp( cj_name->valuestring, "Stop" ) )
     {
-        directive_stop( as, item );
+        directive_stop(ap, item);
     }
     else if( !strcmp( cj_name->valuestring, "ClearQueue" ) )
     {
-        directive_clearqueue( as, item );
+        directive_clearqueue(ap, item);
     }
 
     return 0;
@@ -531,11 +551,15 @@ static void audioplayer_destruct(struct alexa_audioplayer* ap)
  *@param struct alexa_service* as, the alexa_service object
  *@return 0 success, otherwise fail
  */
-int alexa_audioplayer_init(struct alexa_service* as)
+struct alexa_audioplayer* alexa_audioplayer_init(struct alexa_service* as)
 {
-    as->ap = audioplayer_construct();
-    alexa_directive_register(NAMESPACE, directive_process );
-    return 0;
+    struct alexa_audioplayer* ap = audioplayer_construct();
+    if (ap != NULL)
+    {
+        alexa_directive_register(NAMESPACE, directive_process, ap);
+        ap->as = as;
+    }
+    return ap;
 }
 
 /*
@@ -543,10 +567,13 @@ int alexa_audioplayer_init(struct alexa_service* as)
  *@param struct alexa_service* as, the alexa_service object
  *@return 0 success, otherwise fail
  */
-int alexa_audioplayer_done(struct alexa_service* as)
+int alexa_audioplayer_done(struct alexa_audioplayer* ap)
 {
-    audioplayer_destruct(as->ap);
-    alexa_directive_unregister(NAMESPACE);
+    if (ap)
+    {
+        audioplayer_destruct(ap);
+        alexa_directive_unregister(NAMESPACE);
+    }
     return 0;
 }
 

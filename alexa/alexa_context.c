@@ -33,26 +33,24 @@ cJSON* alexa_context_get_state( struct alexa_service* as )
     }
     
     //AudioPlayer.PlaybackState
-    cj_state = audioplayer_playback_state( as );
+    cj_state = audioplayer_playback_state( as->ap );
     if(cj_state) cJSON_AddItemToArray( cj_context, cj_state );
     
     //Alerts.AlertsState
-    cj_state = alerts_alerts_state( as );
+    cj_state = alerts_alerts_state( as->alerts );
     if(cj_state) cJSON_AddItemToArray( cj_context, cj_state );
 
     //Speaker.VolumeState
-    cj_state = speaker_volume_state( as );
+    cj_state = speaker_volume_state( as->speaker );
     if(cj_state) cJSON_AddItemToArray( cj_context, cj_state );
 
     //SpeechSynthesizer.SpeechState
-    cj_state = speechsynthesizer_speech_state( as );
+    cj_state = speechsynthesizer_speech_state( as->ss );
     if(cj_state) cJSON_AddItemToArray( cj_context, cj_state );
     
 err:    
     return cj_context;
 }
-
-
 
 
 /*******************************************************************************

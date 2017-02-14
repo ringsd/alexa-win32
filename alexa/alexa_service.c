@@ -31,34 +31,37 @@ struct alexa_service* alexa_service_init(void)
     }
 
     //init the directive center
-    if( alexa_directive_init( as ) < 0 ) goto err1;
-    if( alexa_speechrecognizer_init(as) < 0 ) goto err2;
-    if( alexa_speechsynthesizer_init(as) < 0 ) goto err3;
-    if( alexa_alerts_init(as) < 0 ) goto err4;
-    if (alexa_audioplayer_init(as) < 0) goto err5;
-    if( alexa_pc_init( as ) < 0 ) goto err6;
-    if( alexa_speaker_init( as ) < 0 ) goto err7;
-    if( alexa_system_init( as ) < 0 ) goto err8;
+    as->directive = alexa_directive_init();
+    if (as->directive == NULL) goto err;
+
+    as->event = alexa_event_init();
+    if (as->event == NULL) goto err;
+
+    as->sr = alexa_speechrecognizer_init();
+    if (as->sr == NULL) goto err;
+
+    as->ss = alexa_speechsynthesizer_init(as);
+    if(as->ss == NULL) goto err;
+
+    as->alerts = alexa_alerts_init(as);
+    if (as->alerts == NULL) goto err;
+
+    as->ap = alexa_audioplayer_init(as);
+    if (as->ap == NULL) goto err;
+
+    as->pc = alexa_pc_init(as);
+    if(as->pc == NULL) goto err;
+
+    as->speaker = alexa_speaker_init(as);
+    if (as->speaker == NULL) goto err;
+
+    as->system = alexa_system_init( as );
+    if (as->system == NULL) goto err;
 
     return as;
 
-err8:
-    alexa_speaker_done( as );
-err7:
-    alexa_pc_done( as );
-err6:
-    alexa_audioplayer_done( as );
-err5:
-    alexa_alerts_done( as );
-err4:
-    alexa_speechsynthesizer_done( as );
-err3:
-    alexa_speechrecognizer_done( as );
-err2:
-    alexa_directive_done( as );
-err1:
-    alexa_delete( as );
 err:
+    alexa_service_done(as);
     return NULL;
 }
 
@@ -68,15 +71,28 @@ void alexa_service_process(struct alexa_service* as, struct alexa_http2* http2)
     alexa_speechrecognizer_process(as);
 }
 
+struct alexa_event* alexa_service_get_event(struct alexa_service* as)
+{
+    return as->event;
+}
+
+
+struct alexa_directive* alexa_service_get_direcitve(struct alexa_service* as)
+{
+    return as->directive;
+}
+
 void alexa_service_done( struct alexa_service* as )
 {
-    alexa_speaker_done(as);
-    alexa_pc_done(as);
-    alexa_audioplayer_done(as);
-    alexa_alerts_done(as);
-    alexa_speechsynthesizer_done(as);
-    alexa_speechrecognizer_done(as);
-    alexa_directive_done(as);
+    alexa_system_done(as->system);
+    alexa_speaker_done(as->speaker);
+    alexa_pc_done(as->pc);
+    alexa_audioplayer_done(as->ap);
+    alexa_alerts_done(as->alerts);
+    alexa_speechsynthesizer_done(as->ss);
+    alexa_speechrecognizer_done(as->sr);
+    alexa_directive_done(as->directive);
+    alexa_event_done(as->event);
     alexa_delete(as);
 
     return ;

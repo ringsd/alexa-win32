@@ -37,6 +37,7 @@ typedef struct alexa_service alexa_service;
 #include    "alexa_speaker.h"
 #include    "alexa_system.h"
 #include    "alexa_directive.h"
+#include    "alexa_event.h"
 
 #include    "alexa_auth.h"
 #include    "alexa_http2.h"
@@ -65,6 +66,8 @@ struct alexa_service{
     struct alexa_system* system;
 
     struct alexa_directive* directive;
+
+    struct alexa_event* event;
 };
 
 
@@ -73,6 +76,8 @@ struct alexa_service* alexa_service_init(void);
 void alexa_service_process(struct alexa_service* as, struct alexa_http2* http2);
 
 void alexa_service_done(struct alexa_service* as);
+
+struct alexa_event* alexa_service_get_event(struct alexa_service* as);
 
 #ifdef __cplusplus
 }

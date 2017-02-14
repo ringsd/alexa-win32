@@ -141,7 +141,7 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
         {
             case IDLE:
             {
-                struct alexa_directive_item* directive = NULL;
+                struct alexa_directive_item* directive_item = NULL;
                 //wait user wake up or wait the directive
                 alexa_mutex_lock(sr->mutex);
                 for (;;)
@@ -162,8 +162,8 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         break;
                     }
 
-                    directive = alexa_directive_get(as->directive);
-                    if( directive )
+                    directive_item = alexa_directive_get(as->directive);
+                    if (directive_item)
                     {
                         //get the directive
                         break;
@@ -177,11 +177,11 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 {
                     //has been change state need lock, just break
                 }
-                else if( directive )
+                else if (directive_item)
                 {
-                    alexa_directive_process( as, directive);
-                    alexa_directive_free( directive );
-                    directive = NULL;
+                    alexa_directive_process( as->directive, directive_item);
+                    alexa_directive_free(directive_item);
+                    directive_item = NULL;
                 }
                 sr->wakeup_source = WAKE_UP_BY_NONE;
                 break;
@@ -236,16 +236,17 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
 
                 sr_generate_request_id( sr );
                 event = sr_recognizer_event(as);
-                
-                //event + binary audio stream
-                alexa_http2_event_audio_add(as->http2, event, strlen(event), audio_data, audio_read_len);
-
-                sr_set_state( sr, BUSY );
+                if (event)
+                {
+                    //event + binary audio stream
+                    alexa_event_item_add_event_data(as->event, event, strlen(event), audio_data, audio_read_len);
+                    sr_set_state(sr, BUSY);
+                }
                 break;
             }
             case BUSY:
             {
-                struct alexa_directive_item* directive = NULL;
+                struct alexa_directive_item* directive_item = NULL;
                 int timeout = 0; //timeout flag
                 
                 //in busy state, we ignore the user wake up 
@@ -264,8 +265,8 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                         break;
                     }
 
-                    directive = alexa_directive_get( as->directive );
-                    if( directive )
+                    directive_item = alexa_directive_get(as->directive);
+                    if (directive_item)
                     {
                         //get the directive
                         break;
@@ -279,11 +280,11 @@ void alexa_speechrecognizer_process(struct alexa_service* as)
                 }
                 alexa_mutex_unlock(sr->mutex);                
                 
-                if( directive )
+                if (directive_item)
                 {
-                    alexa_directive_process( as, directive );
-                    alexa_directive_free( directive );
-                    directive = NULL;
+                    alexa_directive_process(as->directive, directive_item);
+                    alexa_directive_free(directive_item);
+                    directive_item = NULL;
                     if( 0 )//msg id is equal )
                     {
                         //msg id is equal
@@ -384,9 +385,9 @@ static const char* sr_expect_speech_timedout_event(alexa_service* as)
     return event_string;
 }
 
-static int directive_stop_capture( alexa_service* as, cJSON* root )
+static int directive_stop_capture(struct alexa_speechrecognizer* sr, cJSON* root)
 {
-    as = as;
+    sr = sr;
     root = root;
 
     //stop capture 
@@ -397,9 +398,9 @@ static int directive_stop_capture( alexa_service* as, cJSON* root )
 }
 
 
-static int directive_expect_speech( alexa_service* as, cJSON* root )
+static int directive_expect_speech(struct alexa_speechrecognizer* sr, cJSON* root)
 {
-    as = as;
+    sr = sr;
     root = root;
     //open the micorphone 
     
@@ -408,7 +409,7 @@ static int directive_expect_speech( alexa_service* as, cJSON* root )
     return 0;
 }
 
-static int directive_process( alexa_service* as, struct alexa_directive_item* item )
+static int directive_process(struct alexa_speechrecognizer* sr, struct alexa_directive_item* item)
 {
     cJSON* root = item->root;
     cJSON* directive;
@@ -429,11 +430,11 @@ static int directive_process( alexa_service* as, struct alexa_directive_item* it
     
     if( !strcmp( name->valuestring, "StopCapture" ) )
     {
-        directive_stop_capture( as, root );
+        directive_stop_capture(sr, root);
     }
     else if( !strcmp( name->valuestring, "ExpectSpeech" ) )
     {
-        directive_expect_speech( as, root );
+        directive_expect_speech(sr, root);
     }
     
     return 0;
@@ -469,22 +470,23 @@ static void sr_destruct(struct alexa_speechrecognizer* sr)
     }
 }
 
-int alexa_speechrecognizer_init(struct alexa_service* as)
+struct alexa_speechrecognizer* alexa_speechrecognizer_init(void)
 {
-    as->sr = sr_construct();
-    if( as->sr == NULL )
+    struct alexa_speechrecognizer* sr = sr_construct();
+    if( sr != NULL )
     {
-        sys_log_e( TAG, "construct speechrecognizer fail.\n" );
-        return -1;
+        alexa_directive_register(NAMESPACE, directive_process, sr);
     }
-    alexa_directive_register(NAMESPACE, directive_process );
-    return 0;
+    return sr;
 }
 
-int alexa_speechrecognizer_done(struct alexa_service* as)
+int alexa_speechrecognizer_done(struct alexa_speechrecognizer* sr)
 {
-    alexa_directive_unregister(NAMESPACE);    
-    sr_destruct( as->sr );
+    if (sr)
+    {
+        alexa_directive_unregister(NAMESPACE);
+        sr_destruct(sr);
+    }
     return 0;
 }
 

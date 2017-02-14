@@ -17,6 +17,7 @@
     <ClCompile Include="..\alexa\alexa_context.c" />
     <ClCompile Include="..\alexa\alexa_device.c" />
     <ClCompile Include="..\alexa\alexa_directive.c" />
+    <ClCompile Include="..\alexa\alexa_event.c" />
     <ClCompile Include="..\alexa\alexa_http2.c" />
     <ClCompile Include="..\alexa\alexa_main.c" />
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\include\alexa\alexa_context.h" />
     <ClInclude Include="..\include\alexa\alexa_device.h" />
     <ClInclude Include="..\include\alexa\alexa_directive.h" />
+    <ClInclude Include="..\include\alexa\alexa_event.h" />
     <ClInclude Include="..\include\alexa\alexa_http2.h" />
     <ClInclude Include="..\include\alexa\alexa_playbackcontroller.h" />
     <ClInclude Include="..\include\alexa\alexa_record.h" />

@@ -20,11 +20,11 @@ extern "C" {
 
 typedef struct alexa_speechsynthesizer alexa_speechsynthesizer;
 
-cJSON* speechsynthesizer_speech_state(alexa_service* as);
+cJSON* speechsynthesizer_speech_state(struct alexa_speechsynthesizer* as);
 
-int alexa_speechsynthesizer_init(alexa_service* as);
+struct alexa_speechsynthesizer* alexa_speechsynthesizer_init(alexa_service* as);
 
-int alexa_speechsynthesizer_done(alexa_service* as);
+int alexa_speechsynthesizer_done(struct alexa_speechsynthesizer* ss);
 
 #ifdef __cplusplus
 }
