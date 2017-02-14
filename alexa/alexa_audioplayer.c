@@ -115,27 +115,22 @@ static void audioplayer_set_state( struct alexa_service* as, enum AUDIOPLAYER_ST
 cJSON* audioplayer_playback_state(struct alexa_service* as )
 {
     struct alexa_audioplayer* ap = as->ap;
-    if (ap->token)
-    {
-        cJSON* cj_playback_state = cJSON_CreateObject();
-        cJSON* cj_header = cJSON_CreateObject();
-        cJSON* cj_payload = cJSON_CreateObject();
-    
-        cJSON_AddItemToObject( cj_playback_state, "header", cj_header );
-        cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
-        cJSON_AddStringToObject( cj_header, "name", audioplayer_event[PLAYBACKSTATE_EVENT]);
-    
-        cJSON_AddItemToObject( cj_playback_state, "payload", cj_payload );
-        cJSON_AddStringToObject( cj_payload, "token", ap->token);
-        cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
-        cJSON_AddStringToObject(cj_payload, "playerActivity", ap->playerActivity);
 
-        return cj_playback_state;
-    }
-    else
-    {
-        return NULL;
-    }
+    cJSON* cj_playback_state = cJSON_CreateObject();
+    cJSON* cj_header = cJSON_CreateObject();
+    cJSON* cj_payload = cJSON_CreateObject();
+
+    cJSON_AddItemToObject( cj_playback_state, "header", cj_header );
+    cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
+    cJSON_AddStringToObject( cj_header, "name", audioplayer_event[PLAYBACKSTATE_EVENT]);
+
+    cJSON_AddItemToObject( cj_playback_state, "payload", cj_payload );
+    if (ap->token) cJSON_AddStringToObject(cj_payload, "token", ap->token);
+    else cJSON_AddStringToObject(cj_payload, "token", "");
+    cJSON_AddNumberToObject(cj_payload, "offsetInMilliseconds", ap->offsetInMilliseconds);
+    cJSON_AddStringToObject(cj_payload, "playerActivity", ap->playerActivity);
+
+    return cj_playback_state;
 }
 
 static void audioplayer_event_header_construct(struct alexa_audioplayer* ap, cJSON* cj_header, enum AUDIOPLAYER_EVENT_ENUM event)

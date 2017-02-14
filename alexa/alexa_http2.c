@@ -147,9 +147,6 @@ struct alexa_event_item{
 
 int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, int event_len, const char* audio_data, int audio_data_len)
 {
-    int content_len = 0;
-    char* content;
-    char* content_pos;
     struct alexa_event_item* item;
     
     item = alexa_new(struct alexa_event_item);
@@ -165,53 +162,6 @@ int alexa_http2_event_audio_add(struct alexa_http2* http2, const char* event, in
     item->audio_data = (char*)audio_data;
     item->audio_data_len = audio_data_len;
 
-#if 0
-    content_len += http2->boundary_len + http2->dummy_len;
-    content_len += http2->event_header_len;
-    content_len += event_len;
-    content_len += http2->dummy_len;
-    if( audio_data )
-    {
-        content_len += http2->boundary_len + http2->dummy_len;
-        content_len += http2->audio_header_len;
-        content_len += audio_data_len;
-    }
-    content_len += http2->boundary_len + http2->dummy_len;
-
-    content = (char*)alexa_malloc( content_len );
-    if( !content )
-    {
-        sys_log_e( TAG, "don't have enough mem\n" );
-        goto err1;
-    }
-    item->content = content;
-    item->content_len = content_len;
-    
-    content_pos = content;
-    
-    //first boundary
-    content_pos += sprintf( content_pos, "--%s\r\n", http2->boundary );
-    
-    //event json header
-    content_pos += sprintf( content_pos, ALEXA_EVENT_JSON_HEADER );
-    //event json
-    content_pos += sprintf( content_pos, event );
-    content_pos += sprintf( content_pos, "\r\n" );
-    
-    if( audio_data )
-    {
-        //boundary
-        content_pos += sprintf( content_pos, "--%s\r\n", http2->boundary );
-        //binary audio header
-        content_pos += sprintf( content_pos, ALEXA_BINARY_AUDIO_HEADER );
-        //binary audio data
-        memcpy( content_pos, audio_data, audio_data_len );
-        content_pos += audio_data_len;
-    }
-    
-    //last boundary
-    content_pos += sprintf( content_pos, "--%s--", http2->boundary );
-#endif
     //add the event to the events list
     list_add(&(item->list), &http2->events_new);
 
@@ -746,8 +696,8 @@ static void* alexa_http2_process(void* data)
     else
     {
         curl_multi_add_handle(multi_handle, ping_hnd);
-        time(&ping_last_time);
     }
+    time(&ping_last_time);
 
 #if 1
     {
