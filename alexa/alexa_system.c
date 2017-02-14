@@ -13,14 +13,18 @@
 
 *******************************************************************************/
 
-#include    "alexa_service.h"
+#include <stdio.h>
+#include "alexa_service.h"
+#include "alexa_platform.h"
+#include "alexa_base.h"
 
 #define     TAG            "system"
 #define     NAMESPACE      "System"
 
 struct alexa_system{
-    char     messageId[48];
-    int      inactiveTimeInSeconds;
+    char     messageId[ALEXA_UUID_LENGTH + 1];
+    time_t   last_user_active;
+    char     inactiveTimeInSeconds[32];
     char*    unparsedDirective;
     char*    type;
     char*    message;
@@ -88,8 +92,13 @@ static void system_event_payload_construct( struct alexa_system* system, cJSON* 
             //don't have payload
             break;
         case USERINACTIVITYREPORT_EVENT:
-            cJSON_AddNumberToObject( cj_payload, "inactiveTimeInSeconds", system->inactiveTimeInSeconds);
+        {
+            time_t current_time;
+            time(&current_time);
+            //sprintf(system->inactiveTimeInSeconds, "%lld", current_time);
+            cJSON_AddNumberToObject(cj_payload, "inactiveTimeInSeconds", difftime(current_time, system->last_user_active));
             break;
+        }
         case EXCEPTIONENCOUNTERED_EVENT:
             {
                 cJSON* cj_error = cJSON_CreateObject();        
@@ -151,9 +160,14 @@ const char* alexa_system_event_construct( alexa_service* as, enum SYSTEM_EVENT_E
     return event_json;
 }
 
-const char* alexa_system_synchronizestate_construct(alexa_service* as)
+const char* alexa_system_synchronizestate_event(alexa_service* as)
 {
     return alexa_system_event_construct(as, SYNCHRONIZESTATE_EVENT);
+}
+
+const char* alexa_system_userinactivityreport_event(alexa_service* as)
+{
+    return alexa_system_event_construct(as, USERINACTIVITYREPORT_EVENT);
 }
 
 //
@@ -225,7 +239,7 @@ static struct alexa_system* system_construct( void )
     struct alexa_system* system = alexa_new( struct alexa_system );
     if( system )
     {
-        
+        time(&system->last_user_active);
     }
     return system;
 }

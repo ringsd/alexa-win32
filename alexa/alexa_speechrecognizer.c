@@ -71,9 +71,9 @@ struct alexa_speechrecognizer{
     char*                        profile;
     char*                        format;
     // bind the device ?? don't have enough info
-    char                        messageId[48];
+    char                        messageId[ALEXA_UUID_LENGTH + 1];
     //every event need generate the new request id
-    char                        dialogRequestId[48];
+    char                        dialogRequestId[ALEXA_UUID_LENGTH + 1];
 };
 
 //wake up the thread by the key or by the directive

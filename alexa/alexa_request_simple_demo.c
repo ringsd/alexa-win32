@@ -40,8 +40,8 @@ int demo_main(int argc, char **argv)
 		return -1;
 	}
 	char Authorization[1024] = "Authorization:Bearer ";
-	//strcat( Authorization, argv[1] );
-	strcat( Authorization, atoken );
+	strcat( Authorization, argv[1] );
+	//strcat( Authorization, atoken );
 	printf( "%s\nstarting ...\n", Authorization );
 
 /*************************************************************************************
@@ -77,15 +77,15 @@ int demo_main(int argc, char **argv)
 	cJSON_AddItemToObject(root, "context", context = cJSON_CreateArray() );
 
 				//===========Context=============//
-				/*
-	cJSON_AddItemToArray(context, nonname = cJSON_CreateObject() );
+#if 1	
+    cJSON_AddItemToArray(context, nonname = cJSON_CreateObject() );
 	cJSON_AddItemToObject(nonname, "header", header = cJSON_CreateObject() );
 	cJSON_AddStringToObject( header, "namespace", "AudioPlayer" );
 	cJSON_AddStringToObject( header, "name", "playbackState" );
 	cJSON_AddItemToObject(nonname, "payload", payload = cJSON_CreateObject() );
-	cJSON_AddStringToObject( payload, "token", "" );//"abcd1234"
-	cJSON_AddNumberToObject( payload, "offsetInMilliseconds", 0 );
-	cJSON_AddStringToObject( payload, "playerActivity", "FINISHED" );
+	cJSON_AddStringToObject( payload, "token", "abcd1234" );//"abcd1234"
+	cJSON_AddStringToObject( payload, "offsetInMilliseconds", "0" );
+	cJSON_AddStringToObject( payload, "playerActivity", "IDLE" );
 				
 
 	cJSON_AddItemToArray(context, nonname = cJSON_CreateObject() );
@@ -94,10 +94,6 @@ int demo_main(int argc, char **argv)
 	cJSON_AddStringToObject( header, "name", "AlertsState" );
 	cJSON_AddItemToObject( nonname, "payload", payload = cJSON_CreateObject() );
 	cJSON_AddItemToObject( payload, "allAlerts", tmpJson = cJSON_CreateArray() );
-	cJSON_AddItemToArray( tmpJson, nonname = cJSON_CreateObject() );
-	cJSON_AddStringToObject( nonname , "token", "" );
-	cJSON_AddStringToObject( nonname, "type", "TIMER" );
-	cJSON_AddStringToObject( nonname, "scheduledTime", "" );//2015-10-30T22:34:51+00:00
 	cJSON_AddItemToObject( payload, "activeAlerts", tmpJson = cJSON_CreateArray() );
 
 
@@ -107,18 +103,18 @@ int demo_main(int argc, char **argv)
 	cJSON_AddStringToObject( header, "namespace", "Speaker" );
 	cJSON_AddStringToObject( header, "name", "VolumeState" );
 	cJSON_AddItemToObject(nonname, "payload", payload = cJSON_CreateObject() );
-	cJSON_AddNumberToObject( payload, "volume",  );
-	cJSON_AddFalseToObject( payload, "muted" );	
+	cJSON_AddStringToObject( payload, "volume", "25" );
+	cJSON_AddStringToObject( payload, "muted", "false" );	
 
 	cJSON_AddItemToArray(context, nonname = cJSON_CreateObject() );
 	cJSON_AddItemToObject(nonname, "header", header = cJSON_CreateObject() );
 	cJSON_AddStringToObject( header, "namespace", "SpeechSynthesizer" );
 	cJSON_AddStringToObject( header, "name", "SpeechState" );
 	cJSON_AddItemToObject(nonname, "payload", payload = cJSON_CreateObject() );
-	cJSON_AddStringToObject( payload, "token", "" );//zxcv8523
-	cJSON_AddNumberToObject( payload, "offsetInMilliseconds", 0 );
-	cJSON_AddStringToObject( payload, "playerActivity", "FINISHED" );
-					*/
+	cJSON_AddStringToObject( payload, "token", "zxcv8523" );//zxcv8523
+    cJSON_AddStringToObject(payload, "offsetInMilliseconds", "0");
+	cJSON_AddStringToObject( payload, "playerActivity", "IDLE" );
+#endif	
 				//========Events===========//
 	cJSON_AddItemToObject(root, "event", event = cJSON_CreateObject());
 	cJSON_AddItemToObject(event, "header", header = cJSON_CreateObject());

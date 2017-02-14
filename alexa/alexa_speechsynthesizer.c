@@ -22,7 +22,7 @@
 #define SPEECHSYNTHESIZER_STATE_FINISHED        "FINISHED"
 
 struct alexa_speechsynthesizer{
-    char                      messageId[48];
+    char                      messageId[ALEXA_UUID_LENGTH + 1];
     char*                     token;
     
     char*                     playerActivity;
@@ -77,7 +77,6 @@ static void ss_event_header_construct( cJSON* cj_header, enum SPEECHSYNTHESIZER_
 //has binary audio attachment
 static const char* ss_event_construct(struct alexa_speechsynthesizer* ss, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* token)
 {
-    char messageId[48];
     const char* event_string;
     cJSON* cj_root = cJSON_CreateObject();
     cJSON* cj_event = cJSON_CreateObject();
@@ -89,8 +88,8 @@ static const char* ss_event_construct(struct alexa_speechsynthesizer* ss, enum S
     cJSON_AddItemToObject( cj_root, "event", cj_event );
     cJSON_AddItemToObject( cj_event, "header", cj_header );
     
-    alexa_generate_uuid(messageId, sizeof(messageId));
-    ss_event_header_construct(cj_header, event, messageId);
+    alexa_generate_uuid(ss->messageId, sizeof(ss->messageId));
+    ss_event_header_construct(cj_header, event, ss->messageId);
 
     cJSON_AddItemToObject( cj_event, "payload", cj_payload );
     cJSON_AddStringToObject( cj_payload, "token", token);

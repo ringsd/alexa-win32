@@ -597,10 +597,10 @@ struct alexa_authmng* alexa_authmng_init(void)
         //char* clientID = "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322";
         //char* codeVerifier = "TkpLH7myIpBE5M4MVjRoRgENnNRaf4VjAxffQ9u1Jt4";
         authmng_auth_set(&authmng->auth, 
-                        "ANsJYGGnTIkLHWtIFawt", 
+                        "ANopIbZofQODkWOjHjAo", 
                         "amzn://com.amazon.alexa.avs.companion", 
                         "amzn1.application-oa2-client.287ac689b0114220b68ff67ffefac322", 
-                        "F3c7aEv0MnirJjiS0N9IPN30PlbxqU_TzIbmVps0LyA");
+                        "ttl55lL_gFEqIEazH59MZCxMAQODOe_YuGXc1vAivCQ");
 
         alexa_device_start_discovery(device);
 
@@ -619,7 +619,7 @@ struct alexa_authmng* alexa_authmng_init(void)
 
         if (0)
         {
-            char *access_token = "Atza|IwEBIHraeYVxwhX_0AKKKwJ-VY6j9iZzZcr4PRjwTaH9uYRSfgyRLK49lQ1450WNMO-B6CjnPCom4-dHPHQ_IAkc76hAXZdkwdLb79xx38zqykmgbstSNizwo63lNUI29DYHHkEV2GiP1B0uqZJS-Ps1_1Htem0G6aXLVbyLHlClKhNIE3ytbRbFzxMQ2XVA9nt_H4rrVC351ya91w8S9YILPU4EhTuOgIRjcoU1fqHcF5TnEHHq9WjV3WtLjNZzXoFmytePNk5x2P866euiHlvKyjRuYzcSxd5madhaQYOw4i1lF-ji40QFdk2UMh40ybqlz1ZrAtjRakq8fz79FWdEICuETzaM2zi0IPdQqCEupCpjtg-mg9UmLWR4Sp0XkwUWQvyH_4T5XpXAJAFGb__tm--Lv_q3iX3HbrosovN7spGQAWhLMuBZxjL7R6OH-ZF_6b34GT-s-nRn_nNuNBxyxolg4RcZNlinb4n6d4TvrsC52pAvPNTJ99zdKI9Bh95Vud9EizeF197UyJYemT7vfvD1sYNSl564AJIhkDaGK-eIlQ";
+            char *access_token = "Atza|IwEBIL-T4GfUsf75jYjpoevBsdimGWWtefSk1x1MGDLpKf65BHkwai8At1qBxK48YLxXkUI3voREBQFUY69iTQKh9tXx1PlhjrOz2jiy3BALKPGzbNAPH7K0s9avx2YGJfOCcTf045N2AMOgcXETrGatOya891czkZRumfeUs1X_1K3PuFwEZdqjjyGcBAxMfrTUtfpNUON7hQnBPTmW0_UajW5z3yO-Bi0rgV-rKXvBbc7qaRRG9rpPqYHZr1zR4nnLDUWeCeshEKZyPbEq_VQ_T613AvE8j2jeqXj5IWoWDS6vWJESOI-NzF8TLUaIn-t-bYA_P9yj-UX2gRbysgQ6CG6k0m1n9Q6VGfJsssVxskZhazQL5eCuowRE216eN5S8nMP89HGFpAHPDSBy9AXCcNRi2QljHyrQMMIPkkRfhPA5WWxbVFxPUIoG2gOK-RDS_U6l9WweGzcqu19ftkekrk_jzPVwOjdxjm9MEdlYRBMsRQ0lIq8Wglrekv0LHwSaJOjRIEE2LcC7-kGiPWToRDn6NDzoPScVJvgHgRYOGA6kJA";
 
             if (authmng->token.access_token)
             {

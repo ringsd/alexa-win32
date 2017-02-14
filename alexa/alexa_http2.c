@@ -393,6 +393,7 @@ static CURL* curl_directives_construct(struct alexa_http2* http2)
     curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &http2->directive_header);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, response_function);
     curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &http2->directive_body);
+    curl_easy_setopt(hnd, CURLOPT_TIMEOUT, 10L);
 
     curl_common_set(hnd);
     
@@ -749,13 +750,24 @@ static void* alexa_http2_process(void* data)
     }
     sr_generate_request_id(http2->as->sr);
     event = sr_recognizer_event(http2->as);
-#else
-    event = alexa_system_synchronizestate_construct(http2->as);
-#endif
-
     //event + binary audio stream
     alexa_http2_event_audio_add(http2, event, strlen(event), audio_data, audio_read_len);
+#else
+    event = alexa_system_synchronizestate_event(http2->as);
+    alexa_http2_event_add(http2, event, strlen(event));
+#endif
+    events_hnd = curl_events_construct(http2);
+    if (events_hnd == NULL)
+    {
+    }
+    else
+    {
+        curl_multi_add_handle(multi_handle, events_hnd);
+        http2->events_count++;
+    }
 
+    event = alexa_system_userinactivityreport_event(http2->as);
+    alexa_http2_event_add(http2, event, strlen(event));
     events_hnd = curl_events_construct(http2);
     if (events_hnd == NULL)
     {

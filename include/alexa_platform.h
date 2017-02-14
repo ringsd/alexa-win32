@@ -18,7 +18,10 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
 #include <windows.h>
+#include <time.h>
+#endif
 
 void* alexa_malloc(int size);
 void* alexa_zmalloc(int size);
@@ -66,6 +69,7 @@ void alexa_cond_destroy(struct alexa_cond* cond);
 
 void alexa_delay(long ms);
 
+#define ALEXA_UUID_LENGTH      36
 void alexa_generate_uuid(char* uuid, int len);
 
 #ifdef __cplusplus

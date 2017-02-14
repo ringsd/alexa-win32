@@ -20,7 +20,7 @@
 #define MIN_VOLUME_VAL    0
 
 struct alexa_speaker{
-    char* messageId;
+    char  messageId[ALEXA_UUID_LENGTH + 1];
     int   volume;
     int   muted;
 };
@@ -64,6 +64,7 @@ static void speaker_event_header_construct( struct alexa_speaker* speaker, cJSON
 
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", speaker_event[event_index]);
+    alexa_generate_uuid(speaker->messageId, sizeof(speaker->messageId));
     cJSON_AddStringToObject( cj_header, "messageId", speaker->messageId);
     
     return;
@@ -157,6 +158,7 @@ static int directive_set_mute( alexa_service* as, struct alexa_directive_item* i
 {
     cJSON* cj_payload = item->payload;
     cJSON* cj_mute;
+    const char* event_string;
     
     cj_mute = cJSON_GetObjectItem(cj_payload, "mute");
     if( !cj_mute )
@@ -173,8 +175,9 @@ static int directive_set_mute( alexa_service* as, struct alexa_directive_item* i
         //
     }
     
-    alexa_speaker_event_construct( as, MUTECHANGED_EVENT );
-    
+    event_string = alexa_speaker_event_construct(as, MUTECHANGED_EVENT);
+    alexa_http2_event_add(as->http2, event_string, strlen(event_string));
+
     return 0;
 err:
     return -1;
