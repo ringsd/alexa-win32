@@ -36,6 +36,7 @@ typedef struct alexa_service alexa_service;
 #include    "alexa_playbackcontroller.h"
 #include    "alexa_speaker.h"
 #include    "alexa_system.h"
+#include    "alexa_setting.h"
 #include    "alexa_directive.h"
 #include    "alexa_event.h"
 

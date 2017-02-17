@@ -96,6 +96,9 @@
     <ClCompile Include="..\alexa\alexa_event.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
+    <ClCompile Include="..\alexa\alexa_settting.c">
+      <Filter>Source Files\alexa</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\sys_log.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files\alexa</Filter>
     </ClInclude>
     <ClInclude Include="..\include\alexa\alexa_event.h">
+      <Filter>Header Files\alexa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\alexa\alexa_setting.h">
       <Filter>Header Files\alexa</Filter>
     </ClInclude>
   </ItemGroup>

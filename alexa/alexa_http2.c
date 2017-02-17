@@ -193,6 +193,7 @@ static size_t curl_response_function(void *buffer, size_t size, size_t nmemb, vo
 #define DEL_HTTPHEAD_ACCEPT  "Accept:"
 
 #define CURL_SSL_CART
+#define CURL_VERBOSE        1L
 
 static void curl_common_set(CURL* hnd)
 {
@@ -200,7 +201,7 @@ static void curl_common_set(CURL* hnd)
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
     /* send it verbose for max debuggaility */
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(hnd, CURLOPT_VERBOSE, CURL_VERBOSE);
     //curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
 
     /* we use a self-signed test server, skip verification during debugging */

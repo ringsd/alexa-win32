@@ -24,6 +24,7 @@
     <ClCompile Include="..\alexa\alexa_record.c" />
     <ClCompile Include="..\alexa\alexa_request_simple_demo.c" />
     <ClCompile Include="..\alexa\alexa_service.c" />
+    <ClCompile Include="..\alexa\alexa_settting.c" />
     <ClCompile Include="..\alexa\alexa_speaker.c" />
     <ClCompile Include="..\alexa\alexa_speechrecognizer.c" />
     <ClCompile Include="..\alexa\alexa_speechsynthesizer.c" />
@@ -47,6 +48,7 @@
     <ClInclude Include="..\include\alexa\alexa_playbackcontroller.h" />
     <ClInclude Include="..\include\alexa\alexa_record.h" />
     <ClInclude Include="..\include\alexa\alexa_service.h" />
+    <ClInclude Include="..\include\alexa\alexa_setting.h" />
     <ClInclude Include="..\include\alexa\alexa_speaker.h" />
     <ClInclude Include="..\include\alexa\alexa_speechrecognizer.h" />
     <ClInclude Include="..\include\alexa\alexa_speechsynthesizer.h" />

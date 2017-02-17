@@ -19,7 +19,7 @@
 
 struct alexa_playbackcontroller{
     struct alexa_service* as;
-    char messageId[ALEXA_UUID_LENGTH];
+    char messageId[ALEXA_UUID_LENGTH + 1];
 };
 
 static const char* playbackcontroller_event[] = {
@@ -40,6 +40,7 @@ static void pc_event_header_construct(struct alexa_playbackcontroller* pc, cJSON
     
     cJSON_AddStringToObject( cj_header, "namespace", NAMESPACE);
     cJSON_AddStringToObject( cj_header, "name", playbackcontroller_event[event_index]);
+    alexa_generate_uuid(pc->messageId, sizeof(pc->messageId));
     cJSON_AddStringToObject( cj_header, "messageId", pc->messageId);
 
     return;
