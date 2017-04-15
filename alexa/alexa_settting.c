@@ -80,7 +80,7 @@ static void setting_event_payload_construct(struct alexa_setting* setting, cJSON
     return;
 }
 
-const char* alexa_setting_event_construct(struct alexa_setting* setting, enum SETTING_EVENT_ENUM event)
+static const char* alexa_setting_event_construct(struct alexa_setting* setting, enum SETTING_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();

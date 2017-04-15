@@ -41,20 +41,15 @@ void alexa_free(void* p);
 
 #define ETIMEDOUT            -1
 
-typedef struct alexa_mutex alexa_mutex;
-typedef struct alexa_cond alexa_cond;
-
-#else
-
-#define alexa_cond      pthread_cond_t
-#define alexa_mutex     pthread_mutex
-
 #endif
 
 #ifdef WIN32
 typedef void (*alexa_thread_proc)(void* p_data);
 #else
 typedef void* (*alexa_thread_proc)(void* p_data);
+
+#define _snprintf   snprintf
+
 #endif
 
 int alexa_begin_thread(alexa_thread_proc proc, void* p_data, void* stack, int prio);
@@ -62,6 +57,9 @@ int alexa_begin_thread(alexa_thread_proc proc, void* p_data, void* stack, int pr
 int alexa_begin_thread2(alexa_thread_proc proc, void* p_data, void* stack, int prio, int size);
 
 int alexa_end_thread(int id);
+
+typedef struct alexa_mutex alexa_mutex;
+typedef struct alexa_cond alexa_cond;
 
 struct alexa_mutex* alexa_mutex_create(void);
 int alexa_mutex_lock(struct alexa_mutex* mutex);
@@ -85,7 +83,6 @@ char* alexa_strdup(const char* str);
 char* alexa_trim(char* str);
 
 char *alexa_strstr(char *s, unsigned int len, char *p);
-
 
 #ifdef __cplusplus
 }

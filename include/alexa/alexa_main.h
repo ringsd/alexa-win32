@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-void alexa_main(void);
+int alexa_main(void);
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,7 @@
 #include "alexa_service.h"
 #include "alexa_auth.h"
 #include "alexa_http2.h"
+#include "alexa_main.h"
 
 int alexa_main(void)
 {

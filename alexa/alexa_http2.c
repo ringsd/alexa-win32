@@ -423,10 +423,12 @@ static int get_header_content(struct alexa_response* header, const char* frontst
     char match_str[32];
     char* substr = strstr(header->data, frontstr);
 
+    str_len = str_len;
+
     if (substr)
     {
         _snprintf(match_str, sizeof(match_str), "%s%%[^%c]", frontstr, endchar);
-        _snscanf(substr, str_len - 1, match_str, str);
+        sscanf(substr, match_str, str);
         alexa_trim(str);
         return 0;
     }
