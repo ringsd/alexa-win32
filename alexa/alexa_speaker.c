@@ -89,7 +89,7 @@ static void speaker_event_payload_construct(struct alexa_speaker* speaker, cJSON
     return;
 }
 
-const char* alexa_speaker_event_construct(struct alexa_speaker* speaker, enum SPEAKER_EVENT_ENUM event)
+static const char* alexa_speaker_event_construct(struct alexa_speaker* speaker, enum SPEAKER_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -247,7 +247,7 @@ struct alexa_speaker* alexa_speaker_init(alexa_service* as)
     struct alexa_speaker* speaker = speaker_construct();
     if (speaker)
     {
-        alexa_directive_register(NAMESPACE, directive_process, (void*)speaker);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, (void*)speaker);
         speaker->as = as;
     }
     return speaker;

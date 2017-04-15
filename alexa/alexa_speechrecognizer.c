@@ -89,7 +89,7 @@ void alexa_speechrecognizer_user_wake_up( struct alexa_service* as )
     alexa_mutex_unlock(sr->mutex);
 }
 
-void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
+static void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = as->sr;
     alexa_mutex_lock(sr->mutex);
@@ -98,7 +98,7 @@ void alexa_speechrecognizer_directive_wake_up( struct alexa_service* as )
     alexa_mutex_unlock(sr->mutex);
 }
 
-void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
+static void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
 {
     struct alexa_speechrecognizer* sr = as->sr;
     alexa_mutex_lock(sr->mutex);
@@ -109,7 +109,7 @@ void alexa_speechrecognizer_exit_wake_up( struct alexa_service* as )
 
 const char* sr_recognizer_event(struct alexa_service* as);
 
-void sr_generate_request_id( struct alexa_speechrecognizer* sr )
+static void sr_generate_request_id( struct alexa_speechrecognizer* sr )
 {
     //generate a uuid
     alexa_generate_uuid( sr->dialogRequestId, sizeof( sr->dialogRequestId ) - 1 );
@@ -475,7 +475,7 @@ struct alexa_speechrecognizer* alexa_speechrecognizer_init(void)
     struct alexa_speechrecognizer* sr = sr_construct();
     if( sr != NULL )
     {
-        alexa_directive_register(NAMESPACE, directive_process, sr);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, sr);
     }
     return sr;
 }

@@ -80,6 +80,8 @@ void alexa_service_done(struct alexa_service* as);
 
 struct alexa_event* alexa_service_get_event(struct alexa_service* as);
 
+void alexa_service_wakeup(void);
+
 #ifdef __cplusplus
 }
 #endif

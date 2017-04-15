@@ -122,7 +122,7 @@ static void system_event_payload_construct( struct alexa_system* system, cJSON* 
     return;
 }
 
-const char* alexa_system_event_construct(struct alexa_system* system, enum SYSTEM_EVENT_ENUM event)
+static const char* alexa_system_event_construct(struct alexa_system* system, enum SYSTEM_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -257,7 +257,7 @@ struct alexa_system* alexa_system_init(struct alexa_service* as)
     if (system != NULL)
     {
         system->as = as;
-        alexa_directive_register(NAMESPACE, directive_process, system);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, system);
     }
     else
     {

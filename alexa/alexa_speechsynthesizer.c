@@ -101,12 +101,12 @@ static const char* ss_event_construct(struct alexa_speechsynthesizer* ss, enum S
     return event_string;
 }
 
-void alexa_speechsynthesizer_set_event(struct alexa_speechsynthesizer* ss, const char* playerActivity)
+static void alexa_speechsynthesizer_set_event(struct alexa_speechsynthesizer* ss, const char* playerActivity)
 {
     ss->playerActivity = (char*)playerActivity;
 }
 
-const char* alexa_speechsynthesizer_event_construct(struct alexa_speechsynthesizer* ss, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* token)
+static const char* alexa_speechsynthesizer_event_construct(struct alexa_speechsynthesizer* ss, enum SPEECHSYNTHESIZER_EVENT_ENUM event, const char* token)
 {
     return ss_event_construct(ss, event, token);
 }
@@ -197,7 +197,7 @@ struct alexa_speechsynthesizer* alexa_speechsynthesizer_init(alexa_service* as)
     struct alexa_speechsynthesizer* ss = ss_construct();
     if (ss)
     {
-        alexa_directive_register(NAMESPACE, directive_process, (void*)ss);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, (void*)ss);
         ss->as = as;
     }
     return ss;

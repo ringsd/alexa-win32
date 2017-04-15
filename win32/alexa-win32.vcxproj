@@ -95,7 +95,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\include;..\include\alexa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;ALEXA_UNIT_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SYS_LOG_PROFIX="alexa";_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;ALEXA_UNIT_TEST;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>

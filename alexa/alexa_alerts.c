@@ -144,7 +144,7 @@ static void alerts_event_payload_construct(struct alexa_alerts* alerts, cJSON* c
     return;
 }
 
-const char* alexa_alerts_event_construct( struct alexa_alerts* alerts, enum ALERTS_EVENT_ENUM event, const char* token )
+static const char* alexa_alerts_event_construct( struct alexa_alerts* alerts, enum ALERTS_EVENT_ENUM event, const char* token )
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -329,7 +329,7 @@ struct alexa_alerts* alexa_alerts_init(struct alexa_service* as)
     //load alert from storage
     if (alerts)
     {
-        alexa_directive_register(NAMESPACE, directive_process, alerts);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, alerts);
         alerts->as = as;
     }
 

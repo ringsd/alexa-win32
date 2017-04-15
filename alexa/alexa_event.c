@@ -11,6 +11,7 @@
 
 *******************************************************************************/
 
+#include <string.h>
 #include "sys_log.h"
 #include "list.h"
 #include "alexa_platform.h"

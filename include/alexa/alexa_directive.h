@@ -30,6 +30,8 @@ struct alexa_directive_item{
     int                 data_len;
 };
 
+typedef int(*directive_process_func)(void* as, struct alexa_directive_item* item);
+
 int alexa_directive_register(const char* name_space, int(*process)(void* as, struct alexa_directive_item* item), void* data);
 int alexa_directive_unregister(const char* name_space);
 int alexa_directive_process(struct alexa_directive* directive, struct alexa_directive_item* item);

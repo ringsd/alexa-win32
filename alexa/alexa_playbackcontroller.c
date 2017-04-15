@@ -54,7 +54,7 @@ static void pc_event_payload_construct(struct alexa_playbackcontroller* pc, cJSO
     return;
 }
 
-const char* alexa_pc_event_construct(struct alexa_playbackcontroller* pc, enum PLAYBACKCONTROLLER_EVENT_ENUM event)
+static const char* alexa_pc_event_construct(struct alexa_playbackcontroller* pc, enum PLAYBACKCONTROLLER_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();

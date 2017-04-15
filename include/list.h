@@ -29,9 +29,6 @@ struct list_head {
 #define LIST_HEAD(name) \
     struct list_head name = LIST_HEAD_INIT(name)
 
-#ifdef _WIN32
-#define inline    __inline
-#endif
 static inline void INIT_LIST_HEAD(struct list_head *list)
 {
     list->next = list;

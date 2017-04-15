@@ -200,7 +200,7 @@ static void audioplayer_event_payload_construct(struct alexa_audioplayer* ap, cJ
     return;
 }
 
-const char* alexa_audioplayer_event_construct(struct alexa_audioplayer* ap, enum AUDIOPLAYER_EVENT_ENUM event)
+static const char* alexa_audioplayer_event_construct(struct alexa_audioplayer* ap, enum AUDIOPLAYER_EVENT_ENUM event)
 {
     char* event_json;
     cJSON* cj_root = cJSON_CreateObject();
@@ -556,7 +556,7 @@ struct alexa_audioplayer* alexa_audioplayer_init(struct alexa_service* as)
     struct alexa_audioplayer* ap = audioplayer_construct();
     if (ap != NULL)
     {
-        alexa_directive_register(NAMESPACE, directive_process, ap);
+        alexa_directive_register(NAMESPACE, (directive_process_func)directive_process, ap);
         ap->as = as;
     }
     return ap;

@@ -21,6 +21,7 @@
 #include "alexa_base.h"
 #include "alexa_platform.h"
 #include "alexa_device.h"
+#include "alexa_auth.h"
 
 #include "sys_log.h"
 
@@ -545,8 +546,10 @@ const char*alexa_authmng_get_access_token(struct alexa_authmng* authmng)
     return authmng->token.access_token;
 }
 
-void alexa_authmng_cancel(void)
+void alexa_authmng_cancel(struct alexa_authmng* authmng)
 {
+    authmng = authmng;
+    return;
 }
 
 static struct alexa_authmng* alexa_authmng_construct(void)

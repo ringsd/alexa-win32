@@ -21,6 +21,11 @@ extern "C" {
 #ifdef _WIN32
 #include <windows.h>
 #include <time.h>
+
+#else
+    
+#include <pthread.h>
+
 #endif
 
 void* alexa_malloc(int size);
@@ -41,13 +46,16 @@ typedef struct alexa_cond alexa_cond;
 
 #else
 
-#definf alexa_cond    pthread_cond_t
-#definf alexa_mutex    pthread_mutex
-
+#define alexa_cond      pthread_cond_t
+#define alexa_mutex     pthread_mutex
 
 #endif
 
+#ifdef WIN32
 typedef void (*alexa_thread_proc)(void* p_data);
+#else
+typedef void* (*alexa_thread_proc)(void* p_data);
+#endif
 
 int alexa_begin_thread(alexa_thread_proc proc, void* p_data, void* stack, int prio);
 
@@ -71,6 +79,13 @@ void alexa_delay(long ms);
 
 #define ALEXA_UUID_LENGTH      36
 void alexa_generate_uuid(char* uuid, int len);
+
+char* alexa_strdup(const char* str);
+
+char* alexa_trim(char* str);
+
+char *alexa_strstr(char *s, unsigned int len, char *p);
+
 
 #ifdef __cplusplus
 }

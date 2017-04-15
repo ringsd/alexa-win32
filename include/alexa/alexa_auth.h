@@ -25,6 +25,7 @@ struct alexa_authmng* alexa_authmng_init(void);
 void alexa_authmng_done(struct alexa_authmng* authmng);
 
 const char*alexa_authmng_get_access_token(struct alexa_authmng* authmng);
+void alexa_authmng_cancel(struct alexa_authmng* authmng);
 
 #ifdef ALEXA_UNIT_TEST
 void alexa_authmng_test(void);

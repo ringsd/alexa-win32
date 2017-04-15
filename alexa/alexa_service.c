@@ -77,7 +77,7 @@ struct alexa_event* alexa_service_get_event(struct alexa_service* as)
 }
 
 
-struct alexa_directive* alexa_service_get_direcitve(struct alexa_service* as)
+static struct alexa_directive* alexa_service_get_direcitve(struct alexa_service* as)
 {
     return as->directive;
 }
