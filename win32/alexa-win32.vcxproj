@@ -21,7 +21,6 @@
     <ClCompile Include="..\alexa\alexa_http2.c" />
     <ClCompile Include="..\alexa\alexa_main.c" />
     <ClCompile Include="..\alexa\alexa_playbackcontroller.c" />
-    <ClCompile Include="..\alexa\alexa_record.c" />
     <ClCompile Include="..\alexa\alexa_request_simple_demo.c" />
     <ClCompile Include="..\alexa\alexa_service.c" />
     <ClCompile Include="..\alexa\alexa_settting.c" />
@@ -33,6 +32,7 @@
     <ClCompile Include="..\common\base64.c" />
     <ClCompile Include="..\common\sys_log.c" />
     <ClCompile Include="alexa_platform.c" />
+    <ClCompile Include="alexa_record.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>

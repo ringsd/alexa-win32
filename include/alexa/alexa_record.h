@@ -18,9 +18,7 @@
 extern "C" {
 #endif
 
-struct alexa_record{
-    
-};
+typedef struct alexa_record alexa_record;
 
 #ifdef __cplusplus
 }

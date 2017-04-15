@@ -28,6 +28,9 @@
     <Filter Include="Header Files\cjson">
       <UniqueIdentifier>{4e645e5b-acb2-4888-bbb8-c2c23989fcf5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\win32">
+      <UniqueIdentifier>{01db7b83-3146-4a28-b4ec-b2b246401050}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\alexa\alexa_alerts.c">
@@ -69,9 +72,6 @@
     <ClCompile Include="..\common\sys_log.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="alexa_platform.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\base64.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
@@ -90,14 +90,17 @@
     <ClCompile Include="..\alexa\alexa_request_simple_demo.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
-    <ClCompile Include="..\alexa\alexa_record.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\alexa\alexa_event.c">
       <Filter>Source Files\alexa</Filter>
     </ClCompile>
     <ClCompile Include="..\alexa\alexa_settting.c">
       <Filter>Source Files\alexa</Filter>
+    </ClCompile>
+    <ClCompile Include="alexa_platform.c">
+      <Filter>Source Files\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="alexa_record.c">
+      <Filter>Source Files\win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
